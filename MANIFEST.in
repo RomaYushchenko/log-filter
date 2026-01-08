@@ -1,0 +1,27 @@
+include README.md
+include LICENSE
+include CHANGELOG.md
+include RELEASE_NOTES.md
+include pyproject.toml
+include requirements.txt
+include requirements-dev.txt
+
+recursive-include src *.py
+recursive-include src py.typed
+recursive-include tests *.py
+recursive-include docs *.md *.rst *.py
+
+exclude .gitignore
+exclude .dockerignore
+exclude Dockerfile
+exclude docker-compose.yml
+exclude kubernetes-deployment.yaml
+
+prune .git
+prune .github
+prune htmlcov
+prune docs/_build
+prune .pytest_cache
+prune .mypy_cache
+prune __pycache__
+prune *.egg-info

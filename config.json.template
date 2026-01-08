@@ -1,0 +1,251 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Log Filter Configuration File",
+  "description": "Complete template with all available options. Save this as: config.json",
+
+  "_comment_search": "============================================================================",
+  "_comment_search_section": "Search Configuration",
+  "_comment_search_end": "============================================================================",
+
+  "search": {
+    "_comment_expression": "Search expression with boolean operators (AND, OR, NOT)",
+    "_comment_examples": "Examples: 'ERROR', 'ERROR AND database', '(ERROR OR CRITICAL) AND NOT test'",
+    "expression": "ERROR",
+
+    "_comment_case_sensitive": "Case-sensitive search (default: false)",
+    "_comment_case_true": "true = 'ERROR' matches only 'ERROR'",
+    "_comment_case_false": "false = 'ERROR' matches 'error', 'Error', 'ERROR', etc.",
+    "case_sensitive": false
+  },
+
+  "_comment_files": "============================================================================",
+  "_comment_files_section": "File Configuration",
+  "_comment_files_end": "============================================================================",
+
+  "files": {
+    "_comment_search_root": "Root directory to search for log files",
+    "search_root": "/var/log",
+
+    "_comment_include": "Include only files matching these patterns (glob patterns). If empty or null, includes all files",
+    "include_patterns": [
+      "*.log",
+      "*.log.gz"
+    ],
+
+    "_comment_exclude": "Exclude files matching these patterns",
+    "exclude_patterns": [
+      "*.old",
+      "*.bak",
+      "debug.log"
+    ],
+
+    "_comment_symlinks": "Follow symbolic links (default: false)",
+    "_comment_symlinks_true": "true = Follow symlinks to other directories/files",
+    "_comment_symlinks_false": "false = Skip symlinks",
+    "follow_symlinks": false,
+
+    "_comment_depth": "Maximum directory traversal depth (default: null = unlimited)",
+    "_comment_depth_examples": "1 = Only search_root directory, 2 = search_root + 1 level of subdirectories, null = No limit",
+    "max_depth": null,
+
+    "_comment_max_file": "Maximum file size in megabytes (default: null = no limit). Skip files larger than this size",
+    "_comment_max_file_example": "Example: 100 = Skip files > 100 MB",
+    "max_file_size": null,
+
+    "_comment_max_record": "Maximum record size in kilobytes (default: null = no limit). Skip log records larger than this size",
+    "_comment_max_record_example": "Example: 512 = Skip records > 512 KB",
+    "max_record_size": null
+  },
+
+  "_comment_datetime": "============================================================================",
+  "_comment_datetime_section": "Date/Time Filtering",
+  "_comment_datetime_note": "Optional: Filter logs by date and time ranges. Uncomment and configure as needed",
+  "_comment_datetime_end": "============================================================================",
+
+  "date": {
+    "_comment_date": "Date range filtering. Formats: YYYY-MM-DD, 'today', 'yesterday'",
+    "_comment_from": "Start date (inclusive)",
+    "from": null,
+    "_comment_to": "End date (inclusive)",
+    "to": null
+  },
+
+  "time": {
+    "_comment_time": "Time range filtering (time of day). Format: HH:MM:SS or HH:MM",
+    "_comment_from": "Start time (inclusive)",
+    "from": null,
+    "_comment_to": "End time (inclusive)",
+    "to": null
+  },
+
+  "_comment_output": "============================================================================",
+  "_comment_output_section": "Output Configuration",
+  "_comment_output_end": "============================================================================",
+
+  "output": {
+    "_comment_file": "Output file path (null = stdout). Use absolute or relative path",
+    "output_file": "errors.txt",
+
+    "_comment_overwrite": "Overwrite existing output file (default: false)",
+    "_comment_overwrite_true": "true = Replace existing file",
+    "_comment_overwrite_false": "false = Error if file exists",
+    "overwrite": false,
+
+    "_comment_no_path": "Include source file path in output (default: false = include paths)",
+    "_comment_no_path_note": "Set to true to exclude file paths from output",
+    "no_path": false,
+
+    "_comment_highlight": "Highlight matches with <<< >>> markers (default: false)",
+    "highlight": false,
+
+    "_comment_stats": "Show statistics after processing (default: false)",
+    "stats": true,
+
+    "_comment_verbose": "Verbose output with detailed logging (default: false)",
+    "verbose": false,
+
+    "_comment_quiet": "Quiet mode - suppress all output except matches (default: false)",
+    "quiet": false,
+
+    "_comment_dry_run": "Dry run - show files that would be processed without executing (default: false)",
+    "dry_run": false,
+
+    "_comment_dry_run_details": "Dry run with details - show detailed file statistics (default: false)",
+    "dry_run_details": false
+  },
+
+  "_comment_processing": "============================================================================",
+  "_comment_processing_section": "Processing Configuration",
+  "_comment_processing_end": "============================================================================",
+
+  "processing": {
+    "_comment_workers": "Maximum worker threads (default: auto-detect = 2 * CPU cores)",
+    "_comment_workers_e,
+
+    "_comment_debug": "Enable debug logging (default: false). Shows detailed processing information for troubleshooting",
+    "debug": falsexamples": "null or 0 = Auto-detect, 1 = Single-threaded, 4-8 = Good for most systems, 16+ = High-performance systems",
+    "max_workers": null,
+
+    "_comment_buffer": "Buffer size for reading files in bytes (default: 8192)",
+    "_comment_buffer_note": "Larger buffers = faster for large files, more memory. Smaller buffers = less memory, slower",
+    "_comment_buffer_examples": "4096 = 4 KB (low memory), 8192 = 8 KB (default), 32768 = 32 KB (high performance), 65536 = 64 KB (SSD/NVMe)",
+    "buffer_size": 8192,
+
+    "_comment_encoding": "File encoding (default: 'utf-8'). Common encodings: utf-8, utf-16, latin-1, ascii",
+    "encoding": "utf-8",
+
+    "_comment_errors": "Error handling for encoding errors (default: 'replace')",
+    "_comment_errors_options": "replace = Replace invalid characters with �, ignore = Skip invalid characters, strict = Raise error on invalid characters",
+    "errors": "replace"
+  },
+
+  "_comment_examples": "============================================================================",
+  "_comment_examples_section": "Example Configurations",
+  "_comment_examples_end": "============================================================================",
+
+  "_example_1": {
+    "_name": "Error Monitoring",
+    "search": {
+      "expression": "ERROR OR CRITICAL"
+    },
+    "files": {
+      "search_root": "/var/log",
+      "include_patterns": ["*.log"]
+    },
+    "output": {
+      "output_file": "errors.txt",
+      "overwrite": true,
+      "stats": true
+    },
+    "processing": {
+      "max_workers": 4
+    }
+  },
+
+  "_example_2": {
+    "_name": "Business Hours Analysis",
+    "search": {
+      "expression": "ERROR"
+    },
+    "files": {
+      "search_root": "/var/log/app"
+    },
+    "time": {
+      "from": "09:00",
+      "to": "17:00"
+    },
+    "output": {
+      "output_file": "business-hours-errors.txt",
+      "stats": true
+    }
+  },
+
+  "_example_3": {
+    "_name": "Database Error Analysis",
+    "search": {
+      "expression": "(ERROR OR CRITICAL) AND (database OR sql OR query)"
+    },
+    "files": {
+      "search_root": "/var/log",
+      "include_patterns": [
+        "db*.log",
+        "database*.log"
+      ]
+    },
+    "output": {
+      "output_file": "db-errors.txt",
+      "stats": true
+    },
+    "processing": {
+      "max_workers": 8
+    }
+  },
+
+  "_example_4": {
+    "_name": "High-Performance Configuration",
+    "search": {
+      "expression": "ERROR"
+    },
+    "files": {
+      "search_root": "/var/log"
+    },
+    "output": {
+      "output_file": "errors.txt",
+      "overwrite": true,
+      "quiet": true
+    },
+    "processing": {
+      "max_workers": 16,
+      "buffer_size": 65536
+    }
+  },
+
+  "_example_5": {
+    "_name": "Today's Errors Only",
+    "search": {
+      "expression": "ERROR OR CRITICAL"
+    },
+    "files": {
+      "search_root": "/var/log"
+    },
+    "date": {
+      "from": "today"
+    },
+    "output": {
+      "output_file": "today-errors.txt",
+      "stats": true
+    }
+  },
+
+  "_comment_usage": "============================================================================",
+  "_comment_usage_section": "Usage",
+  "_comment_usage_end": "============================================================================",
+  "_usage": {
+    "_basic": "Save this file as config.json and run: log-filter --config config.json",
+    "_custom_location": "Or specify custom location: log-filter --config /path/to/my-config.json",
+    "_environment": "You can also use environment variable: export LOG_FILTER_CONFIG=/path/to/config.json",
+    "_override": "Override config values with CLI arguments: log-filter --config config.json -w 16 --verbose",
+    "_priority": "Priority order (highest to lowest): 1. CLI arguments, 2. Environment variables, 3. Configuration file, 4. Default values"
+  }
+}
+

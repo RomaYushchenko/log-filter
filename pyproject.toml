@@ -1,0 +1,212 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "log-filter"
+version = "2.0.0"
+description = "Production-grade log filtering tool with boolean search capabilities"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Roman Yushchenko", email = "yushenkoromaf7@gmail.com"}
+]
+keywords = ["logging", "filtering", "search", "boolean", "multiline"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: System :: Logging",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Filters",
+]
+
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-benchmark>=4.0.0",
+    "hypothesis>=6.82.0",
+    "pytest-asyncio>=0.21.0",
+
+    # Code Quality
+    "black>=23.7.0",
+    "isort>=5.12.0",
+    "flake8>=6.1.0",
+    "pylint>=2.17.0",
+    "mypy>=1.5.0",
+
+    # Documentation
+    "sphinx>=7.1.0",
+    "sphinx-rtd-theme>=1.3.0",
+    "sphinx-autodoc-typehints>=1.24.0",
+
+    # Utilities
+    "pre-commit>=3.3.0",
+    "tqdm>=4.66.0",
+]
+
+async = [
+    "aiofiles>=23.1.0",
+]
+
+all = [
+    "log-filter[dev,async]",
+]
+
+[project.scripts]
+log-filter = "log_filter.main:main"
+
+[project.urls]
+Homepage = "https://github.com/RomaYushchenko/log-filter"
+Documentation = "https://log-filter.readthedocs.io"
+Repository = "https://github.com/RomaYushchenko/log-filter"
+"Bug Tracker" = "https://github.com/RomaYushchenko/log-filter/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["log_filter*"]
+
+[tool.setuptools.package-data]
+log_filter = ["py.typed"]
+
+# Black configuration
+[tool.black]
+line-length = 100
+target-version = ["py38", "py39", "py310", "py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# isort configuration
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+skip_gitignore = true
+
+# mypy configuration
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_any_unimported = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+check_untyped_defs = true
+strict_equality = true
+ignore_missing_imports = false
+
+[[tool.mypy.overrides]]
+module = [
+    "yaml.*",
+]
+ignore_missing_imports = true
+
+# pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--cov=log_filter",
+    "--cov-report=html",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=xml",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "performance: Performance and load tests",
+    "slow: Slow running tests",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src/log_filter"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__pycache__/*",
+    "*/site-packages/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+# Pylint configuration
+[tool.pylint.main]
+jobs = 0
+recursive = true
+py-version = "3.8"
+
+[tool.pylint.messages_control]
+max-line-length = 100
+disable = [
+    "C0103",  # invalid-name
+    "C0114",  # missing-module-docstring (handled by flake8)
+    "C0115",  # missing-class-docstring (handled by flake8)
+    "C0116",  # missing-function-docstring (handled by flake8)
+    "R0903",  # too-few-public-methods
+    "W0212",  # protected-access
+]
+
+[tool.pylint.design]
+max-args = 7
+max-attributes = 10
+max-bool-expr = 5
+max-branches = 15
+max-locals = 20
+max-parents = 7
+max-public-methods = 25
+max-returns = 6
+max-statements = 60
+min-public-methods = 1

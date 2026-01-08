@@ -1,0 +1,450 @@
+"""
+Command-line interface for the log filter application.
+
+This module provides argument parsing and configuration building
+from command-line arguments and configuration files.
+"""
+
+import argparse
+import json
+import sys
+from datetime import date, time
+from pathlib import Path
+from typing import List, Optional
+
+try:
+    import yaml
+    YAML_AVAILABLE = True
+except ImportError:
+    YAML_AVAILABLE = False
+
+from log_filter.config.models import (
+    ApplicationConfig,
+    FileConfig,
+    OutputConfig,
+    ProcessingConfig,
+    SearchConfig,
+)
+from log_filter.core.exceptions import ConfigurationError
+
+
+def create_argument_parser() -> argparse.ArgumentParser:
+    """Create and configure the argument parser.
+    
+    Returns:
+        Configured ArgumentParser instance
+    """
+    parser = argparse.ArgumentParser(
+        prog="log-filter",
+        description="Filter log records by boolean expression",
+        epilog="""
+Examples:
+  log-filter --config searchConfig.json
+  log-filter --expr "ERROR AND Kafka"
+  log-filter --expr "ERROR" --from 2025-01-01 --to 2025-01-10
+  log-filter --expr "ERROR [0-9]{3}" --regex
+  log-filter --expr "ERROR" --path /var/log/myapp --workers 8
+        """,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    
+    # Configuration file
+    parser.add_argument(
+        "--config",
+        type=Path,
+        help="Load parameters from YAML/JSON config file"
+    )
+    
+    # Search expression
+    parser.add_argument(
+        "--expr",
+        help="Boolean search expression (e.g., 'ERROR AND Kafka')"
+    )
+    
+    # File filtering
+    parser.add_argument(
+        "--file-name",
+        help="Substring to filter input files"
+    )
+    parser.add_argument(
+        "--path",
+        type=Path,
+        default=Path("."),
+        help="Root directory for log file search (default: current directory)"
+    )
+    
+    # Search modes
+    parser.add_argument(
+        "--ignore-case",
+        action="store_true",
+        help="Case-insensitive search"
+    )
+    parser.add_argument(
+        "--regex",
+        action="store_true",
+        help="Interpret search terms as regular expressions"
+    )
+    
+    # Date/time filtering
+    parser.add_argument(
+        "--from",
+        dest="date_from",
+        help="Start date (YYYY-MM-DD, inclusive)"
+    )
+    parser.add_argument(
+        "--to",
+        dest="date_to",
+        help="End date (YYYY-MM-DD, inclusive)"
+    )
+    parser.add_argument(
+        "--from-time",
+        dest="from_time",
+        help="Start time (HH:MM:SS, inclusive)"
+    )
+    parser.add_argument(
+        "--to-time",
+        dest="to_time",
+        help="End time (HH:MM:SS, inclusive)"
+    )
+    
+    # Output options
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Output file path (default: filter-result.log or from config file)"
+    )
+    parser.add_argument(
+        "--no-path",
+        action="store_true",
+        help="Do not include source file path in output"
+    )
+    parser.add_argument(
+        "--highlight",
+        action="store_true",
+        help="Highlight matches with <<< >>> markers"
+    )
+    
+    # Display options
+    parser.add_argument(
+        "--progress",
+        action="store_true",
+        help="Show progress messages during processing"
+    )
+    parser.add_argument(
+        "--stats",
+        action="store_true",
+        help="Show final processing statistics"
+    )
+    
+    # Dry-run modes
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show files that would be processed and exit"
+    )
+    parser.add_argument(
+        "--dry-run-details",
+        action="store_true",
+        help="Show detailed file statistics and exit"
+    )
+    
+    # Size limits
+    parser.add_argument(
+        "--max-file-size",
+        type=int,
+        metavar="MB",
+        help="Skip files larger than N megabytes"
+    )
+    parser.add_argument(
+        "--max-record-size",
+        type=int,
+        metavar="KB",
+        help="Skip log records larger than N kilobytes"
+    )
+    
+    # Processing options
+    parser.add_argument(
+        "--workers",
+        type=int,
+        help="Number of parallel worker threads (default: CPU cores)"
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable debug logging"
+    )
+    
+    return parser
+
+
+def load_config_file(config_path: Path) -> dict:
+    """Load configuration from JSON or YAML file.
+    
+    Args:
+        config_path: Path to configuration file
+        
+    Returns:
+        Configuration dictionary
+        
+    Raises:
+        ConfigurationError: If file cannot be loaded or parsed
+    """
+    if not config_path.exists():
+        raise ConfigurationError(f"Configuration file not found: {config_path}")
+    
+    if not config_path.is_file():
+        raise ConfigurationError(f"Configuration path is not a file: {config_path}")
+    
+    try:
+        with open(config_path, "r", encoding="utf-8") as f:
+            content = f.read()
+            
+        # Try JSON first
+        if config_path.suffix.lower() == ".json":
+            return json.loads(content)
+        
+        # Try YAML
+        if config_path.suffix.lower() in (".yaml", ".yml"):
+            if not YAML_AVAILABLE:
+                raise ConfigurationError(
+                    "YAML support not available. Install PyYAML: pip install pyyaml"
+                )
+            return yaml.safe_load(content)
+        
+        # Try to auto-detect
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            if YAML_AVAILABLE:
+                return yaml.safe_load(content)
+            else:
+                raise ConfigurationError(
+                    "Could not parse configuration file. "
+                    "Install PyYAML for YAML support: pip install pyyaml"
+                )
+                
+    except json.JSONDecodeError as e:
+        raise ConfigurationError(f"Invalid JSON in config file: {e}")
+    except Exception as e:
+        if YAML_AVAILABLE and isinstance(e, yaml.YAMLError):
+            raise ConfigurationError(f"Invalid YAML in config file: {e}")
+        raise ConfigurationError(f"Error loading config file: {e}")
+
+
+def parse_date(date_str: Optional[str]) -> Optional[date]:
+    """Parse date string in YYYY-MM-DD format.
+    
+    Args:
+        date_str: Date string or None
+        
+    Returns:
+        Parsed date or None
+        
+    Raises:
+        ConfigurationError: If date format is invalid
+    """
+    if not date_str:
+        return None
+    
+    try:
+        parts = date_str.split("-")
+        if len(parts) != 3:
+            raise ValueError("Expected format: YYYY-MM-DD")
+        
+        year, month, day = int(parts[0]), int(parts[1]), int(parts[2])
+        return date(year, month, day)
+        
+    except (ValueError, TypeError) as e:
+        raise ConfigurationError(f"Invalid date format '{date_str}': {e}")
+
+
+def parse_time(time_str: Optional[str]) -> Optional[time]:
+    """Parse time string in HH:MM:SS format.
+    
+    Args:
+        time_str: Time string or None
+        
+    Returns:
+        Parsed time or None
+        
+    Raises:
+        ConfigurationError: If time format is invalid
+    """
+    if not time_str:
+        return None
+    
+    try:
+        parts = time_str.split(":")
+        if len(parts) != 3:
+            raise ValueError("Expected format: HH:MM:SS")
+        
+        hour, minute, second = int(parts[0]), int(parts[1]), int(parts[2])
+        return time(hour, minute, second)
+        
+    except (ValueError, TypeError) as e:
+        raise ConfigurationError(f"Invalid time format '{time_str}': {e}")
+
+
+def build_config_from_args(args: argparse.Namespace) -> ApplicationConfig:
+    """Build ApplicationConfig from parsed command-line arguments.
+    
+    Args:
+        args: Parsed command-line arguments
+        
+    Returns:
+        Complete application configuration
+        
+    Raises:
+        ConfigurationError: If configuration is invalid
+    """
+    # Load config file if specified
+    config_dict = {}
+    if args.config:
+        config_dict = load_config_file(args.config)
+    
+    # Support both flat and nested config structures
+    search_section = config_dict.get("search", {})
+    files_section = config_dict.get("files", {})
+    output_section = config_dict.get("output", {})
+    processing_section = config_dict.get("processing", {})
+    date_section = config_dict.get("date", {})
+    time_section = config_dict.get("time", {})
+    
+    # Build search config
+    # Try nested structure first, then flat
+    expression = args.expr or search_section.get("expression") or config_dict.get("expr")
+    if not expression:
+        raise ConfigurationError(
+            "Search expression is required. Use --expr or provide in config file."
+        )
+    
+    # For ignore_case: nested uses "case_sensitive" (inverted), flat uses "ignore_case"
+    ignore_case_value = args.ignore_case
+    if not ignore_case_value:
+        if "case_sensitive" in search_section:
+            ignore_case_value = not search_section["case_sensitive"]
+        else:
+            ignore_case_value = config_dict.get("ignore_case", False)
+    
+    search_config = SearchConfig(
+        expression=expression,
+        ignore_case=ignore_case_value,
+        use_regex=args.regex or search_section.get("regex") or config_dict.get("use_regex", False),
+        date_from=parse_date(args.date_from or date_section.get("from") or config_dict.get("date_from")),
+        date_to=parse_date(args.date_to or date_section.get("to") or config_dict.get("date_to")),
+        time_from=parse_time(args.from_time or time_section.get("from") or config_dict.get("from_time")),
+        time_to=parse_time(args.to_time or time_section.get("to") or config_dict.get("to_time"))
+    )
+    
+    # Build file config
+    file_masks: List[str] = []
+    if args.file_name:
+        file_masks = [args.file_name]
+    elif "file_name" in config_dict:
+        fn = config_dict["file_name"]
+        file_masks = fn if isinstance(fn, list) else [fn]
+    
+    # Handle path - nested vs flat
+    search_root = args.path
+    if search_root == Path("."):
+        # User didn't specify --path, check config file
+        if "search_root" in files_section:
+            search_root = Path(files_section["search_root"])
+        elif "path" in config_dict:
+            search_root = Path(config_dict["path"])
+    
+    # Get include/exclude patterns from nested structure
+    include_patterns = files_section.get("include_patterns", [])
+    exclude_patterns = files_section.get("exclude_patterns", [])
+    
+    file_config = FileConfig(
+        search_root=search_root,
+        file_masks=file_masks,
+        include_patterns=include_patterns,
+        exclude_patterns=exclude_patterns,
+        extensions=(".log", ".gz"),
+        max_file_size_mb=args.max_file_size or files_section.get("max_file_size") or config_dict.get("max_file_size"),
+        max_record_size_kb=args.max_record_size or files_section.get("max_record_size") or config_dict.get("max_record_size")
+    )
+    
+    # Build output config
+    output_file = args.output or output_section.get("output_file") or config_dict.get("output", Path("filter-result.log"))
+    if isinstance(output_file, str):
+        output_file = Path(output_file)
+    
+    # Handle quiet flag - it should override verbose
+    is_quiet = output_section.get("quiet", False) or config_dict.get("quiet", False)
+    show_progress_value = False if is_quiet else (
+        args.progress or output_section.get("verbose") or config_dict.get("progress", False)
+    )
+    
+    output_config = OutputConfig(
+        output_file=output_file,
+        include_file_path=not (args.no_path or output_section.get("no_path", False)),
+        highlight_matches=args.highlight or output_section.get("highlight") or config_dict.get("highlight", False),
+        show_progress=show_progress_value,
+        show_stats=args.stats or output_section.get("stats") or config_dict.get("stats", False),
+        dry_run=args.dry_run or config_dict.get("dry_run", False),
+        dry_run_details=args.dry_run_details or config_dict.get("dry_run_details", False)
+    )
+    
+    # Build processing config
+    worker_count = args.workers or processing_section.get("max_workers") or config_dict.get("workers")
+    
+    processing_config = ProcessingConfig(
+        worker_count=worker_count,
+        debug=args.debug or processing_section.get("debug") or config_dict.get("debug", False)
+    )
+    
+    # Build complete application config
+    return ApplicationConfig(
+        search=search_config,
+        files=file_config,
+        output=output_config,
+        processing=processing_config
+    )
+
+
+def parse_args(argv: Optional[List[str]] = None) -> ApplicationConfig:
+    """Parse command-line arguments and build configuration.
+    
+    Args:
+        argv: Command-line arguments (default: sys.argv[1:])
+        
+    Returns:
+        Complete application configuration
+        
+    Raises:
+        ConfigurationError: If arguments are invalid
+        SystemExit: If --help is requested or arguments are invalid
+    """
+    parser = create_argument_parser()
+    args = parser.parse_args(argv)
+    
+    try:
+        return build_config_from_args(args)
+    except ConfigurationError:
+        raise
+    except Exception as e:
+        raise ConfigurationError(f"Error building configuration: {e}")
+
+
+def main() -> None:
+    """CLI entry point for testing."""
+    try:
+        config = parse_args()
+        print("Configuration loaded successfully:")
+        print(f"  Expression: {config.search.expression}")
+        print(f"  Root path: {config.files.search_root}")
+        print(f"  Output: {config.output.output_file}")
+    except ConfigurationError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\nInterrupted", file=sys.stderr)
+        sys.exit(130)
+
+
+if __name__ == "__main__":
+    main()

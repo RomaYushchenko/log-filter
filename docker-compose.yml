@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Basic log-filter service
+  log-filter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: log-filter:latest
+    container_name: log-filter
+    volumes:
+      # Mount host log directory (read-only)
+      - /var/log:/logs:ro
+      # Mount output directory (read-write)
+      - ./output:/output
+    environment:
+      - LOG_FILTER_WORKERS=4
+      - LOG_FILTER_BUFFER_SIZE=8192
+      - LOG_FILTER_ENCODING=utf-8
+    # Example: search for errors and save to output
+    command: ["ERROR", "/logs", "-o", "/output/errors.txt", "--stats"]
+    restart: "no"
+    
+  # Scheduled monitoring service (runs every hour)
+  log-monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: log-filter:latest
+    container_name: log-monitor
+    volumes:
+      - /var/log:/logs:ro
+      - ./output:/output
+      - ./config:/config:ro
+    environment:
+      - LOG_FILTER_WORKERS=8
+      - LOG_FILTER_VERBOSE=true
+    # Use configuration file
+    command: ["--config", "/config/monitor.yaml"]
+    restart: "no"
+    
+  # High-performance batch processing
+  log-batch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: log-filter:latest
+    container_name: log-batch
+    volumes:
+      - /var/log:/logs:ro
+      - ./output:/output
+    environment:
+      - LOG_FILTER_WORKERS=16
+      - LOG_FILTER_BUFFER_SIZE=65536
+    # Process large volume of logs
+    command: ["(ERROR OR CRITICAL) AND database", "/logs", "-o", "/output/db-errors.txt", "--stats"]
+    restart: "no"
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 2G
+        reservations:
+          cpus: '2.0'
+          memory: 1G
+
+  # Real-time log monitoring with continuous output
+  log-watch:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: log-filter:latest
+    container_name: log-watch
+    volumes:
+      - /var/log:/logs:ro
+    environment:
+      - LOG_FILTER_WORKERS=2
+    # Monitor today's errors continuously
+    command: ["ERROR", "/logs", "--after", "today", "--verbose"]
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

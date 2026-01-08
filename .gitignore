@@ -1,0 +1,105 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.benchmarks/
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+*.bak
+
+# Project specific - logs and outputs
+*.log
+filter-result.log
+diagnostic_*.log
+hang_diagnosis.log
+
+# Project specific - local config
+config.json
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+.github/docs/
+
+# Temporary files
+*.tmp
+*~
+
+# Development/Planning artifacts (optional - uncomment to exclude)
+# PHASE_*.md
+# *_PLAN.md
+# *_REVIEW.md
+# INTERIM_*.md
+# TEST_FAILURES_REPORT.md
+# TEST_FIXES_SUMMARY.md
+# TEST_FIX_IMPLEMENTATION_PLAN.md
+# TEST_RESULTS_COMPLETE.md
+# diagnose_*.py
+# test_phase*.py
+# test_multiprocessing.py

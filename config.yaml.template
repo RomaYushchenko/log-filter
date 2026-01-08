@@ -1,0 +1,252 @@
+# Log Filter Configuration File
+# Complete template with all available options
+# Save this as: config.yaml
+
+# ============================================================================
+# Search Configuration
+# ============================================================================
+search:
+  # Search expression with boolean operators (AND, OR, NOT)
+  # Examples:
+  #   - "ERROR"
+  #   - "ERROR AND database"
+  #   - "(ERROR OR CRITICAL) AND NOT test"
+  expression: "ERROR"
+  
+  # Case-sensitive search (default: false)
+  # true  = "ERROR" matches only "ERROR"
+  # false = "ERROR" matches "error", "Error", "ERROR", etc.
+  case_sensitive: false
+
+# ============================================================================
+# File Configuration
+# ============================================================================
+files:
+  # Root directory to search for log files
+  search_root: "/var/log"
+  
+  # Include only files matching these patterns (glob patterns)
+  # If empty or null, includes all files
+  include_patterns:
+    - "*.log"           # All .log files
+    - "*.log.gz"        # Compressed log files
+    # - "app*.log"      # Application logs
+    # - "error*.log"    # Error logs
+  
+  # Exclude files matching these patterns
+  exclude_patterns:
+    - "*.old"           # Old log files
+    - "*.bak"           # Backup files
+    - "debug.log"       # Debug logs
+    # - "*.tmp"         # Temporary files
+  
+  # Follow symbolic links (default: false)
+  # true  = Follow symlinks to other directories/files
+  # false = Skip symlinks
+  follow_symlinks: false
+  
+  # Maximum directory traversal depth (default: null = unlimited)
+  # 1 = Only search_root directory
+  # 2 = search_root + 1 level of subdirectories
+  # null = No limit
+  max_depth: null
+  
+  # Maximum file size in megabytes (default: null = no limit)
+  # Skip files larger than this size
+  # Example: 100 = Skip files > 100 MB
+  max_file_size: null
+  
+  # Maximum record size in kilobytes (default: null = no limit)
+  # Skip log records larger than this size
+  # Example: 512 = Skip records > 512 KB
+  max_record_size: null
+
+# ============================================================================
+# Date/Time Filtering
+# ============================================================================
+# Optional: Filter logs by date and time ranges
+# Uncomment and configure as needed
+
+# Date range filtering
+# date:
+#   # Start date (inclusive)
+#   # Formats: YYYY-MM-DD, "today", "yesterday"
+#   from: "2026-01-01"
+#   
+#   # End date (inclusive)
+#   to: "2026-01-31"
+
+# Time range filtering (time of day)
+# time:
+#   # Start time (inclusive)
+#   # Format: HH:MM:SS or HH:MM
+#   from: "09:00:00"
+#   
+#   # End time (inclusive)
+#   to: "17:00:00"
+
+# ============================================================================
+# Output Configuration
+# ============================================================================
+output:
+  # Output file path (null = stdout)
+  # Use absolute or relative path
+  output_file: "errors.txt"
+  # output_file: null  # Print to console
+  
+  # Overwrite existing output file (default: false)
+  # true  = Replace existing file
+  # false = Error if file exists
+  overwrite: false
+  
+  # Include source file path in output (default: true)
+  # Set no_path: true to exclude file paths
+  no_path: false
+  
+  # Highlight matches with <<< >>> markers (default: false)
+  highlight: false
+  
+  # Show statistics after processing (default: false)
+  stats: true
+  
+  # Verbose output with detailed logging (default: false)
+  verbose: false
+  
+  # Quiet mode - suppress all output except matches (default: false)
+  quiet: false
+  
+  # Dry run - show files that would be processed without executing (default: false)
+  dry_run: false
+  
+  # Dry run with details - show detailed file statistics (default: false)
+  dry_run_details: false
+
+# ============================================================================
+# Processing Configuration
+# ============================================================================
+processing:
+  # Maximum worker threads (default: auto-detect = 2 * CPU cores)
+  # null or 0 = Auto-detect
+  # 1        = Single-threaded
+  # 4-8      = Good for most systems
+  # 16+      = High-performance systems
+  max_workers: null
+  
+  # Buffer size for reading files in bytes (default: 8192)
+  # Larger buffers = faster for large files, more memory
+  # Smaller buffers = less memory, slower
+  # Common values:
+  #   4096   = 4 KB (low memory)
+  #   8192   = 8 KB (default)
+  #   32768  = 32 KB (high performance)
+  #   65536  = 64 KB (SSD/NVMe)
+  buffer_size: 8192
+  
+  # File encoding (default: "utf-8")
+  # Common encodings: utf-8, utf-16, latin-1, ascii
+  encoding: "utf-8"
+  
+  # Error handling for encoding errors (default: "replace")
+  # "replace" = Replace invalid characters with �
+  # "ignore"  = Skip invalid characters
+  # "strict"  = Raise error on invalid characters
+  errors: "replace"
+  
+  # Enable debug logging (default: false)
+  # Shows detailed processing information for troubleshooting
+  debug: false
+
+# ============================================================================
+# Example Configurations
+# ============================================================================
+
+# EXAMPLE 1: Error Monitoring
+# ----------------------------
+# search:
+#   expression: "ERROR OR CRITICAL"
+# files:
+#   search_root: "/var/log"
+#   include_patterns: ["*.log"]
+# output:
+#   output_file: "errors.txt"
+#   overwrite: true
+#   stats: true
+# processing:
+#   max_workers: 4
+
+# EXAMPLE 2: Business Hours Analysis
+# -----------------------------------
+# search:
+#   expression: "ERROR"
+# files:
+#   search_root: "/var/log/app"
+# time:
+#   from: "09:00"
+#   to: "17:00"
+# output:
+#   output_file: "business-hours-errors.txt"
+#   stats: true
+
+# EXAMPLE 3: Database Error Analysis
+# -----------------------------------
+# search:
+#   expression: "(ERROR OR CRITICAL) AND (database OR sql OR query)"
+# files:
+#   search_root: "/var/log"
+#   include_patterns:
+#     - "db*.log"
+#     - "database*.log"
+# output:
+#   output_file: "db-errors.txt"
+#   stats: true
+# processing:
+#   max_workers: 8
+
+# EXAMPLE 4: High-Performance Configuration
+# ------------------------------------------
+# search:
+#   expression: "ERROR"
+# files:
+#   search_root: "/var/log"
+# output:
+#   output_file: "errors.txt"
+#   overwrite: true
+#   quiet: true
+# processing:
+#   max_workers: 16
+#   buffer_size: 65536
+
+# EXAMPLE 5: Today's Errors Only
+# -------------------------------
+# search:
+#   expression: "ERROR OR CRITICAL"
+# files:
+#   search_root: "/var/log"
+# date:
+#   from: "today"
+# output:
+#   output_file: "today-errors.txt"
+#   stats: true
+
+# ============================================================================
+# Usage
+# ============================================================================
+# 
+# Save this file as config.yaml and run:
+#   log-filter --config config.yaml
+# 
+# Or specify custom location:
+#   log-filter --config /path/to/my-config.yaml
+# 
+# You can also use environment variable:
+#   export LOG_FILTER_CONFIG=/path/to/config.yaml
+#   log-filter
+# 
+# Override config values with CLI arguments:
+#   log-filter --config config.yaml -w 16 --verbose
+# 
+# Priority order (highest to lowest):
+#   1. CLI arguments
+#   2. Environment variables
+#   3. Configuration file
+#   4. Default values

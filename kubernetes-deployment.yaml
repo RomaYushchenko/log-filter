@@ -1,0 +1,181 @@
+# Kubernetes deployment for log-filter
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: log-filter
+  labels:
+    app: log-filter
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: log-filter-config
+  namespace: log-filter
+data:
+  config.yaml: |
+    search:
+      expression: "ERROR OR CRITICAL"
+      case_sensitive: false
+    
+    files:
+      search_root: "/logs"
+      include_patterns:
+        - "*.log"
+      max_depth: 3
+    
+    output:
+      output_file: "/output/errors.txt"
+      stats: true
+      verbose: false
+    
+    processing:
+      max_workers: 8
+      buffer_size: 32768
+      encoding: "utf-8"
+      errors: "replace"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: log-filter-output
+  namespace: log-filter
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: log-filter-hourly
+  namespace: log-filter
+spec:
+  # Run every hour
+  schedule: "0 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: log-filter
+            job: hourly
+        spec:
+          containers:
+          - name: log-filter
+            image: log-filter:2.0.0
+            imagePullPolicy: IfNotPresent
+            args:
+              - "--config"
+              - "/config/config.yaml"
+            env:
+              - name: LOG_FILTER_WORKERS
+                value: "8"
+              - name: LOG_FILTER_BUFFER_SIZE
+                value: "32768"
+              - name: PYTHONUNBUFFERED
+                value: "1"
+            volumeMounts:
+              - name: logs
+                mountPath: /logs
+                readOnly: true
+              - name: output
+                mountPath: /output
+              - name: config
+                mountPath: /config
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "500m"
+              limits:
+                memory: "1Gi"
+                cpu: "2000m"
+          volumes:
+            - name: logs
+              hostPath:
+                path: /var/log
+                type: Directory
+            - name: output
+              persistentVolumeClaim:
+                claimName: log-filter-output
+            - name: config
+              configMap:
+                name: log-filter-config
+          restartPolicy: OnFailure
+      backoffLimit: 3
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: log-filter-oneshot
+  namespace: log-filter
+spec:
+  template:
+    metadata:
+      labels:
+        app: log-filter
+        job: oneshot
+    spec:
+      containers:
+      - name: log-filter
+        image: log-filter:2.0.0
+        imagePullPolicy: IfNotPresent
+        args:
+          - "ERROR AND database"
+          - "/logs"
+          - "-o"
+          - "/output/db-errors.txt"
+          - "--stats"
+        env:
+          - name: LOG_FILTER_WORKERS
+            value: "8"
+          - name: PYTHONUNBUFFERED
+            value: "1"
+        volumeMounts:
+          - name: logs
+            mountPath: /logs
+            readOnly: true
+          - name: output
+            mountPath: /output
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "2000m"
+      volumes:
+        - name: logs
+          hostPath:
+            path: /var/log
+            type: Directory
+        - name: output
+          persistentVolumeClaim:
+            claimName: log-filter-output
+      restartPolicy: Never
+  backoffLimit: 3
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: log-filter-metrics
+  namespace: log-filter
+  labels:
+    app: log-filter
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: metrics
+  selector:
+    app: log-filter
