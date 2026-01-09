@@ -100,25 +100,25 @@ log-filter --expr "authentication AND (failed OR denied)" \
 
 | Use Case | Example | Link |
 |----------|---------|------|
-| Error rate monitoring | Track ERROR/CRITICAL over time | [monitoring.md#error-rate](monitoring.md#error-rate-monitoring) |
-| Performance tracking | Find slow queries and timeouts | [monitoring.md#performance](monitoring.md#performance-tracking) |
-| Health checks | Verify service availability | [monitoring.md#health-checks](monitoring.md#health-checks) |
+| Error rate monitoring | Track ERROR/CRITICAL over time | [monitoring.md#error-rate](monitoring.md#example-1-web-application-error-tracking) |
+| Performance tracking | Find slow queries and timeouts | [monitoring.md#performance](monitoring.md#example-3-api-performance-monitoring) |
+| Health checks | Verify service availability | [monitoring.md#health-checks](monitoring.md#example-1-web-application-error-tracking) |
 
 ### Development & Testing
 
 | Use Case | Example | Link |
 |----------|---------|------|
-| Test failure analysis | Find test failures and stack traces | [devops.md#test-analysis](devops.md#test-failure-analysis) |
-| Debug log extraction | Extract debug info for issues | [devops.md#debugging](devops.md#debugging) |
-| Performance regression | Compare before/after metrics | [devops.md#regression](devops.md#performance-regression) |
+| Test failure analysis | Find test failures and stack traces | [devops.md#test-analysis](devops.md#example-2-incident-investigation) |
+| Debug log extraction | Extract debug info for issues | [devops.md#debugging](devops.md#example-2-incident-investigation) |
+| Performance regression | Compare before/after metrics | [devops.md#regression](devops.md#example-3-performance-regression-detection) |
 
 ### Security & Compliance
 
 | Use Case | Example | Link |
 |----------|---------|------|
-| Failed logins | Track authentication failures | [security.md#auth-failures](security.md#authentication-failures) |
-| Suspicious activity | Detect unusual patterns | [security.md#anomalies](security.md#anomaly-detection) |
-| Compliance reporting | Generate audit reports | [security.md#compliance](security.md#compliance-reporting) |
+| Failed logins | Track authentication failures | [security.md#auth-failures](security.md#example-1-failed-login-detection) |
+| Suspicious activity | Detect unusual patterns | [security.md#anomalies](security.md#example-3-suspicious-access-patterns) |
+| Compliance reporting | Generate audit reports | [security.md#compliance](security.md#example-4-compliance-auditing) |
 
 ---
 
