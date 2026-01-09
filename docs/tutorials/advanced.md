@@ -944,7 +944,7 @@ Congratulations! You've mastered advanced log filtering. 🎉
 1. **[Docker Tutorial](docker.md)** - Deep dive into containerization
 2. **[Kubernetes Tutorial](kubernetes.md)** - Production K8s deployment
 3. **[Integration Guide](../integration_guide.md)** - CI/CD and monitoring
-4. **[Examples](../examples/)** - Real-world use cases
+4. **[Examples](../examples/README.md)** - Real-world use cases
 
 ---
 

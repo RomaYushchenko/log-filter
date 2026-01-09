@@ -1269,7 +1269,7 @@ Orchestrator → Multiple Workers → Aggregation
 ## Related Documentation
 
 - **[Performance Tuning Guide](performance.md)** - Optimization strategies
-- **[API Reference](api/)** - Complete API documentation
+- **[API Reference](api/index.rst)** - Complete API documentation
 - **[Advanced Usage](advanced_usage.md)** - Production patterns
 - **[Integration Guide](integration_guide.md)** - System integration
 - **[Deployment Guide](deployment.md)** - Deployment patterns

@@ -33,7 +33,7 @@ Detect security issues and anomalies:
 - API abuse monitoring
 - Compliance auditing
 
-### 4. [Code Examples](code/)
+### 4. [Code Examples](devops.md)
 Working Python code for custom integrations:
 - Custom filter implementations
 - Pipeline integration
@@ -326,9 +326,9 @@ log-filter --expr "ERROR" --input sample.log --case-sensitive  # Case-sensitive
 ## Getting Help
 
 - **Detailed Guides:** See [monitoring.md](monitoring.md), [devops.md](devops.md), [security.md](security.md)
-- **Code Examples:** Browse [code/](code/) directory
+- **Code Examples:** Browse [DevOps examples](devops.md) for CI/CD and automation recipes
 - **API Reference:** [../api/index.rst](../api/index.rst)
-- **Tutorials:** [../tutorials/](../tutorials/)
+- **Tutorials:** [../tutorials/beginner.md](../tutorials/beginner.md)
 
 ---
 

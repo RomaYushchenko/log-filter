@@ -863,7 +863,7 @@ You've mastered Kubernetes deployment! 🎉
 
 1. **[Integration Guide](../integration_guide.md)** - CI/CD and GitOps
 2. **[Advanced Tutorial](advanced.md)** - Production patterns
-3. **[Examples](../examples/)** - Real-world deployments
+3. **[Examples](../examples/README.md)** - Real-world deployments
 4. **[Performance Guide](../performance.md)** - Optimization strategies
 
 ---

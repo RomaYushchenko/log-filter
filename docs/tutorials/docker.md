@@ -595,7 +595,7 @@ You've mastered Docker deployment! 🎉
 1. **[Kubernetes Tutorial](kubernetes.md)** - Scale to production
 2. **[Integration Guide](../integration_guide.md)** - CI/CD pipelines
 3. **[Advanced Tutorial](advanced.md)** - Production patterns
-4. **[Examples](../examples/)** - Real-world use cases
+4. **[Examples](../examples/README.md)** - Real-world use cases
 
 ---
 

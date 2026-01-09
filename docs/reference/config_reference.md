@@ -1062,11 +1062,11 @@ processing:
 
 - **[CLI Reference](cli_reference.md)** - Command-line options
 - **[Quickstart Guide](../quickstart.md)** - Getting started
-- **[Examples](../examples/)** - Real-world configurations
+- **[Examples](../examples/README.md)** - Real-world configurations
 - **[Performance Guide](../performance.md)** - Optimization tips
 
 ---
 
 **Version:** 2.0  
 **Last Updated:** January 8, 2026  
-**Schema:** [config-schema.json](config-schema.json)
+**Schema:** See the "Configuration Schema Reference" section in this guide.

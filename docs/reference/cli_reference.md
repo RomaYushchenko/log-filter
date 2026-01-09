@@ -614,11 +614,11 @@ log-filter "failed login OR authentication failed" /var/log \
 
 - **[Quickstart Guide](../quickstart.md)** - Getting started tutorial
 - **[Configuration Reference](config_reference.md)** - Complete configuration options
-- **[Examples](../examples/)** - Real-world usage examples
-- **[API Documentation](../api/)** - Python API reference
+- **[Examples](../examples/README.md)** - Real-world usage examples
+- **[API Documentation](../api/index.rst)** - Python API reference
 
 ---
 
 **Version:** 2.0  
 **Last Updated:** January 8, 2026  
-**Print-Friendly:** [PDF Version](cli_reference.pdf)
+**Print-Friendly:** Use your browser's print dialog to export a PDF.
