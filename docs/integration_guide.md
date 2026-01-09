@@ -825,7 +825,7 @@ end
 
 Configuration:
 
-```xml
+```text
 <filter app.**>
   @type log_filter
   expression "ERROR OR WARNING"

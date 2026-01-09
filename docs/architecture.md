@@ -239,7 +239,7 @@ class Evaluator:
 - Returns boolean result
 
 **`exceptions.py`** - Exception Hierarchy
-```python
+```text
 LogFilterException
 ├── ParseException        # Expression parsing errors
 ├── EvaluationException   # Runtime evaluation errors
@@ -1083,7 +1083,7 @@ class ProcessingStatistics:
 
 ### Exception Hierarchy
 
-```python
+```text
 LogFilterException
 ├── ParseException
 │   ├── TokenizationError
