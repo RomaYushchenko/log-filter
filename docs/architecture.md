@@ -48,7 +48,7 @@ Log Filter is a high-performance log filtering system built on **Clean Architect
 
 ### Clean Architecture Layers
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                     CLI Interface Layer                         │
 │              (User Input/Output, Formatting)                    │
@@ -95,7 +95,7 @@ Log Filter is a high-performance log filtering system built on **Clean Architect
 
 **Rule:** Dependencies point inward. Outer layers depend on inner layers, never the reverse.
 
-```
+```text
 CLI ──→ Application ──→ Domain ←── Infrastructure
                           ↑
                     (Abstractions)
@@ -112,7 +112,7 @@ CLI ──→ Application ──→ Domain ←── Infrastructure
 
 ### High-Level Component Diagram
 
-```
+```text
 ┌────────────────────────────────────────────────────────────────┐
 │                           CLI Entry                            │
 │                    (Argument Processing)                        │
@@ -780,7 +780,7 @@ class FileProcessor:
 
 ### Thread Pool Architecture
 
-```
+```text
 ┌─────────────────────────────────────────────────────┐
 │                  Main Thread                        │
 │  ┌──────────────┐  ┌────────────────┐              │
@@ -957,7 +957,7 @@ def optimal_worker_count(workload_type: str) -> int:
 
 ### Complete Processing Flow Diagram
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │ 1. INPUT PHASE                                                  │
 │                                                                 │
@@ -1268,11 +1268,11 @@ Orchestrator → Multiple Workers → Aggregation
 
 ## Related Documentation
 
-- **[Performance Tuning Guide](performance.md)** - Optimization strategies
-- **[API Reference](api/index.rst)** - Complete API documentation
-- **[Advanced Usage](advanced_usage.md)** - Production patterns
-- **[Integration Guide](integration_guide.md)** - System integration
-- **[Deployment Guide](deployment.md)** - Deployment patterns
+- **[Performance Tuning Guide](performance)** - Optimization strategies
+- **[API Reference](api/index)** - Complete API documentation
+- **[Advanced Usage](advanced_usage)** - Production patterns
+- **[Integration Guide](integration_guide)** - System integration
+- **[Deployment Guide](deployment)** - Deployment patterns
 
 ---
 
