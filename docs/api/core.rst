@@ -14,6 +14,7 @@ Tokenizer
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 The tokenizer converts boolean expressions into a sequence of tokens.
 
@@ -46,6 +47,7 @@ Parser
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 The parser converts tokens into an Abstract Syntax Tree (AST).
 
@@ -69,6 +71,7 @@ Evaluator
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 The evaluator traverses the AST and evaluates expressions against text.
 
@@ -98,6 +101,7 @@ Exceptions
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Custom exceptions for error handling.
 

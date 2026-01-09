@@ -138,14 +138,6 @@ examples/security
 :caption: API Reference
 
 api/index
-api/core
-api/domain
-api/config
-api/infrastructure
-api/processing
-api/statistics
-api/utils
-api/cli
 ```
 
 ```{toctree}

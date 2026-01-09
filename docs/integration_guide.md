@@ -613,7 +613,7 @@ if __name__ == "__main__":
 
 Create a Grafana dashboard with these queries:
 
-```promql
+```text
 # Files processed rate
 rate(log_filter_files_processed_total[5m])
 

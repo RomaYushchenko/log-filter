@@ -341,28 +341,28 @@ crontab -e
 
 **Hourly error monitoring:**
 
-```cron
+```text
 # Run every hour at minute 0
 0 * * * * /usr/local/bin/log-filter "ERROR" /var/log -o /var/log-filter/errors-$(date +\%Y\%m\%d-\%H).txt --stats >> /var/log/log-filter.log 2>&1
 ```
 
 **Daily full scan:**
 
-```cron
+```text
 # Run daily at 2 AM
 0 2 * * * /usr/local/bin/log-filter "(ERROR OR CRITICAL)" /var/log -o /var/log-filter/daily-$(date +\%Y\%m\%d).txt --stats >> /var/log/log-filter.log 2>&1
 ```
 
 **Business hours monitoring:**
 
-```cron
+```text
 # Run every 15 minutes during business hours (9 AM - 5 PM, Mon-Fri)
 */15 9-17 * * 1-5 /usr/local/bin/log-filter "ERROR" /var/log/app -o /var/log-filter/errors.txt --overwrite --stats
 ```
 
 **With configuration file:**
 
-```cron
+```text
 0 * * * * /usr/local/bin/log-filter --config /etc/log-filter/config.yaml >> /var/log/log-filter.log 2>&1
 ```
 

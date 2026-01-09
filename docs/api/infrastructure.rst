@@ -14,6 +14,7 @@ File Scanner
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Discovers files matching specified patterns.
 
@@ -54,6 +55,7 @@ Abstract Base Handler
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Base class for all file handlers.
 
@@ -78,6 +80,7 @@ Log File Handler
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Handles plain text log files (``.log``, ``.txt``).
 
@@ -108,6 +111,7 @@ Gzip File Handler
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Handles gzip-compressed log files (``.gz``).
 
@@ -137,6 +141,7 @@ File Handler Factory
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Factory for creating appropriate file handlers.
 
@@ -168,6 +173,7 @@ File Writer
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 Handles output file writing with thread-safe operations.
 
