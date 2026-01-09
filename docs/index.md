@@ -80,16 +80,10 @@ log-filter "ERROR" /var/log -o errors.txt --stats
 - **[Statistics](api/statistics.rst)** - Metrics and reporting
 - **[Utils](api/utils.rst)** - Logging, progress, highlighting
 - **[CLI](api/cli.rst)** - Command-line interface
-200,000+ lines/second (8-core CPU, optimized)
-- **Single Worker**: ~25,000 lines/second
-- **Scalability**: Linear scaling up to CPU core count
-- **Memory**: ~50-100 MB base + ~10 MB per worker
-- **CPU Efficiency**: ~90% utilization on multi-core systems
-- **Large Files**: Handles 100+ GB datasets with streaming
-- **Test Coverage**: 89.73% (706 tests passing
-- **Scalability**: Linear scaling with CPU cores
-- **Memory**: Efficient streaming (handles GB+ files)
-- **CoveraGetting Started
+
+```{toctree}
+:maxdepth: 2
+:caption: Getting Started
 
 installation
 quickstart
@@ -158,21 +152,7 @@ api/cli
 :maxdepth: 2
 :caption: Developer Guide
 
-```{toctree}
-:maxdepth: 2
-:caption: Developer Guide
-
-architecture
-api
 contributing
-```
-
-```{toctree}
-:maxdepth: 1
-:caption: Additional Information
-
-changelog
-license
 ```
 
 ## Indices and tables

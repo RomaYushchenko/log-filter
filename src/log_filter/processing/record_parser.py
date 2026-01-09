@@ -17,23 +17,23 @@ from log_filter.domain.models import LogRecord
 
 class StreamingRecordParser:
     """Memory-bounded parser for multiline log records.
-    
+
     Parses log records from a stream of lines. A record begins with a line
-    matching the timestamp pattern:
-        YYYY-MM-DD HH:MM:SS.mmm±ZZZZ <LEVEL>
-    
+    matching the timestamp pattern ``YYYY-MM-DD HH:MM:SS.mmm±ZZZZ <LEVEL>``.
+
     The parser yields complete records without accumulating them in memory,
     making it suitable for processing very large log files.
-    
+
     Attributes:
-        record_start_pattern: Regex pattern for record start line
-        max_record_size_bytes: Maximum allowed record size (None = unlimited)
-        
-    Example:
-        >>> parser = StreamingRecordParser(max_record_size_bytes=1024 * 100)
-        >>> for record in parser.parse_lines(lines):
-        ...     if record.level == "ERROR":
-        ...         print(record.content)
+        record_start_pattern: Regex pattern for record start line.
+        max_record_size_bytes: Maximum allowed record size (None = unlimited).
+
+    Example::
+
+        parser = StreamingRecordParser(max_record_size_bytes=1024 * 100)
+        for record in parser.parse_lines(lines):
+            if record.level == "ERROR":
+                print(record.content)
     """
     
     # Pattern for log record start line
