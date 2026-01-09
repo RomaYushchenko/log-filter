@@ -14,7 +14,6 @@ Record Parser
    :members:
    :undoc-members:
    :show-inheritance:
-   :no-index:
 
 Parses multi-line log records from raw text lines.
 
@@ -75,7 +74,6 @@ Worker
    :members:
    :undoc-members:
    :show-inheritance:
-   :no-index:
 
 Worker thread that processes individual files.
 
@@ -116,7 +114,6 @@ Pipeline
    :members:
    :undoc-members:
    :show-inheritance:
-   :no-index:
 
 Orchestrates the complete processing pipeline with multi-threading.
 

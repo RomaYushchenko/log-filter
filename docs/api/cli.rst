@@ -14,7 +14,6 @@ Overview
    :members:
    :undoc-members:
    :show-inheritance:
-   :no-index:
 
 Basic Usage
 -----------
