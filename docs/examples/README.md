@@ -7,6 +7,15 @@ This directory contains real-world examples of using Log Filter for common use c
 
 ---
 
+```{toctree}
+:maxdepth: 1
+:caption: Example Guides
+
+monitoring
+devops
+security
+```
+
 ## 📂 Example Categories
 
 ### 1. [Application Monitoring](monitoring.md)

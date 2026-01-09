@@ -128,9 +128,6 @@ architecture
 :caption: Examples
 
 examples/README
-examples/monitoring
-examples/devops
-examples/security
 ```
 
 ```{toctree}
