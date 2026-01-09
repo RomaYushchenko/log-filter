@@ -184,7 +184,7 @@ class CompositeFilter(RecordFilter):
         """Initialize composite filter.
         
         Args:
-            *filters: Variable number of filters to combine
+            ``*filters``: Variable number of filters to combine
         """
         self.filters = list(filters)
     
