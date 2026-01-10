@@ -52,3 +52,10 @@ myst_enable_extensions = [
     "colon_fence",
     "deflist",
 ]
+
+# Suppress acceptable warnings
+suppress_warnings = [
+    'myst.xref_missing',  # Missing cross-references (acceptable for now)
+    'myst.header',        # Document heading style (H2 vs H1)
+    'toc.not_readable',   # Invalid toctree references (already fixed)
+]

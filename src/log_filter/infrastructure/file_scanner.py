@@ -60,9 +60,9 @@ class FileScanner:
             root_path: Root directory to scan for files
             file_masks: List of filename substrings to match.
                        If None or empty, all files are considered.
-            include_patterns: Glob patterns for files to include (e.g., ["*.log", "app-*.txt"]).
+            include_patterns: Glob patterns for files to include (e.g., ["\\*.log", "app-\\*.txt"]).
                             If None or empty, all files are considered.
-            exclude_patterns: Glob patterns for files to exclude (e.g., ["*.old", "debug.log"]).
+            exclude_patterns: Glob patterns for files to exclude (e.g., ["\\*.old", "debug.log"]).
             allowed_extensions: Set of allowed file extensions (e.g., {".log", ".gz"}).
                               If None, uses DEFAULT_EXTENSIONS.
             max_file_size_mb: Maximum file size in MB. Files larger than this

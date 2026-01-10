@@ -14,6 +14,7 @@ Overview
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 Configuration Models
 --------------------
@@ -33,7 +34,7 @@ Configuration for search behavior.
         include_patterns=("*.log", "*.txt"),
         exclude_patterns=("*.old",)
     )
-    
+
     print(f"Expression: {config.expression}")
     print(f"Case sensitive: {config.case_sensitive}")
 
@@ -64,7 +65,7 @@ Configuration for file discovery and handling.
         follow_symlinks=False,
         max_depth=5
     )
-    
+
     print(f"Search in: {config.search_root}")
     print(f"Max depth: {config.max_depth}")
 
@@ -92,7 +93,7 @@ Configuration for output generation.
         show_stats=True,
         verbose=False
     )
-    
+
     print(f"Output to: {config.output_file}")
     print(f"Show stats: {config.show_stats}")
 
@@ -119,7 +120,7 @@ Configuration for processing behavior.
         encoding="utf-8",
         errors="replace"
     )
-    
+
     print(f"Workers: {config.max_workers}")
     print(f"Buffer: {config.buffer_size} bytes")
 
@@ -138,9 +139,9 @@ Top-level application configuration combining all sub-configs.
 .. code-block:: python
 
     from log_filter.config.models import (
-        ApplicationConfig, 
+        ApplicationConfig,
         SearchConfig,
-        FileConfig, 
+        FileConfig,
         OutputConfig,
         ProcessingConfig
     )
@@ -152,7 +153,7 @@ Top-level application configuration combining all sub-configs.
         output=OutputConfig(show_stats=True),
         processing=ProcessingConfig(max_workers=4)
     )
-    
+
     # Access nested configuration
     print(f"Expression: {config.search.expression}")
     print(f"Workers: {config.processing.max_workers}")
@@ -217,7 +218,7 @@ Example YAML configuration file:
       case_sensitive: false
       date_from: "2026-01-01"
       date_to: "2026-01-31"
-    
+
     files:
       search_root: "/var/log"
       include_patterns:
@@ -227,12 +228,12 @@ Example YAML configuration file:
         - "*.old"
       follow_symlinks: false
       max_depth: 5
-    
+
     output:
       output_file: "results.txt"
       show_stats: true
       verbose: false
-    
+
     processing:
       max_workers: 4
       buffer_size: 8192
@@ -248,7 +249,7 @@ Loading configuration from YAML:
 
     with open("config.yaml") as f:
         data = yaml.safe_load(f)
-    
+
     # Construct configuration from dict
     config = ApplicationConfig(
         search=SearchConfig(**data["search"]),
@@ -270,7 +271,7 @@ Configuration models validate inputs at construction:
         config = ProcessingConfig(max_workers=-1)
     except ValueError as e:
         print(f"Validation error: {e}")
-    
+
     # Invalid: invalid encoding
     try:
         config = ProcessingConfig(encoding="invalid_codec")

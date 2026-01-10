@@ -1,4 +1,4 @@
-"FNIQ952238" AND "eventEntity" AND ("MOVE" OR "PLAN" OR "INTERMODAL_UNIT")# Configuration Guide
+# Configuration Guide
 
 Complete reference for configuring Log Filter.
 

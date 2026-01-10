@@ -22,6 +22,7 @@ class StreamingRecordParser:
 
     Parses log records from a stream of lines. A record begins with a line
     matching the timestamp pattern:
+
         YYYY-MM-DD HH:MM:SS.mmm±ZZZZ <LEVEL>
 
     The parser yields complete records without accumulating them in memory,

@@ -377,7 +377,7 @@ log-filter --expr "ERROR" --input test-logs/ --format csv --output errors.csv
 ```
 
 **errors.csv:**
-```csv
+```text
 timestamp,level,message,file,line
 2026-01-01T09:16:00,ERROR,Failed to load config,test-logs/app-2026-01-01.log,2
 2026-01-01T18:45:00,ERROR,Database connection lost,test-logs/app-2026-01-01.log,5

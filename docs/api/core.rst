@@ -14,6 +14,7 @@ Tokenizer
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 The tokenizer converts boolean expressions into a sequence of tokens.
 
@@ -26,10 +27,10 @@ Example
 
     # Tokenize an expression
     tokens = tokenize("ERROR AND (database OR timeout)")
-    
+
     for token in tokens:
         print(f"{token.type}: {token.value}")
-    
+
     # Output:
     # WORD: ERROR
     # AND: AND
@@ -46,6 +47,7 @@ Parser
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 The parser converts tokens into an Abstract Syntax Tree (AST).
 
@@ -58,7 +60,7 @@ Example
 
     # Parse an expression
     ast = parse("ERROR AND database")
-    
+
     # The AST can be passed to the Evaluator
     print(type(ast))  # <class 'log_filter.core.parser.ASTNode'>
 
@@ -69,6 +71,7 @@ Evaluator
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 The evaluator traverses the AST and evaluates expressions against text.
 
@@ -83,11 +86,11 @@ Example
     # Create evaluator from expression
     ast = parse("ERROR OR WARNING")
     evaluator = Evaluator(ast, case_sensitive=False)
-    
+
     # Evaluate against text
     result1 = evaluator.evaluate("Error in database connection")
     print(result1)  # True
-    
+
     result2 = evaluator.evaluate("Info: Operation completed")
     print(result2)  # False
 
@@ -98,6 +101,7 @@ Exceptions
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 Custom exceptions for error handling.
 
@@ -140,25 +144,25 @@ Here's a complete example combining tokenizer, parser, and evaluator:
 
     # Full tokenize → parse → evaluate workflow
     expression = "(ERROR OR WARNING) AND database"
-    
+
     # Step 1: Tokenize
     tokens = tokenize(expression)
     print(f"Tokens: {[t.value for t in tokens]}")
-    
+
     # Step 2: Parse
     parser = ExpressionParser(tokens)
     ast = parser.parse()
-    
+
     # Step 3: Evaluate
     evaluator = Evaluator(ast, case_sensitive=False)
-    
+
     test_texts = [
         "ERROR: Database connection lost",      # True
         "WARNING: Database slow response",      # True
         "INFO: Database backup completed",      # False
         "ERROR: Network timeout",               # False
     ]
-    
+
     for text in test_texts:
         result = evaluator.evaluate(text)
         print(f"{result:5} | {text}")

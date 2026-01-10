@@ -14,6 +14,7 @@ Collector
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 Thread-safe statistics collection.
 
@@ -35,7 +36,7 @@ Dataclass holding processing statistics.
         processing_time=12.5,
         bytes_processed=52428800  # 50 MB
     )
-    
+
     print(f"Files: {stats.files_processed}")
     print(f"Records: {stats.total_records}")
     print(f"Matches: {stats.matched_records}")
@@ -51,7 +52,7 @@ Thread-safe collector for aggregating statistics.
     from log_filter.statistics.collector import StatisticsCollector
 
     collector = StatisticsCollector()
-    
+
     # Record file processing
     collector.record_file_processed(
         file_path="app.log",
@@ -60,10 +61,10 @@ Thread-safe collector for aggregating statistics.
         time_taken=1.2,
         bytes_count=1048576
     )
-    
+
     # Record errors
     collector.record_error("permission_denied", "access.log")
-    
+
     # Get current stats
     stats = collector.get_stats()
     print(f"Total files: {stats.files_processed}")
@@ -83,6 +84,7 @@ Reporter
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 Generates human-readable statistics reports.
 
@@ -98,9 +100,9 @@ Generates human-readable statistics reports.
         matched_records=240,
         processing_time=12.5
     )
-    
+
     reporter = StatisticsReporter(stats)
-    
+
     # Generate report
     report = reporter.generate_report()
     print(report)
@@ -112,21 +114,21 @@ Example output:
     ================================================================================
     Processing Statistics
     ================================================================================
-    
+
     Files:
       Processed:     10
       Matched:       7 (70.0%)
       Skipped:       0
-    
+
     Records:
       Total:         15,000
       Matched:       240 (1.6%)
-    
+
     Performance:
       Time:          12.5s
       Throughput:    1,200 records/sec
       Speed:         4.0 MB/sec
-    
+
     ================================================================================
 
 Compact format:
@@ -145,6 +147,7 @@ Performance Metrics
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 Detailed performance tracking and analysis.
 
@@ -165,7 +168,7 @@ Per-file performance metrics.
         processing_time=1.2,
         throughput_mbps=0.85
     )
-    
+
     print(f"File: {perf.file_path}")
     print(f"Records/sec: {perf.records_per_second:.0f}")
     print(f"Throughput: {perf.throughput_mbps:.2f} MB/s")
@@ -180,10 +183,10 @@ Aggregate performance metrics.
     from log_filter.statistics.performance import PerformanceMetrics
 
     metrics = PerformanceMetrics()
-    
+
     # Add file measurements
     metrics.add_file_performance(file_performance)
-    
+
     # Get aggregate metrics
     print(f"Total files: {metrics.total_files}")
     print(f"Avg throughput: {metrics.average_throughput:.2f} MB/s")
@@ -200,15 +203,15 @@ Real-time performance tracking.
     from log_filter.statistics.performance import PerformanceTracker
 
     tracker = PerformanceTracker()
-    
+
     # Start tracking
     tracker.start()
-    
+
     # Process files...
     for file in files:
         with tracker.track_file(file):
             process_file(file)
-    
+
     # Get metrics
     metrics = tracker.get_metrics()
     print(f"Total time: {metrics.total_time:.2f}s")
@@ -221,6 +224,7 @@ Summary
    :members:
    :undoc-members:
    :show-inheritance:
+   :noindex:
 
 High-level summary generation.
 
@@ -239,7 +243,7 @@ Complete processing summary.
         start_time=start_time,
         end_time=end_time
     )
-    
+
     print(summary.generate_summary())
 
 SummaryReportGenerator
@@ -256,7 +260,7 @@ Customizable summary report generation.
         include_errors=True,
         include_file_details=True
     )
-    
+
     report = generator.generate(summary)
     print(report)
 
@@ -273,22 +277,22 @@ Complete Statistics Example
     # Initialize components
     collector = StatisticsCollector()
     tracker = PerformanceTracker()
-    
+
     # Start processing
     tracker.start()
-    
+
     files = ["app.log", "db.log", "web.log"]
-    
+
     for file_path in files:
         # Track file processing
         start = time.time()
-        
+
         with tracker.track_file(file_path):
             # Process file (simplified)
             records = 1000
             matches = 45
             bytes_count = 524288  # 512 KB
-            
+
             # Record statistics
             elapsed = time.time() - start
             collector.record_file_processed(
@@ -298,13 +302,13 @@ Complete Statistics Example
                 time_taken=elapsed,
                 bytes_count=bytes_count
             )
-    
+
     # Generate report
     stats = collector.get_stats()
     reporter = StatisticsReporter(stats)
-    
+
     print(reporter.generate_report())
-    
+
     # Performance metrics
     perf_metrics = tracker.get_metrics()
     print(f"\nAverage throughput: {perf_metrics.avg_throughput:.2f} MB/s")
@@ -322,11 +326,11 @@ Add custom metrics:
         def __init__(self):
             super().__init__()
             self.custom_metric = 0
-        
+
         def record_custom(self, value):
             with self._lock:
                 self.custom_metric += value
-        
+
         def get_stats(self):
             stats = super().get_stats()
             stats.custom_metric = self.custom_metric
@@ -366,12 +370,12 @@ CSV Format
 
     output = StringIO()
     writer = csv.writer(output)
-    
+
     writer.writerow(["Metric", "Value"])
     writer.writerow(["Files Processed", stats.files_processed])
     writer.writerow(["Total Records", stats.total_records])
     writer.writerow(["Matches", stats.matched_records])
-    
+
     print(output.getvalue())
 
 Real-time Statistics
@@ -386,7 +390,7 @@ Display statistics during processing:
     import time
 
     collector = StatisticsCollector()
-    
+
     def display_stats():
         while True:
             stats = collector.get_stats()
@@ -394,11 +398,11 @@ Display statistics during processing:
                   f"Records: {stats.total_records} | "
                   f"Matches: {stats.matched_records}", end="")
             time.sleep(0.5)
-    
+
     # Start display thread
     display_thread = threading.Thread(target=display_stats, daemon=True)
     display_thread.start()
-    
+
     # Process files...
 
 Performance Considerations
@@ -452,10 +456,10 @@ Integrate statistics into pipeline:
     # Create pipeline with statistics
     collector = StatisticsCollector()
     pipeline = ProcessingPipeline(config, stats_collector=collector)
-    
+
     # Process files
     result = pipeline.run()
-    
+
     # Generate report
     stats = collector.get_stats()
     reporter = StatisticsReporter(stats)
@@ -472,24 +476,24 @@ Export to monitoring systems:
     import json
 
     collector = StatisticsCollector()
-    
+
     # After processing
     stats = collector.get_stats()
-    
+
     # Export to Prometheus format
     def export_prometheus(stats):
         return f"""
         # HELP log_filter_files_processed Total files processed
         # TYPE log_filter_files_processed counter
         log_filter_files_processed {stats.files_processed}
-        
+
         # HELP log_filter_records_total Total records processed
         # TYPE log_filter_records_total counter
         log_filter_records_total {stats.total_records}
-        
+
         # HELP log_filter_matches_total Total matching records
         # TYPE log_filter_matches_total counter
         log_filter_matches_total {stats.matched_records}
         """
-    
+
     print(export_prometheus(stats))
