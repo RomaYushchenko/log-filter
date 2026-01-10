@@ -179,7 +179,7 @@ class FileWorker:
                     result = SearchResult(
                         record=record,
                         matched=bool(patterns),
-                        match_positions=patterns if patterns else [],
+                        match_positions=[],
                         highlighted_content=highlighted_content,
                     )
 

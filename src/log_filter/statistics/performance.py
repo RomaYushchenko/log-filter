@@ -142,7 +142,7 @@ class PerformanceTracker:
         >>> metrics = tracker.get_metrics()
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize performance tracker."""
         self._lock = Lock()
         self._file_performances: List[FilePerformance] = []
@@ -269,7 +269,9 @@ class FileTimer:
         self._start_time = time.time()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+        self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: object
+    ) -> None:
         """Exit context manager and record metrics."""
         processing_time = time.time() - self._start_time
 

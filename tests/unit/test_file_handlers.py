@@ -82,7 +82,7 @@ class TestLogFileHandler:
             handler = LogFileHandler(test_file)
 
         assert "not found" in str(excinfo.value).lower()
-        assert excinfo.value.file_path == test_file
+        assert excinfo.value.file_path == str(test_file)
 
     def test_read_lines_with_latin1_encoding(self, tmp_path):
         """Test reading file with latin-1 encoding."""

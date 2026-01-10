@@ -7,6 +7,7 @@ efficient processing of large log files.
 """
 
 import re
+from datetime import date as dt_date
 from datetime import datetime
 from datetime import time as dt_time
 from pathlib import Path
@@ -115,11 +116,8 @@ class StreamingRecordParser:
                 # Check size limit
                 if self.max_record_size_bytes and current_size_bytes > self.max_record_size_bytes:
                     raise RecordSizeExceededError(
-                        f"Record size ({current_size_bytes} bytes) exceeds limit "
-                        f"({self.max_record_size_bytes} bytes)",
-                        size=current_size_bytes,
-                        limit=self.max_record_size_bytes,
-                        file_path=file_path,
+                        size_kb=current_size_bytes / 1024,
+                        max_size_kb=self.max_record_size_bytes // 1024,
                     )
             else:
                 # Continuation of current record
@@ -133,11 +131,8 @@ class StreamingRecordParser:
                         and current_size_bytes > self.max_record_size_bytes
                     ):
                         raise RecordSizeExceededError(
-                            f"Record size ({current_size_bytes} bytes) exceeds limit "
-                            f"({self.max_record_size_bytes} bytes)",
-                            size=current_size_bytes,
-                            limit=self.max_record_size_bytes,
-                            file_path=file_path,
+                            size_kb=current_size_bytes / 1024,
+                            max_size_kb=self.max_record_size_bytes // 1024,
                         )
 
         # Yield final record if exists
@@ -239,7 +234,7 @@ class StreamingRecordParser:
             return (match.group(1), match.group(2), match.group(3))
         return None
 
-    def parse_date(self, date_str: str) -> Optional[datetime]:
+    def parse_date(self, date_str: str) -> Optional[dt_date]:
         """Parse date string to datetime.date.
 
         Args:

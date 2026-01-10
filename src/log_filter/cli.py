@@ -10,7 +10,7 @@ import json
 import sys
 from datetime import date, time
 from pathlib import Path
-from typing import List, Optional
+from typing import Any, List, Optional, cast
 
 try:
     import yaml
@@ -145,7 +145,7 @@ def load_config_file(config_path: Path) -> dict:
 
         # Try JSON first
         if config_path.suffix.lower() == ".json":
-            return json.loads(content)
+            return cast(dict[Any, Any], json.loads(content))
 
         # Try YAML
         if config_path.suffix.lower() in (".yaml", ".yml"):
@@ -153,14 +153,14 @@ def load_config_file(config_path: Path) -> dict:
                 raise ConfigurationError(
                     "YAML support not available. Install PyYAML: pip install pyyaml"
                 )
-            return yaml.safe_load(content)
+            return cast(dict[Any, Any], yaml.safe_load(content))
 
         # Try to auto-detect
         try:
-            return json.loads(content)
+            return cast(dict[Any, Any], json.loads(content))
         except json.JSONDecodeError:
             if YAML_AVAILABLE:
-                return yaml.safe_load(content)
+                return cast(dict[Any, Any], yaml.safe_load(content))
             else:
                 raise ConfigurationError(
                     "Could not parse configuration file. "

@@ -8,7 +8,7 @@ for multiple handlers, log levels, and structured output formats.
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Any, MutableMapping, Optional
 
 # Default log format with timestamp, level, component, and message
 DEFAULT_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)-25s | %(message)s"
@@ -149,7 +149,9 @@ class LoggerAdapter(logging.LoggerAdapter):
         # Outputs: ... | INFO | ... | Processing started | file=data.log
     """
 
-    def process(self, msg: str, kwargs: dict) -> tuple:
+    def process(
+        self, msg: str, kwargs: MutableMapping[str, Any]
+    ) -> tuple[str, MutableMapping[str, Any]]:
         """Process log message with extra context.
 
         Args:
@@ -167,7 +169,7 @@ class LoggerAdapter(logging.LoggerAdapter):
         return msg, kwargs
 
 
-def create_file_logger(file_path: Path) -> logging.Logger:
+def create_file_logger(file_path: Path) -> logging.LoggerAdapter:
     """Create a logger specifically for a file being processed.
 
     Args:

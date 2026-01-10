@@ -309,7 +309,7 @@ class FileScanner:
         except OSError:
             return False
 
-    def count_files(self) -> dict[str, int]:
+    def count_files(self) -> dict[str, int | dict[str, int]]:
         """Count files by status.
 
         Returns:

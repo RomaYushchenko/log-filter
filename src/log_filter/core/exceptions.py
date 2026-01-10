@@ -1,5 +1,7 @@
 """Custom exceptions for the log filter application."""
 
+from pathlib import Path
+
 
 class LogFilterException(Exception):
     """Base exception for all log filter errors."""
@@ -52,19 +54,21 @@ class ConfigurationError(LogFilterException):
 class FileHandlingError(LogFilterException):
     """Exception raised for file operation errors."""
 
-    def __init__(self, message: str, file_path: str = "", cause: Exception | None = None) -> None:
+    def __init__(
+        self, message: str, file_path: str | Path = "", cause: Exception | None = None
+    ) -> None:
         """Initialize file handling error with context.
 
         Args:
             message: Error description
-            file_path: Path to the file that caused the error
+            file_path: Path to the file that caused the error (str or Path)
             cause: Original exception that caused this error
         """
-        self.file_path = file_path
+        self.file_path = str(file_path) if file_path else ""
         self.cause = cause
 
-        if file_path:
-            full_message = f"{message}: {file_path}"
+        if self.file_path:
+            full_message = f"{message}: {self.file_path}"
         else:
             full_message = message
 

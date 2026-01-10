@@ -41,7 +41,7 @@ from log_filter.statistics.collector import StatisticsCollector
 logger = logging.getLogger(__name__)
 
 
-def _process_file_worker(args):
+def _process_file_worker(args: tuple) -> tuple:
     """Top-level worker function for multiprocessing.
 
     This function must be at module level to be picklable.
@@ -72,7 +72,7 @@ def _process_file_worker(args):
         stats_collector.start()
 
         # Create record filter
-        filters = []
+        filters: list = []
         parser = StreamingRecordParser(max_record_size_bytes=max_record_size_bytes)
 
         if config.search.date_from or config.search.date_to:
@@ -255,7 +255,7 @@ class ProcessingPipeline:
         Returns:
             Composite filter with date/time filters
         """
-        filters = []
+        filters: list = []
         parser = StreamingRecordParser()
 
         # Add date filter if specified
@@ -298,7 +298,7 @@ class ProcessingPipeline:
             recursive=True,
         )
 
-    def _handle_dry_run(self, files) -> None:
+    def _handle_dry_run(self, files: list) -> None:
         """Handle dry-run mode.
 
         Args:
@@ -314,7 +314,7 @@ class ProcessingPipeline:
             for file_meta in files:
                 logger.info(f"  {file_meta.path} ({file_meta.size_mb:.2f} MB)")
 
-    def _process_files(self, files, ast: ASTNode, record_filter: RecordFilter) -> None:
+    def _process_files(self, files: list, ast: ASTNode, record_filter: RecordFilter) -> None:
         """Process files in parallel using multiprocessing.
 
         Args:

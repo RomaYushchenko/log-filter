@@ -8,7 +8,7 @@ a write lock to ensure thread safety in concurrent environments.
 
 import threading
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TextIO
 
 from log_filter.core.exceptions import FileHandlingError
 from log_filter.domain.models import LogRecord, SearchResult
@@ -79,7 +79,7 @@ class BufferedLogWriter:
 
         self._buffer: list[str] = []
         self._lock = threading.Lock()
-        self._file_handle: Optional[object] = None
+        self._file_handle: Optional[TextIO] = None
         self._total_written = 0
 
     def __enter__(self) -> "BufferedLogWriter":
@@ -87,7 +87,9 @@ class BufferedLogWriter:
         self.open()
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(
+        self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: object
+    ) -> None:
         """Context manager exit with automatic flush and close."""
         self.close()
 
