@@ -75,7 +75,7 @@ class GzipFileHandler(AbstractFileHandler):
                 try:
                     yield from self._read_with_encoding(fallback_enc)
                     return
-                except (UnicodeDecodeError, Exception):
+                except Exception:
                     continue
 
             # All fallbacks failed

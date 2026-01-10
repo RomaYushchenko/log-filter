@@ -306,7 +306,7 @@ class FileScanner:
             with open(path, "rb") as f:
                 f.read(1)
             return True
-        except (OSError, PermissionError):
+        except OSError:
             return False
 
     def count_files(self) -> dict[str, int]:

@@ -103,7 +103,7 @@ class TestPathTraversalVulnerabilities:
         link = tmp_path / "link_to_etc"
         try:
             link.symlink_to(sensitive_dir)
-        except (OSError, PermissionError):
+        except OSError:
             pytest.skip("Cannot create symlink")
 
         output = tmp_path / "output.log"
@@ -342,7 +342,7 @@ class TestFileAccessControl:
         # Should fail due to permissions or validation
         try:
             pipeline.run()
-        except (FileHandlingError, PermissionError, OSError):
+        except (FileHandlingError, OSError):
             pass  # Expected - permission denied is safe
 
     def test_respects_file_permissions(self, tmp_path):
