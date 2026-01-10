@@ -54,20 +54,20 @@ class FileScanner:
         max_file_size_mb: Optional[int] = None,
         recursive: bool = True,
     ) -> None:
-        """Initialize the file scanner.
+        r"""Initialize the file scanner.
 
-        Args:
-            root_path: Root directory to scan for files
-            file_masks: List of filename substrings to match.
-                       If None or empty, all files are considered.
-            include_patterns: Glob patterns for files to include (e.g., ["\\*.log", "app-\\*.txt"]).
-                            If None or empty, all files are considered.
-            exclude_patterns: Glob patterns for files to exclude (e.g., ["\\*.old", "debug.log"]).
-            allowed_extensions: Set of allowed file extensions (e.g., {".log", ".gz"}).
-                              If None, uses DEFAULT_EXTENSIONS.
-            max_file_size_mb: Maximum file size in MB. Files larger than this
-                            will be marked as should_skip.
-            recursive: If True, scan subdirectories recursively.
+                Args:
+                    root_path: Root directory to scan for files
+                    file_masks: List of filename substrings to match.
+                               If None or empty, all files are considered.
+                    include_patterns: Glob patterns for files to include (e.g., ["*.log", "app-*.txt"]).
+                                    If None or empty, all files are considered.
+                    exclude_patterns: Glob patterns for files to exclude (e.g., ["*.old", "debug.log"]).
+                    allowed_extensions: Set of allowed file extensions (e.g., {".log", ".gz"}).
+                                      If None, uses DEFAULT_EXTENSIONS.
+                    max_file_size_mb: Maximum file size in MB. Files larger than this
+                                    will be marked as should_skip.
+                    recursive: If True, scan subdirectories recursively.
 
         Raises:
             FileHandlingError: If root_path doesn't exist or isn't a directory
