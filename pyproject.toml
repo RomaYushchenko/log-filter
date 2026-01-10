@@ -30,6 +30,7 @@ classifiers = [
 
 dependencies = [
     "pyyaml>=6.0",
+    "tqdm>=4.66.0",
 ]
 
 [project.optional-dependencies]
@@ -54,7 +55,6 @@ dev = [
 
     # Utilities
     "pre-commit>=3.3.0",
-    "tqdm>=4.66.0",
 ]
 
 async = [
@@ -184,7 +184,7 @@ exclude_lines = [
 [tool.pylint.main]
 jobs = 0
 recursive = true
-py-version = "3.8"
+py-version = "3.10"
 
 [tool.pylint.messages_control]
 max-line-length = 100
