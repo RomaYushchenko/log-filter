@@ -37,7 +37,7 @@ autodoc_default_options = {
     'exclude-members': '__weakref__'
 }
 
-autosummary_generate = True
+autosummary_generate = False  # Disabled to prevent duplicate object warnings
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False
 napoleon_include_init_with_doc = True
@@ -55,7 +55,9 @@ myst_enable_extensions = [
 
 # Suppress acceptable warnings
 suppress_warnings = [
+    'autodoc',  # Duplicate object descriptions from autodoc/autosummary
     'myst.xref_missing',  # Missing cross-references (acceptable for now)
     'myst.header',        # Document heading style (H2 vs H1)
     'toc.not_readable',   # Invalid toctree references (already fixed)
+    'misc.highlighting_failure',  # Lexing warnings (intentional examples)
 ]

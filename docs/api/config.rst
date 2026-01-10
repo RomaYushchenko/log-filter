@@ -14,7 +14,6 @@ Overview
    :members:
    :undoc-members:
    :show-inheritance:
-   :noindex:
 
 Configuration Models
 --------------------

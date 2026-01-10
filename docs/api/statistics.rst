@@ -14,7 +14,6 @@ Collector
    :members:
    :undoc-members:
    :show-inheritance:
-   :noindex:
 
 Thread-safe statistics collection.
 
@@ -84,7 +83,6 @@ Reporter
    :members:
    :undoc-members:
    :show-inheritance:
-   :noindex:
 
 Generates human-readable statistics reports.
 
@@ -147,7 +145,6 @@ Performance Metrics
    :members:
    :undoc-members:
    :show-inheritance:
-   :noindex:
 
 Detailed performance tracking and analysis.
 
@@ -224,7 +221,6 @@ Summary
    :members:
    :undoc-members:
    :show-inheritance:
-   :noindex:
 
 High-level summary generation.
 

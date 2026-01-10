@@ -153,7 +153,6 @@ api/index
 :maxdepth: 2
 :caption: Developer Guide
 
-architecture
 contributing
 ```
 

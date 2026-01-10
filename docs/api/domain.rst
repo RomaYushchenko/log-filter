@@ -14,7 +14,6 @@ Models
    :members:
    :undoc-members:
    :show-inheritance:
-   :noindex:
 
 Core domain models representing log records, search results, and file metadata.
 
@@ -89,7 +88,6 @@ Filters
    :members:
    :undoc-members:
    :show-inheritance:
-   :noindex:
 
 Filter strategies for filtering log records by date, time, or composite criteria.
 
