@@ -7,8 +7,6 @@ including reading, parsing, filtering, matching, and writing results.
 
 import logging
 import time
-from pathlib import Path
-from typing import Optional
 
 from log_filter.config.models import ApplicationConfig
 from log_filter.core.evaluator import ExpressionEvaluator, compile_patterns_from_ast

@@ -1,6 +1,5 @@
 """Tokenizer for boolean search expressions."""
 
-import re
 from enum import Enum
 from typing import NamedTuple
 
@@ -170,7 +169,7 @@ class Tokenizer:
 
         if self.position >= self.length:
             raise TokenizationError(
-                f"Unterminated quoted string",
+                "Unterminated quoted string",
                 position=start_pos,
                 expression=self.expression,
             )

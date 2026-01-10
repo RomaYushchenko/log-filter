@@ -1,7 +1,5 @@
 """Parser for boolean search expressions."""
 
-from typing import Union
-
 from ..domain.models import ASTNode
 from .exceptions import ParseError
 from .tokenizer import Token, TokenType, tokenize

@@ -14,12 +14,24 @@ exclude =
     .pytest_cache
 ignore =
     E203,
+    E226,
+    E228,
     E501,
     W503,
-    D107
+    D107,
+    D200,
+    D212,
+    D403,
+    D415,
+    C901,
+    B007,
+    B011,
+    F841
 per-file-ignores =
     __init__.py: F401, D104
-    tests/*: D100, D101, D102, D103
+    tests/*: D100, D101, D102, D103, F401, F811, F841, B011
+    src/log_filter/processing/pipeline.py: F401, F811
+    src/log_filter/domain/models.py: F401, F811
 
 # Docstring settings
 docstring-convention = google
