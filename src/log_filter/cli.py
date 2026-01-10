@@ -392,10 +392,11 @@ def main() -> None:
     """CLI entry point for testing."""
     try:
         config = parse_args()
-        print("Configuration loaded successfully:")
-        print(f"  Expression: {config.search.expression}")
-        print(f"  Root path: {config.files.search_root}")
-        print(f"  Output: {config.output.output_file}")
+        # CLI testing output - print() is appropriate for user-facing CLI feedback
+        print("Configuration loaded successfully:")  # noqa: T201
+        print(f"  Expression: {config.search.expression}")  # noqa: T201
+        print(f"  Root path: {config.files.search_root}")  # noqa: T201
+        print(f"  Output: {config.output.output_file}")  # noqa: T201
     except ConfigurationError as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
