@@ -164,6 +164,7 @@ jobs:
           python -c "import sys; print('Python:', sys.version); print('Platform:', sys.platform)"
 
       - name: Run unit tests
+        shell: bash
         run: |
           pytest tests/unit/ -v \
             --cov=log_filter \
@@ -174,6 +175,7 @@ jobs:
             --tb=short
 
       - name: Run integration tests
+        shell: bash
         run: |
           pytest tests/integration/ -v \
             --tb=short \
@@ -181,6 +183,7 @@ jobs:
 
       - name: Run performance tests
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        shell: bash
         run: |
           pytest tests/performance/ -v \
             --benchmark-only \
@@ -190,12 +193,14 @@ jobs:
 
       - name: Run security tests
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        shell: bash
         run: |
           pytest tests/security/ -v --tb=short
         continue-on-error: true
 
       - name: Run chaos tests
         if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+        shell: bash
         run: |
           pytest tests/chaos/ -v --tb=short
         continue-on-error: true
