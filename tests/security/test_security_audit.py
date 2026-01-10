@@ -261,30 +261,25 @@ class TestResourceExhaustionDoS:
         assert duration < 30.0, "Processing took too long"
 
     def test_many_concurrent_workers(self, tmp_path):
-        """Test that worker count is bounded."""
+        """Test that worker count is bounded to prevent resource exhaustion."""
         log_file = tmp_path / "test.log"
         log_file.write_text("2025-01-08 12:00:00 ERROR Test\n")
 
         output = tmp_path / "output.log"
 
-        # Try to create excessive workers
-        config = ApplicationConfig(
-            search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
-            processing=ProcessingConfig(worker_count=10000),  # Excessive
-        )
+        # Try to create excessive workers (should be rejected)
+        with pytest.raises(ValueError) as exc_info:
+            config = ApplicationConfig(
+                search=SearchConfig(expression="ERROR"),
+                files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+                processing=ProcessingConfig(worker_count=10000),  # Excessive
+            )
 
-        # Should either reject or cap to reasonable limit
-        pipeline = ProcessingPipeline(config)
-        try:
-            pipeline.run()
-            # If it runs, should complete without resource exhaustion
-            assert True
-        except ValueError as e:
-            # Platform may limit max workers (e.g., Windows limits to 61)
-            assert "max_workers" in str(e)
-            assert True
+        # Verify error message mentions platform maximum
+        error_msg = str(exc_info.value)
+        assert "exceeds platform maximum" in error_msg
+        assert "resource exhaustion" in error_msg
 
     def test_zip_bomb_like_compressed_file(self, tmp_path):
         """Test handling of highly compressed files (zip bomb scenario)."""

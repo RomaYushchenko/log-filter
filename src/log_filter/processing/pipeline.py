@@ -326,6 +326,14 @@ class ProcessingPipeline:
         worker_count = self.config.processing.worker_count
         if worker_count is None:
             worker_count = os.cpu_count() or 4
+        else:
+            # Warn if worker count significantly exceeds CPU count
+            cpu_count = os.cpu_count() or 4
+            if worker_count > cpu_count * 4:
+                logger.warning(
+                    f"Worker count ({worker_count}) is significantly higher than CPU count ({cpu_count}). "
+                    f"This may cause memory pressure and reduced performance."
+                )
 
         # Use processes for true parallelism (avoid GIL)
         use_multiprocessing = worker_count > 1

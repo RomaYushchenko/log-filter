@@ -238,6 +238,54 @@ class TestProcessingConfig:
         config = ProcessingConfig(debug=True)
         assert config.debug is True
 
+    def test_worker_count_exceeds_platform_maximum(self) -> None:
+        """Test that excessive worker count raises error."""
+        import sys
+        from log_filter.config.models import (
+            MAX_WORKERS_WINDOWS,
+            MAX_WORKERS_LINUX,
+            MAX_WORKERS_MACOS,
+            MAX_WORKERS_DEFAULT,
+        )
+
+        # Determine expected maximum for current platform
+        if sys.platform == 'win32':
+            max_workers = MAX_WORKERS_WINDOWS
+        elif sys.platform == 'darwin':
+            max_workers = MAX_WORKERS_MACOS
+        elif sys.platform.startswith('linux'):
+            max_workers = MAX_WORKERS_LINUX
+        else:
+            max_workers = MAX_WORKERS_DEFAULT
+
+        # Should reject worker count above platform maximum
+        with pytest.raises(ValueError, match="exceeds platform maximum"):
+            ProcessingConfig(worker_count=max_workers + 1)
+
+    def test_worker_count_at_platform_maximum(self) -> None:
+        """Test that worker count at maximum is accepted."""
+        import sys
+        from log_filter.config.models import (
+            MAX_WORKERS_WINDOWS,
+            MAX_WORKERS_LINUX,
+            MAX_WORKERS_MACOS,
+            MAX_WORKERS_DEFAULT,
+        )
+
+        # Determine expected maximum for current platform
+        if sys.platform == 'win32':
+            max_workers = MAX_WORKERS_WINDOWS
+        elif sys.platform == 'darwin':
+            max_workers = MAX_WORKERS_MACOS
+        elif sys.platform.startswith('linux'):
+            max_workers = MAX_WORKERS_LINUX
+        else:
+            max_workers = MAX_WORKERS_DEFAULT
+
+        # Should accept worker count at platform maximum
+        config = ProcessingConfig(worker_count=max_workers)
+        assert config.worker_count == max_workers
+
 
 class TestApplicationConfig:
     """Tests for ApplicationConfig."""
