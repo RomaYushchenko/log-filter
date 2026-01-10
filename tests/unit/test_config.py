@@ -249,11 +249,11 @@ class TestProcessingConfig:
         )
 
         # Determine expected maximum for current platform
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             max_workers = MAX_WORKERS_WINDOWS
-        elif sys.platform == 'darwin':
+        elif sys.platform == "darwin":
             max_workers = MAX_WORKERS_MACOS
-        elif sys.platform.startswith('linux'):
+        elif sys.platform.startswith("linux"):
             max_workers = MAX_WORKERS_LINUX
         else:
             max_workers = MAX_WORKERS_DEFAULT
@@ -273,11 +273,11 @@ class TestProcessingConfig:
         )
 
         # Determine expected maximum for current platform
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             max_workers = MAX_WORKERS_WINDOWS
-        elif sys.platform == 'darwin':
+        elif sys.platform == "darwin":
             max_workers = MAX_WORKERS_MACOS
-        elif sys.platform.startswith('linux'):
+        elif sys.platform.startswith("linux"):
             max_workers = MAX_WORKERS_LINUX
         else:
             max_workers = MAX_WORKERS_DEFAULT

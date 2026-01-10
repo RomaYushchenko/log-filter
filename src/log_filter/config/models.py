@@ -8,10 +8,10 @@ from typing import Optional
 
 
 # Maximum worker counts per platform
-MAX_WORKERS_LINUX = 32      # Conservative for CI/CD and production
-MAX_WORKERS_WINDOWS = 61    # Windows ProcessPoolExecutor limit
-MAX_WORKERS_MACOS = 32      # Similar to Linux
-MAX_WORKERS_DEFAULT = 32    # Fallback for unknown platforms
+MAX_WORKERS_LINUX = 32 # Conservative for CI/CD and production
+MAX_WORKERS_WINDOWS = 61 # Windows ProcessPoolExecutor limit
+MAX_WORKERS_MACOS = 32 # Similar to Linux
+MAX_WORKERS_DEFAULT = 32 # Fallback for unknown platforms
 
 
 @dataclass
@@ -162,11 +162,11 @@ class ProcessingConfig:
     @staticmethod
     def _get_max_workers_for_platform() -> int:
         """Get maximum worker count for current platform."""
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             return MAX_WORKERS_WINDOWS
-        elif sys.platform == 'darwin':
+        elif sys.platform == "darwin":
             return MAX_WORKERS_MACOS
-        elif sys.platform.startswith('linux'):
+        elif sys.platform.startswith("linux"):
             return MAX_WORKERS_LINUX
         else:
             return MAX_WORKERS_DEFAULT
