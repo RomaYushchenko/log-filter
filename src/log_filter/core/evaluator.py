@@ -7,23 +7,20 @@ from ..domain.models import ASTNode
 from .exceptions import EvaluationError
 
 
-def compile_patterns_from_ast(
-    ast: ASTNode,
-    ignore_case: bool = False
-) -> dict[str, Pattern[str]]:
+def compile_patterns_from_ast(ast: ASTNode, ignore_case: bool = False) -> dict[str, Pattern[str]]:
     """Pre-compile all regex patterns from an AST.
-    
+
     This function extracts all WORD nodes from the AST and compiles
     them as regex patterns. This improves performance when evaluating
     the same AST multiple times against different text.
-    
+
     Args:
         ast: The AST to extract patterns from
         ignore_case: Whether to compile with IGNORECASE flag
-        
+
     Returns:
         Dictionary mapping pattern strings to compiled regex Pattern objects
-        
+
     Note:
         - Invalid regex patterns are skipped (not compiled)
         - Empty patterns are skipped
@@ -31,14 +28,14 @@ def compile_patterns_from_ast(
     """
     patterns: dict[str, Pattern[str]] = {}
     flags = re.IGNORECASE if ignore_case else 0
-    
+
     def collect_and_compile(node: ASTNode) -> None:
         """Recursively collect and compile patterns."""
         if not node or len(node) == 0:
             return
-        
+
         node_type = node[0]
-        
+
         if node_type == "WORD" and len(node) >= 2:
             pattern_str = node[1]
             if pattern_str and pattern_str not in patterns:
@@ -47,14 +44,14 @@ def compile_patterns_from_ast(
                 except re.error:
                     # Skip invalid regex patterns
                     pass
-        
+
         elif node_type in ("AND", "OR") and len(node) >= 3:
             collect_and_compile(node[1])
             collect_and_compile(node[2])
-        
+
         elif node_type == "NOT" and len(node) >= 2:
             collect_and_compile(node[1])
-    
+
     collect_and_compile(ast)
     return patterns
 

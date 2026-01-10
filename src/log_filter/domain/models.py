@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from datetime import date, datetime, time
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 
 @dataclass(frozen=True)
@@ -95,4 +95,6 @@ class FileMetadata:
 
 
 # Type aliases for AST nodes
-ASTNode = tuple[str, ...]  # ('WORD', 'value') or ('AND', left, right), etc.
+# Recursive type: ('WORD', 'value') or ('NOT', node) or ('AND'/'OR', left, right)
+# We use Any here because mypy has limitations with recursive tuple types
+ASTNode = tuple[Any, ...]

@@ -23,6 +23,22 @@
 
 ### Installation
 
+#### From Source (Development/Local)
+
+```bash
+# Clone the repository
+git clone https://github.com/RomaYushchenko/log-filter.git
+cd log-filter
+
+# Install in development mode
+pip install -e .
+
+# Or with development dependencies
+pip install -e ".[dev]"
+```
+
+#### From PyPI (When Published)
+
 ```bash
 pip install log-filter
 ```

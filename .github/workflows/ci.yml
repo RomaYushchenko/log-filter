@@ -77,11 +77,38 @@ jobs:
           mypy src/log_filter/ --show-error-codes --pretty
           echo "::endgroup::"
 
-      - name: Check for print statements
+      - name: Check for problematic print statements
         run: |
           echo "::group::Print Statement Check"
-          ! grep -r "print(" src/log_filter/ || (echo "Found print() statements in source code" && exit 1)
-          echo "✓ No print() statements found"
+          # Allow print() in specific contexts:
+          # - Statistics modules (reporter.py, summary.py) - report formatting
+          # - With file= parameter (stderr, file handles)
+          # - In docstrings (>>>, ...)
+          # - With # noqa comment (documented exceptions)
+
+          # Only flag naked print() calls that may be debug statements
+          PROBLEMATIC=$(grep -rn "print(" src/log_filter/ \
+            | grep -v "/statistics/reporter.py:" \
+            | grep -v "/statistics/summary.py:" \
+            | grep -v "file=" \
+            | grep -v ">>>" \
+            | grep -v "\.\.\." \
+            | grep -v "sys.stderr" \
+            | grep -v "def print" \
+            | grep -v "# noqa" \
+            | grep -v ":[0-9]*:\s*#" \
+            || true)
+
+          if [ -n "$PROBLEMATIC" ]; then
+            echo "Found potentially problematic print() statements:"
+            echo "$PROBLEMATIC"
+            echo ""
+            echo "Note: print() is allowed in statistics modules, with file= parameter,"
+            echo "      in docstrings, to sys.stderr, or with # noqa comment"
+            exit 1
+          fi
+
+          echo "✓ No problematic print() statements found"
           echo "::endgroup::"
 
       - name: Check for TODO/FIXME comments
@@ -417,7 +444,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         with:

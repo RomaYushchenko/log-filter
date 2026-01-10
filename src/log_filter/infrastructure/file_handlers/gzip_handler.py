@@ -15,26 +15,21 @@ from log_filter.infrastructure.file_handlers.base import AbstractFileHandler
 
 class GzipFileHandler(AbstractFileHandler):
     """Handler for gzip-compressed log files.
-    
+
     Reads .gz files line by line with automatic decompression.
     Supports the same encoding features as LogFileHandler.
-    
+
     Example:
         >>> handler = GzipFileHandler(Path("app.log.gz"))
         >>> for line in handler.read_lines():
         ...     process(line)
     """
-    
+
     FALLBACK_ENCODINGS = ["utf-8", "latin-1", "cp1252"]
-    
-    def __init__(
-        self,
-        file_path: Path,
-        encoding: str = "utf-8",
-        errors: str = "replace"
-    ) -> None:
+
+    def __init__(self, file_path: Path, encoding: str = "utf-8", errors: str = "replace") -> None:
         """Initialize the gzip file handler.
-        
+
         Args:
             file_path: Path to the .gz file
             encoding: Character encoding (default: utf-8)
@@ -43,42 +38,34 @@ class GzipFileHandler(AbstractFileHandler):
         """
         super().__init__(file_path, encoding)
         self.errors = errors
-    
+
     def read_lines(self) -> Iterator[str]:
         """Read gzip file line by line with decompression.
-        
+
         Yields:
             Lines from the decompressed file (trailing newlines removed)
-            
+
         Raises:
             FileHandlingError: If file cannot be read or decompressed
         """
         try:
-            with gzip.open(
-                self.file_path,
-                "rt",
-                encoding=self.encoding,
-                errors=self.errors
-            ) as f:
+            with gzip.open(self.file_path, "rt", encoding=self.encoding, errors=self.errors) as f:
                 for line in f:
                     yield line.rstrip("\n\r")
-                    
+
         except FileNotFoundError:
             raise FileHandlingError(
-                f"File not found during read: {self.file_path}",
-                file_path=self.file_path
+                f"File not found during read: {self.file_path}", file_path=self.file_path
             )
         except PermissionError as e:
             raise FileHandlingError(
-                f"Permission denied: {self.file_path}",
-                file_path=self.file_path,
-                cause=e
+                f"Permission denied: {self.file_path}", file_path=self.file_path, cause=e
             )
         except gzip.BadGzipFile as e:
             raise FileHandlingError(
                 f"Invalid or corrupted gzip file: {self.file_path}",
                 file_path=self.file_path,
-                cause=e
+                cause=e,
             )
         except UnicodeDecodeError as e:
             # Try fallback encodings
@@ -88,66 +75,52 @@ class GzipFileHandler(AbstractFileHandler):
                 try:
                     yield from self._read_with_encoding(fallback_enc)
                     return
-                except (UnicodeDecodeError, Exception):
+                except Exception:
                     continue
-            
+
             # All fallbacks failed
             raise FileHandlingError(
                 f"Cannot decode gzip file with any supported encoding: {self.file_path}",
                 file_path=self.file_path,
-                cause=e
+                cause=e,
             )
         except OSError as e:
             raise FileHandlingError(
-                f"OS error reading gzip file: {self.file_path}",
-                file_path=self.file_path,
-                cause=e
+                f"OS error reading gzip file: {self.file_path}", file_path=self.file_path, cause=e
             )
         except EOFError as e:
             raise FileHandlingError(
-                f"Unexpected end of gzip file: {self.file_path}",
-                file_path=self.file_path,
-                cause=e
+                f"Unexpected end of gzip file: {self.file_path}", file_path=self.file_path, cause=e
             )
-    
+
     def _read_with_encoding(self, encoding: str) -> Iterator[str]:
         """Helper to read gzip file with specific encoding.
-        
+
         Args:
             encoding: Encoding to use
-            
+
         Yields:
             Lines from the decompressed file
         """
-        with gzip.open(
-            self.file_path,
-            "rt",
-            encoding=encoding,
-            errors=self.errors
-        ) as f:
+        with gzip.open(self.file_path, "rt", encoding=encoding, errors=self.errors) as f:
             for line in f:
                 yield line.rstrip("\n\r")
-    
+
     def validate(self) -> tuple[bool, Optional[str]]:
         """Validate that the gzip file can be read.
-        
+
         Attempts to open the file and read the first line to verify
         it's a valid gzip file and is readable.
-        
+
         Returns:
             Tuple of (is_valid, error_message)
         """
         try:
-            with gzip.open(
-                self.file_path,
-                "rt",
-                encoding=self.encoding,
-                errors=self.errors
-            ) as f:
+            with gzip.open(self.file_path, "rt", encoding=self.encoding, errors=self.errors) as f:
                 # Try to read first line
                 f.readline()
             return (True, None)
-            
+
         except PermissionError:
             return (False, "Permission denied")
         except gzip.BadGzipFile:
@@ -156,11 +129,7 @@ class GzipFileHandler(AbstractFileHandler):
             # Try fallback encodings
             for fallback_enc in self.FALLBACK_ENCODINGS:
                 try:
-                    with gzip.open(
-                        self.file_path,
-                        "rt",
-                        encoding=fallback_enc
-                    ) as f:
+                    with gzip.open(self.file_path, "rt", encoding=fallback_enc) as f:
                         f.readline()
                     return (True, None)
                 except Exception:

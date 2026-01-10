@@ -1,11 +1,11 @@
 """Configuration management module."""
 
 from .models import (
-    SearchConfig,
+    ApplicationConfig,
     FileConfig,
     OutputConfig,
     ProcessingConfig,
-    ApplicationConfig,
+    SearchConfig,
 )
 
 __all__ = [

@@ -1,14 +1,14 @@
 """Core expression parsing and evaluation module."""
 
-from .parser import ExpressionParser
 from .evaluator import ExpressionEvaluator
-from .tokenizer import Tokenizer
 from .exceptions import (
+    EvaluationError,
     LogFilterException,
     ParseError,
-    EvaluationError,
     TokenizationError,
 )
+from .parser import ExpressionParser
+from .tokenizer import Tokenizer
 
 __all__ = [
     "ExpressionParser",
