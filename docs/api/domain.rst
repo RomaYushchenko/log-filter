@@ -36,7 +36,7 @@ Represents a parsed log record with timestamp, level, and content.
         line_number_start=142,
         line_number_end=144
     )
-    
+
     print(record.timestamp)  # 2026-01-08 10:30:45
     print(record.level)      # ERROR
     print(record.content)    # Database connection timeout after 30s
@@ -55,7 +55,7 @@ Represents the result of a search operation against a log record.
         record=record,
         match_positions=[(0, 5), (10, 20)]  # Byte positions of matches
     )
-    
+
     if result.matched:
         print(f"Found match in {result.record.source_file}")
 
@@ -76,7 +76,7 @@ Metadata about a processed file.
         records_count=150,
         matches_count=12
     )
-    
+
     print(f"File: {metadata.path}")
     print(f"Size: {metadata.size_bytes / 1024:.1f} KB")
     print(f"Match rate: {metadata.matches_count / metadata.records_count:.1%}")
@@ -121,7 +121,7 @@ Filter records by date range.
         start_date=date(2026, 1, 1),
         end_date=date(2026, 1, 7)
     )
-    
+
     # Check if record passes filter
     if filter.filter(record):
         print("Record is within date range")
@@ -141,7 +141,7 @@ Filter records by time of day.
         start_time=time(9, 0, 0),
         end_time=time(17, 0, 0)
     )
-    
+
     if filter.filter(record):
         print("Record is within business hours")
 
@@ -153,8 +153,8 @@ Combine multiple filters with AND logic.
 .. code-block:: python
 
     from log_filter.domain.filters import (
-        CompositeFilter, 
-        DateRangeFilter, 
+        CompositeFilter,
+        DateRangeFilter,
         TimeRangeFilter
     )
     from datetime import date, time
@@ -164,7 +164,7 @@ Combine multiple filters with AND logic.
         DateRangeFilter(date(2026, 1, 1), date(2026, 1, 7)),
         TimeRangeFilter(time(9, 0), time(17, 0))
     ])
-    
+
     if composite.filter(record):
         print("Record passes all filters")
 
@@ -197,14 +197,14 @@ Complex filtering scenario:
         start_date=date(2026, 1, 1),
         end_date=date(2026, 1, 31)
     )
-    
+
     # Combine filters
     composite = CompositeFilter([date_filter])
-    
+
     # Filter records
     records = [...]  # List of LogRecord objects
     filtered = [r for r in records if composite.filter(r)]
-    
+
     print(f"Filtered {len(filtered)} / {len(records)} records")
 
 Design Patterns

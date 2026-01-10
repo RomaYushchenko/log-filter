@@ -86,10 +86,13 @@ log-filter "ERROR" /var/log -o errors.txt --stats
 - **Memory**: ~50-100 MB base + ~10 MB per worker
 - **CPU Efficiency**: ~90% utilization on multi-core systems
 - **Large Files**: Handles 100+ GB datasets with streaming
-- **Test Coverage**: 89.73% (706 tests passing
+- **Test Coverage**: 89.73% (706 tests passing)
 - **Scalability**: Linear scaling with CPU cores
 - **Memory**: Efficient streaming (handles GB+ files)
-- **CoveraGetting Started
+
+```{toctree}
+:maxdepth: 2
+:caption: Getting Started
 
 installation
 quickstart
@@ -144,35 +147,13 @@ examples/security
 :caption: API Reference
 
 api/index
-api/core
-api/domain
-api/config
-api/infrastructure
-api/processing
-api/statistics
-api/utils
-api/cli
 ```
 
 ```{toctree}
 :maxdepth: 2
 :caption: Developer Guide
 
-```{toctree}
-:maxdepth: 2
-:caption: Developer Guide
-
-architecture
-api
 contributing
-```
-
-```{toctree}
-:maxdepth: 1
-:caption: Additional Information
-
-changelog
-license
 ```
 
 ## Indices and tables

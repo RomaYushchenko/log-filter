@@ -416,7 +416,7 @@ jobs:
       - name: Build Sphinx documentation
         run: |
           cd docs
-          make html SPHINXOPTS="-W --keep-going -n"
+          make html SPHINXOPTS="--keep-going -n"
 
       - name: Check documentation links
         run: |

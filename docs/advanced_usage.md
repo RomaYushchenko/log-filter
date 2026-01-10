@@ -774,7 +774,7 @@ fi
 ```
 
 Crontab entry:
-```cron
+```text
 # Run daily at 1 AM
 0 1 * * * /usr/local/bin/log-filter-daily.sh >> /var/log/log-filter-cron.log 2>&1
 ```
