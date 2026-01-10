@@ -8,20 +8,20 @@ from pathlib import Path
 
 import pytest
 
-from src.log_filter.core.tokenizer import Tokenizer
-from src.log_filter.core.parser import ExpressionParser
-from src.log_filter.core.evaluator import ExpressionEvaluator
-from src.log_filter.infrastructure.file_handlers.log_handler import LogFileHandler
-from src.log_filter.infrastructure.file_handlers.gzip_handler import GzipFileHandler
-from src.log_filter.infrastructure.file_scanner import FileScanner
-from src.log_filter.processing.record_parser import StreamingRecordParser
-from src.log_filter.processing.pipeline import ProcessingPipeline
 from src.log_filter.config.models import (
     ApplicationConfig,
-    SearchConfig,
     FileConfig,
     OutputConfig,
+    SearchConfig,
 )
+from src.log_filter.core.evaluator import ExpressionEvaluator
+from src.log_filter.core.parser import ExpressionParser
+from src.log_filter.core.tokenizer import Tokenizer
+from src.log_filter.infrastructure.file_handlers.gzip_handler import GzipFileHandler
+from src.log_filter.infrastructure.file_handlers.log_handler import LogFileHandler
+from src.log_filter.infrastructure.file_scanner import FileScanner
+from src.log_filter.processing.pipeline import ProcessingPipeline
+from src.log_filter.processing.record_parser import StreamingRecordParser
 
 
 class TestTokenizerBenchmarks:
@@ -87,7 +87,7 @@ class TestEvaluatorBenchmarks:
         tokens = Tokenizer("ERROR").tokenize()
         parser = ExpressionParser(tokens)
         ast = parser.parse()
-        
+
         evaluator = ExpressionEvaluator(ignore_case=False, use_regex=False)
         result = benchmark(lambda: evaluator.evaluate(ast, sample_log_line))
         assert result is True
@@ -97,7 +97,7 @@ class TestEvaluatorBenchmarks:
         tokens = Tokenizer("ERROR AND Database").tokenize()
         parser = ExpressionParser(tokens)
         ast = parser.parse()
-        
+
         evaluator = ExpressionEvaluator(ignore_case=False, use_regex=False)
         result = benchmark(lambda: evaluator.evaluate(ast, sample_log_line))
         assert result is True
@@ -108,7 +108,7 @@ class TestEvaluatorBenchmarks:
         tokens = Tokenizer(expression).tokenize()
         parser = ExpressionParser(tokens)
         ast = parser.parse()
-        
+
         evaluator = ExpressionEvaluator(ignore_case=False, use_regex=False)
         result = benchmark(lambda: evaluator.evaluate(ast, sample_log_line))
         assert result is True
@@ -118,7 +118,7 @@ class TestEvaluatorBenchmarks:
         tokens = Tokenizer(r"ERROR.*failed").tokenize()
         parser = ExpressionParser(tokens)
         ast = parser.parse()
-        
+
         evaluator = ExpressionEvaluator(ignore_case=False, use_regex=True)
         result = benchmark(lambda: evaluator.evaluate(ast, sample_log_line))
         assert result is True
@@ -128,7 +128,7 @@ class TestEvaluatorBenchmarks:
         tokens = Tokenizer("error").tokenize()
         parser = ExpressionParser(tokens)
         ast = parser.parse()
-        
+
         evaluator = ExpressionEvaluator(ignore_case=True, use_regex=False)
         result = benchmark(lambda: evaluator.evaluate(ast, sample_log_line))
         assert result is True
@@ -138,7 +138,7 @@ class TestEvaluatorBenchmarks:
         tokens = Tokenizer("ERROR").tokenize()
         parser = ExpressionParser(tokens)
         ast = parser.parse()
-        
+
         evaluator = ExpressionEvaluator(ignore_case=False, use_regex=False)
         result = benchmark(lambda: evaluator.evaluate(ast, long_log_line))
         assert result is True
@@ -175,39 +175,39 @@ class TestFileHandlerBenchmarks:
     def test_benchmark_read_small_file(self, benchmark, small_log_file):
         """Benchmark reading a small plain log file."""
         handler = LogFileHandler(small_log_file)
-        
+
         def read_all():
             lines = []
             for line in handler.read_lines():
                 lines.append(line)
             return lines
-        
+
         result = benchmark(read_all)
         assert len(result) == 100
 
     def test_benchmark_read_medium_file(self, benchmark, medium_log_file):
         """Benchmark reading a medium plain log file."""
         handler = LogFileHandler(medium_log_file)
-        
+
         def read_all():
             count = 0
             for _ in handler.read_lines():
                 count += 1
             return count
-        
+
         result = benchmark(read_all)
         assert result == 10000
 
     def test_benchmark_read_compressed_file(self, benchmark, compressed_log_file):
         """Benchmark reading a compressed log file."""
         handler = GzipFileHandler(compressed_log_file)
-        
+
         def read_all():
             count = 0
             for _ in handler.read_lines():
                 count += 1
             return count
-        
+
         result = benchmark(read_all)
         assert result == 1000
 
@@ -225,14 +225,12 @@ class TestRecordParserBenchmarks:
 
     def test_benchmark_parse_single_line_records(self, benchmark, log_lines):
         """Benchmark parsing single-line records."""
-        parser = StreamingRecordParser(
-            max_record_size_bytes=1024 * 1024  # 1MB
-        )
-        
+        parser = StreamingRecordParser(max_record_size_bytes=1024 * 1024)  # 1MB
+
         def parse_all():
             records = list(parser.parse_lines(iter(log_lines), file_path="benchmark.log"))
             return records
-        
+
         result = benchmark(parse_all)
         assert len(result) == 1000
 
@@ -254,12 +252,8 @@ class TestFileScannerBenchmarks:
 
     def test_benchmark_scan_directory(self, benchmark, file_tree):
         """Benchmark scanning a directory tree."""
-        scanner = FileScanner(
-            root_path=file_tree,
-            allowed_extensions={".log"},
-            file_masks=[]
-        )
-        
+        scanner = FileScanner(root_path=file_tree, allowed_extensions={".log"}, file_masks=[])
+
         result = benchmark(lambda: list(scanner.scan()))
         assert len(result) == 100
 
@@ -272,58 +266,52 @@ class TestEndToEndBenchmarks:
         """Create benchmark data directory."""
         data_dir = tmp_path / "data"
         data_dir.mkdir()
-        
+
         # Create 10 log files with 1000 lines each
         for i in range(10):
             log_file = data_dir / f"app_{i}.log"
             lines = []
             for j in range(1000):
                 level = ["INFO", "WARN", "ERROR", "DEBUG"][j % 4]
-                lines.append(f"2025-01-08 10:00:{j%60:02d}.{j:03d}+0000 {level} Message {j} in file {i}\n")
+                lines.append(
+                    f"2025-01-08 10:00:{j%60:02d}.{j:03d}+0000 {level} Message {j} in file {i}\n"
+                )
             log_file.write_text("".join(lines))
-        
+
         return data_dir
 
     def test_benchmark_simple_search(self, benchmark, benchmark_data, tmp_path):
         """Benchmark simple search across multiple files."""
         output = tmp_path / "output.log"
-        
+
         def run_pipeline():
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
                 files=FileConfig(search_root=benchmark_data),
-                output=OutputConfig(
-                    output_file=output,
-                    show_progress=False,
-                    show_stats=False
-                )
+                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
             pipeline = ProcessingPipeline(config)
             pipeline.run()
-        
+
         benchmark(run_pipeline)
         assert output.exists()
 
     def test_benchmark_complex_search(self, benchmark, benchmark_data, tmp_path):
         """Benchmark complex boolean search."""
         output = tmp_path / "output.log"
-        
+
         def run_pipeline():
             config = ApplicationConfig(
                 search=SearchConfig(expression="(ERROR OR WARN) AND Message"),
                 files=FileConfig(search_root=benchmark_data),
-                output=OutputConfig(
-                    output_file=output,
-                    show_progress=False,
-                    show_stats=False
-                )
+                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
             pipeline = ProcessingPipeline(config)
             pipeline.run()
             # Clean up for next iteration
             if output.exists():
                 output.unlink()
-        
+
         benchmark(run_pipeline)
 
 
@@ -343,24 +331,20 @@ class TestScalabilityBenchmarks:
         """Benchmark how performance scales with file size."""
         log_file = tmp_path / f"test_{num_lines}.log"
         self.create_log_file(log_file, num_lines)
-        
+
         output = tmp_path / "output.log"
-        
+
         def run_pipeline():
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
                 files=FileConfig(search_root=tmp_path, file_masks=[f"test_{num_lines}.log"]),
-                output=OutputConfig(
-                    output_file=output,
-                    show_progress=False,
-                    show_stats=False
-                )
+                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
             pipeline = ProcessingPipeline(config)
             pipeline.run()
             if output.exists():
                 output.unlink()
-        
+
         benchmark(run_pipeline)
 
     @pytest.mark.parametrize("num_files", [1, 10, 50])
@@ -368,28 +352,24 @@ class TestScalabilityBenchmarks:
         """Benchmark how performance scales with number of files."""
         data_dir = tmp_path / "data"
         data_dir.mkdir()
-        
+
         for i in range(num_files):
             log_file = data_dir / f"app_{i}.log"
             self.create_log_file(log_file, 1000)
-        
+
         output = tmp_path / "output.log"
-        
+
         def run_pipeline():
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
                 files=FileConfig(search_root=data_dir),
-                output=OutputConfig(
-                    output_file=output,
-                    show_progress=False,
-                    show_stats=False
-                )
+                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
             pipeline = ProcessingPipeline(config)
             pipeline.run()
             if output.exists():
                 output.unlink()
-        
+
         benchmark(run_pipeline)
 
 
@@ -413,20 +393,16 @@ class TestMemoryEfficiencyBenchmarks:
     def test_benchmark_streaming_large_file(self, benchmark, large_log_file, tmp_path):
         """Benchmark streaming processing of large file."""
         output = tmp_path / "output.log"
-        
+
         def run_pipeline():
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
                 files=FileConfig(search_root=tmp_path, file_masks=["large.log"]),
-                output=OutputConfig(
-                    output_file=output,
-                    show_progress=False,
-                    show_stats=False
-                )
+                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
             pipeline = ProcessingPipeline(config)
             pipeline.run()
             if output.exists():
                 output.unlink()
-        
+
         benchmark(run_pipeline)

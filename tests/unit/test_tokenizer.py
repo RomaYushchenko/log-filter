@@ -3,7 +3,7 @@
 import pytest
 
 from log_filter.core.exceptions import TokenizationError
-from log_filter.core.tokenizer import Token, TokenType, Tokenizer, tokenize
+from log_filter.core.tokenizer import Token, Tokenizer, TokenType, tokenize
 
 
 class TestTokenType:
@@ -237,7 +237,7 @@ class TestTokenizerEdgeCases:
 
     def test_mixed_quotes(self) -> None:
         """Test expression with both quote types."""
-        tokens = tokenize('"ERROR" AND \'WARN\'')
+        tokens = tokenize("\"ERROR\" AND 'WARN'")
         assert len(tokens) == 3
         assert tokens[0].value == "ERROR"
         assert tokens[2].value == "WARN"

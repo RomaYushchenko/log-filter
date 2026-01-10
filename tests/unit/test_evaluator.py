@@ -1,12 +1,13 @@
 """Unit tests for the evaluator module."""
 
 import re
+
 import pytest
 
 from log_filter.core.evaluator import (
     ExpressionEvaluator,
-    evaluate,
     compile_patterns_from_ast,
+    evaluate,
 )
 from log_filter.core.exceptions import EvaluationError
 from log_filter.core.parser import parse
@@ -360,101 +361,98 @@ class TestRealWorldScenarios:
 
 class TestCompilePatterns:
     """Tests for compile_patterns_from_ast function."""
-    
+
     def test_compile_single_pattern(self) -> None:
         """Test compiling single pattern from AST."""
         ast = parse("ERROR")
         patterns = compile_patterns_from_ast(ast, ignore_case=False)
-        
+
         assert len(patterns) == 1
         assert "ERROR" in patterns
         assert isinstance(patterns["ERROR"], re.Pattern)
-    
+
     def test_compile_multiple_patterns(self) -> None:
         """Test compiling multiple patterns from AST."""
         ast = parse("ERROR AND Kafka")
         patterns = compile_patterns_from_ast(ast, ignore_case=False)
-        
+
         assert len(patterns) == 2
         assert "ERROR" in patterns
         assert "Kafka" in patterns
-    
+
     def test_compile_with_case_insensitive(self) -> None:
         """Test compiling patterns with case-insensitive flag."""
         ast = parse("ERROR")
         patterns = compile_patterns_from_ast(ast, ignore_case=True)
-        
+
         assert len(patterns) == 1
         assert "ERROR" in patterns
         # Verify pattern has IGNORECASE flag
         pattern = patterns["ERROR"]
         assert pattern.flags & re.IGNORECASE
-    
+
     def test_compile_complex_expression(self) -> None:
         """Test compiling complex boolean expression."""
         ast = parse("(ERROR OR WARNING) AND (Kafka OR database)")
         patterns = compile_patterns_from_ast(ast, ignore_case=False)
-        
+
         assert len(patterns) == 4
         assert "ERROR" in patterns
         assert "WARNING" in patterns
         assert "Kafka" in patterns
         assert "database" in patterns
-    
+
     def test_compile_with_not_operator(self) -> None:
         """Test compiling patterns with NOT operator."""
         ast = parse("ERROR AND NOT debug")
         patterns = compile_patterns_from_ast(ast, ignore_case=False)
-        
+
         assert len(patterns) == 2
         assert "ERROR" in patterns
         assert "debug" in patterns
-    
+
     def test_compile_duplicate_patterns(self) -> None:
         """Test that duplicate patterns are compiled only once."""
         ast = parse("ERROR AND (ERROR OR ERROR)")
         patterns = compile_patterns_from_ast(ast, ignore_case=False)
-        
+
         # Should only have one compiled pattern despite multiple occurrences
         assert len(patterns) == 1
         assert "ERROR" in patterns
-    
+
     def test_compile_invalid_regex(self) -> None:
         """Test that invalid regex patterns are skipped."""
         # Create an AST manually with invalid regex
         ast = ("WORD", "[invalid")
         patterns = compile_patterns_from_ast(ast, ignore_case=False)
-        
+
         # Invalid pattern should be skipped
         assert len(patterns) == 0
-    
+
     def test_compiled_patterns_work_with_evaluator(self) -> None:
         """Test that compiled patterns work correctly with evaluator."""
         ast = parse("ERROR AND Kafka")
         patterns = compile_patterns_from_ast(ast, ignore_case=False)
-        
-        evaluator = ExpressionEvaluator(
-            use_regex=True,
-            compiled_patterns=patterns
-        )
-        
+
+        evaluator = ExpressionEvaluator(use_regex=True, compiled_patterns=patterns)
+
         text = "ERROR: Kafka connection failed"
         assert evaluator.evaluate(ast, text) is True
-    
+
     def test_performance_benefit_of_compiled_patterns(self) -> None:
         """Test that pre-compiled patterns improve performance."""
         import time
-        
+
         ast = parse("ERROR")
         text = "This is an ERROR message" * 1000
-        
+
         # Without compiled patterns
         evaluator1 = ExpressionEvaluator(use_regex=True)
         start1 = time.perf_counter()
         for _ in range(100):
             evaluator1.evaluate(ast, text)
         time1 = time.perf_counter() - start1
-        
+
         # With compiled patterns
         patterns = compile_patterns_from_ast(ast, ignore_case=False)
         evaluator2 = ExpressionEvaluator(use_regex=True, compiled_patterns=patterns)
@@ -462,8 +460,7 @@ class TestCompilePatterns:
         for _ in range(100):
             evaluator2.evaluate(ast, text)
         time2 = time.perf_counter() - start2
-        
+
         # Compiled patterns should be faster (or at least not slower)
         # Note: This is a simple performance check, not a rigorous benchmark
         assert time2 <= time1 * 3.0  # Allow 200% margin for test variability on different hardware
-

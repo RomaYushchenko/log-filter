@@ -74,9 +74,7 @@ class FileConfig:
             raise ValueError(f"max_file_size_mb must be positive, got {self.max_file_size_mb}")
 
         if self.max_record_size_kb is not None and self.max_record_size_kb <= 0:
-            raise ValueError(
-                f"max_record_size_kb must be positive, got {self.max_record_size_kb}"
-            )
+            raise ValueError(f"max_record_size_kb must be positive, got {self.max_record_size_kb}")
 
     def matches_file_mask(self, filename: str) -> bool:
         """Check if filename matches any of the configured masks.

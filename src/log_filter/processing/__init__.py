@@ -1,8 +1,8 @@
 """Processing pipeline and orchestration."""
 
+from .pipeline import ProcessingPipeline
 from .record_parser import StreamingRecordParser
 from .worker import FileWorker
-from .pipeline import ProcessingPipeline
 
 __all__ = [
     "StreamingRecordParser",

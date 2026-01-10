@@ -13,10 +13,10 @@ exclude =
     .mypy_cache,
     .pytest_cache
 ignore =
-    E203,  # whitespace before ':' (conflicts with Black)
-    E501,  # line too long (handled by Black)
-    W503,  # line break before binary operator (conflicts with Black)
-    D107,  # missing docstring in __init__ (not always needed)
+    E203,
+    E501,
+    W503,
+    D107
 per-file-ignores =
     __init__.py: F401, D104
     tests/*: D100, D101, D102, D103
