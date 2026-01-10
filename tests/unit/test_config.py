@@ -241,11 +241,12 @@ class TestProcessingConfig:
     def test_worker_count_exceeds_platform_maximum(self) -> None:
         """Test that excessive worker count raises error."""
         import sys
+
         from log_filter.config.models import (
-            MAX_WORKERS_WINDOWS,
+            MAX_WORKERS_DEFAULT,
             MAX_WORKERS_LINUX,
             MAX_WORKERS_MACOS,
-            MAX_WORKERS_DEFAULT,
+            MAX_WORKERS_WINDOWS,
         )
 
         # Determine expected maximum for current platform
@@ -265,11 +266,12 @@ class TestProcessingConfig:
     def test_worker_count_at_platform_maximum(self) -> None:
         """Test that worker count at maximum is accepted."""
         import sys
+
         from log_filter.config.models import (
-            MAX_WORKERS_WINDOWS,
+            MAX_WORKERS_DEFAULT,
             MAX_WORKERS_LINUX,
             MAX_WORKERS_MACOS,
-            MAX_WORKERS_DEFAULT,
+            MAX_WORKERS_WINDOWS,
         )
 
         # Determine expected maximum for current platform

@@ -168,11 +168,11 @@ def load_config_file(config_path: Path) -> dict:
                 )
 
     except json.JSONDecodeError as e:
-        raise ConfigurationError(f"Invalid JSON in config file: {e}")
+        raise ConfigurationError(f"Invalid JSON in config file: {e}") from e
     except Exception as e:
         if YAML_AVAILABLE and isinstance(e, yaml.YAMLError):
-            raise ConfigurationError(f"Invalid YAML in config file: {e}")
-        raise ConfigurationError(f"Error loading config file: {e}")
+            raise ConfigurationError(f"Invalid YAML in config file: {e}") from e
+        raise ConfigurationError(f"Error loading config file: {e}") from e
 
 
 def parse_date(date_str: Optional[str]) -> Optional[date]:
@@ -199,7 +199,7 @@ def parse_date(date_str: Optional[str]) -> Optional[date]:
         return date(year, month, day)
 
     except (ValueError, TypeError) as e:
-        raise ConfigurationError(f"Invalid date format '{date_str}': {e}")
+        raise ConfigurationError(f"Invalid date format '{date_str}': {e}") from e
 
 
 def parse_time(time_str: Optional[str]) -> Optional[time]:
@@ -226,7 +226,7 @@ def parse_time(time_str: Optional[str]) -> Optional[time]:
         return time(hour, minute, second)
 
     except (ValueError, TypeError) as e:
-        raise ConfigurationError(f"Invalid time format '{time_str}': {e}")
+        raise ConfigurationError(f"Invalid time format '{time_str}': {e}") from e
 
 
 def build_config_from_args(args: argparse.Namespace) -> ApplicationConfig:

@@ -6,7 +6,6 @@ from datetime import date, time
 from pathlib import Path
 from typing import Optional
 
-
 # Maximum worker counts per platform
 MAX_WORKERS_LINUX = 32  # Conservative for CI/CD and production
 MAX_WORKERS_WINDOWS = 61  # Windows ProcessPoolExecutor limit
@@ -164,12 +163,14 @@ class ProcessingConfig:
         """Get maximum worker count for current platform."""
         if sys.platform == "win32":
             return MAX_WORKERS_WINDOWS
-        elif sys.platform == "darwin":
+
+        if sys.platform == "darwin":
             return MAX_WORKERS_MACOS
-        elif sys.platform.startswith("linux"):
+
+        if sys.platform.startswith("linux"):
             return MAX_WORKERS_LINUX
-        else:
-            return MAX_WORKERS_DEFAULT
+
+        return MAX_WORKERS_DEFAULT
 
 
 @dataclass

@@ -247,7 +247,7 @@ class ProcessingPipeline:
         except Exception as e:
             raise ConfigurationError(
                 f"Failed to parse expression '{self.config.search.expression}': {e}"
-            )
+            ) from e
 
     def _build_record_filter(self) -> RecordFilter:
         """Build composite record filter from configuration.

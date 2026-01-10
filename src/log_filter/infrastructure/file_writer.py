@@ -70,7 +70,7 @@ class BufferedLogWriter:
                     f"Cannot create output directory: {output_path.parent}",
                     file_path=output_path.parent,
                     cause=e,
-                )
+                ) from e
 
         self.output_path = output_path
         self.buffer_size = max(1, buffer_size)
@@ -209,14 +209,11 @@ class BufferedLogWriter:
                 f"Error writing to output file: {self.output_path}",
                 file_path=self.output_path,
                 cause=e,
-            )
+            ) from e
 
-    def get_total_written(self) -> int:
-        """Get total number of items written.
-
-        Returns:
-            Total number of buffer items written to disk
-        """
+    @property
+    def total_written(self) -> int:
+        """Total number of buffer items written to disk."""
         with self._lock:
             return self._total_written
 
