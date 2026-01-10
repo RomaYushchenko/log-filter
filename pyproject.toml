@@ -132,6 +132,7 @@ ignore_missing_imports = false
 [[tool.mypy.overrides]]
 module = [
     "yaml.*",
+    "tqdm.*",
 ]
 ignore_missing_imports = true
 
