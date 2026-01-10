@@ -19,6 +19,7 @@ try:
 except ImportError:
     YAML_AVAILABLE = False
 
+from log_filter import __version__
 from log_filter.config.models import (
     ApplicationConfig,
     FileConfig,
@@ -47,6 +48,13 @@ Examples:
   log-filter --expr "ERROR" --path /var/log/myapp --workers 8
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+
+    # Version
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {__version__}",
     )
 
     # Configuration file
@@ -158,14 +166,13 @@ def load_config_file(config_path: Path) -> dict:
         # Try to auto-detect
         try:
             return cast(dict[Any, Any], json.loads(content))
-        except json.JSONDecodeError:
+        except json.JSONDecodeError as exc:
             if YAML_AVAILABLE:
                 return cast(dict[Any, Any], yaml.safe_load(content))
-            else:
-                raise ConfigurationError(
-                    "Could not parse configuration file. "
-                    "Install PyYAML for YAML support: pip install pyyaml"
-                )
+            raise ConfigurationError(
+                "Could not parse configuration file. "
+                "Install PyYAML for YAML support: pip install pyyaml"
+            ) from exc
 
     except json.JSONDecodeError as e:
         raise ConfigurationError(f"Invalid JSON in config file: {e}") from e
@@ -229,7 +236,9 @@ def parse_time(time_str: Optional[str]) -> Optional[time]:
         raise ConfigurationError(f"Invalid time format '{time_str}': {e}") from e
 
 
-def build_config_from_args(args: argparse.Namespace) -> ApplicationConfig:
+def build_config_from_args(
+    args: argparse.Namespace,
+) -> ApplicationConfig:  # pylint: disable=too-many-locals
     """Build ApplicationConfig from parsed command-line arguments.
 
     Args:
@@ -385,7 +394,7 @@ def parse_args(argv: Optional[List[str]] = None) -> ApplicationConfig:
     except ConfigurationError:
         raise
     except Exception as e:
-        raise ConfigurationError(f"Error building configuration: {e}")
+        raise ConfigurationError(f"Error building configuration: {e}") from e
 
 
 def main() -> None:

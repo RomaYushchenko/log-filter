@@ -5,13 +5,12 @@ Tests argument parsing, configuration building, and error handling.
 """
 
 import json
-import tempfile
 from datetime import date, time
 from pathlib import Path
-from typing import Dict
 
 import pytest
 
+from log_filter import __version__
 from log_filter.cli import (
     build_config_from_args,
     create_argument_parser,
@@ -32,6 +31,18 @@ class TestArgumentParser:
         parser = create_argument_parser()
         assert parser is not None
         assert parser.prog == "log-filter"
+
+    def test_version_flag(self, capsys: pytest.CaptureFixture) -> None:
+        """Test that --version flag displays version and exits."""
+        parser = create_argument_parser()
+
+        with pytest.raises(SystemExit) as exc_info:
+            parser.parse_args(["--version"])
+
+        assert exc_info.value.code == 0
+        captured = capsys.readouterr()
+        assert __version__ in captured.out
+        assert "log-filter" in captured.out
 
     def test_parse_minimal_args(self) -> None:
         """Test parsing minimal required arguments."""

@@ -43,6 +43,13 @@ pip install -e ".[dev]"
 pip install log-filter
 ```
 
+### Check Version
+
+```bash
+# Display installed version
+log-filter --version
+```
+
 ### Basic Usage
 
 ```bash
