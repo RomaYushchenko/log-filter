@@ -4,7 +4,67 @@ Get started with Log Filter in 5 minutes.
 
 ## Installation
 
-Install via pip:
+### Option 1: From Source (Development/Local Use)
+
+**For local development or if the package is not yet published to PyPI:**
+
+1. **Clone or navigate to the project directory:**
+
+   ```bash
+   # If cloning from repository
+   git clone https://github.com/RomaYushchenko/log-filter.git
+   cd log-filter
+   
+   # Or navigate to your local project
+   cd C:\Users\your-username\path\to\log-filter
+   ```
+
+2. **Create a virtual environment (recommended):**
+
+   ```bash
+   # Create virtual environment
+   python -m venv .venv
+   
+   # Activate it
+   # On Windows:
+   .\.venv\Scripts\activate
+   
+   # On Linux/macOS:
+   source .venv/bin/activate
+   ```
+
+3. **Install in development mode:**
+
+   ```bash
+   # Install package in editable mode
+   pip install -e .
+   
+   # Or with development dependencies
+   pip install -e ".[dev]"
+   ```
+
+   **What this does:**
+   - Installs the package from local source code
+   - Creates `log-filter` command in your PATH
+   - Links to source directory (code changes take effect immediately)
+   - Installs all required dependencies (pyyaml, etc.)
+
+4. **Verify installation:**
+
+   ```bash
+   log-filter --version
+   # Output: log-filter 2.0.0
+   
+   # Test import
+   python -c "import log_filter; print(f'Version: {log_filter.__version__}')"
+   
+   # Show help
+   log-filter --help
+   ```
+
+### Option 2: From PyPI (Production - When Published)
+
+**Once the package is published to PyPI:**
 
 ```bash
 pip install log-filter
@@ -15,6 +75,35 @@ Verify installation:
 ```bash
 log-filter --version
 # Output: log-filter 2.0.0
+```
+
+### Troubleshooting Installation
+
+**Issue: "pip: command not found"**
+```bash
+# Use python -m pip instead
+python -m pip install -e .
+```
+
+**Issue: "No module named 'setuptools'"**
+```bash
+# Upgrade pip and setuptools
+python -m pip install --upgrade pip setuptools wheel
+pip install -e .
+```
+
+**Issue: "Permission denied"**
+```bash
+# On Windows: Run PowerShell as Administrator
+# Or use --user flag
+pip install --user -e .
+```
+
+**Issue: Package already installed**
+```bash
+# Uninstall first, then reinstall
+pip uninstall log-filter
+pip install -e .
 ```
 
 ## Basic Usage
