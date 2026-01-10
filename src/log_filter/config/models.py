@@ -8,10 +8,11 @@ from typing import Optional
 
 
 # Maximum worker counts per platform
-MAX_WORKERS_LINUX = 32 # Conservative for CI/CD and production
-MAX_WORKERS_WINDOWS = 61 # Windows ProcessPoolExecutor limit
-MAX_WORKERS_MACOS = 32 # Similar to Linux
-MAX_WORKERS_DEFAULT = 32 # Fallback for unknown platforms
+MAX_WORKERS_LINUX = 32  # Conservative for CI/CD and production
+MAX_WORKERS_WINDOWS = 61  # Windows ProcessPoolExecutor limit
+MAX_WORKERS_MACOS = 32  # Similar to Linux
+MAX_WORKERS_DEFAULT = 32  # Fallback for unknown platforms
+
 
 
 @dataclass
