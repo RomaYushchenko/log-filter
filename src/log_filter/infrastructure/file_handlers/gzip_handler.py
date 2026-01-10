@@ -6,11 +6,14 @@ with automatic decompression and encoding handling.
 """
 
 import gzip
+import logging
 from pathlib import Path
 from typing import Iterator, Optional
 
 from log_filter.core.exceptions import FileHandlingError
 from log_filter.infrastructure.file_handlers.base import AbstractFileHandler
+
+logger = logging.getLogger(__name__)
 
 
 class GzipFileHandler(AbstractFileHandler):
@@ -75,7 +78,10 @@ class GzipFileHandler(AbstractFileHandler):
                 try:
                     yield from self._read_with_encoding(fallback_enc)
                     return
-                except Exception:
+                except (UnicodeDecodeError, OSError, EOFError) as fallback_error:
+                    logger.debug(
+                        f"Failed to read {self.file_path} with encoding {fallback_enc}: {fallback_error}"
+                    )
                     continue
 
             # All fallbacks failed
@@ -132,7 +138,10 @@ class GzipFileHandler(AbstractFileHandler):
                     with gzip.open(self.file_path, "rt", encoding=fallback_enc) as f:
                         f.readline()
                     return (True, None)
-                except Exception:
+                except (UnicodeDecodeError, OSError, EOFError) as fallback_error:
+                    logger.debug(
+                        f"Validation failed for {self.file_path} with encoding {fallback_enc}: {fallback_error}"
+                    )
                     continue
             return (False, "Cannot decode with any supported encoding")
         except EOFError:

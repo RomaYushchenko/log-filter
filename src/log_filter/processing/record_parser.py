@@ -6,6 +6,7 @@ the entire record in memory. It uses a generator-based approach for
 efficient processing of large log files.
 """
 
+import logging
 import re
 from datetime import date as dt_date
 from datetime import datetime
@@ -15,6 +16,8 @@ from typing import Iterator, Optional
 
 from log_filter.core.exceptions import RecordSizeExceededError
 from log_filter.domain.models import LogRecord
+
+logger = logging.getLogger(__name__)
 
 
 class StreamingRecordParser:
@@ -195,7 +198,11 @@ class StreamingRecordParser:
                         break
                     except ValueError:
                         continue
-            except Exception:
+            except (ValueError, TypeError, AttributeError) as parse_error:
+                # Timestamp parsing is optional; log and continue if it fails
+                logger.debug(
+                    f"Failed to parse timestamp '{date_str} {time_str}' in {source_file}: {parse_error}"
+                )
                 pass
 
         return LogRecord(

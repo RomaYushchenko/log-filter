@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.abspath('../../src'))
 # -- Project information -----------------------------------------------------
 project = 'Log Filter'
 copyright = '2026, Roman Yushchenko'
-author = 'Akvelon'
+author = 'Roman Yushchenko'
 release = '2.0.0'
 
 # -- General configuration ---------------------------------------------------
