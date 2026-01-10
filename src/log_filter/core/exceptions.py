@@ -6,8 +6,6 @@ from pathlib import Path
 class LogFilterException(Exception):
     """Base exception for all log filter errors."""
 
-    pass
-
 
 class ParseError(LogFilterException):
     """Exception raised during expression parsing."""
