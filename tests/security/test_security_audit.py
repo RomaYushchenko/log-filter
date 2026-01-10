@@ -301,6 +301,7 @@ class TestResourceExhaustionDoS:
 
         # Create pipeline and check that worker count is capped
         from log_filter.config.models import ProcessingConfig
+
         max_workers = ProcessingConfig._get_max_workers_for_platform()
 
         # The pipeline should run successfully with capped workers

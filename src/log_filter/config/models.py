@@ -14,7 +14,6 @@ MAX_WORKERS_MACOS = 32  # Similar to Linux
 MAX_WORKERS_DEFAULT = 32  # Fallback for unknown platforms
 
 
-
 @dataclass
 class SearchConfig:
     """Configuration for search operations.
