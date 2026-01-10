@@ -325,7 +325,15 @@ class ProcessingPipeline:
         # Determine worker count
         worker_count = self.config.processing.worker_count
         if worker_count is None:
-            worker_count = os.cpu_count() or 4
+            # Auto-detect but cap to platform maximum to prevent resource exhaustion
+            detected_count = os.cpu_count() or 4
+            max_workers = ProcessingConfig._get_max_workers_for_platform()
+            worker_count = min(detected_count, max_workers)
+            if detected_count > max_workers:
+                logger.info(
+                    f"Auto-detected worker count ({detected_count}) exceeds platform maximum. "
+                    f"Capping to {max_workers} workers to prevent resource exhaustion."
+                )
         else:
             # Warn if worker count significantly exceeds CPU count
             cpu_count = os.cpu_count() or 4

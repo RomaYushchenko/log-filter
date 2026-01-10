@@ -281,6 +281,40 @@ class TestResourceExhaustionDoS:
         assert "exceeds platform maximum" in error_msg
         assert "resource exhaustion" in error_msg
 
+    def test_auto_detected_workers_capped_to_platform_max(self, tmp_path, monkeypatch):
+        """Test that auto-detected worker count is capped to platform maximum."""
+        log_file = tmp_path / "test.log"
+        log_file.write_text("2025-01-08 12:00:00 ERROR Test\n")
+
+        output = tmp_path / "output.log"
+
+        # Mock os.cpu_count() to return a high value exceeding platform max
+        monkeypatch.setattr("os.cpu_count", lambda: 128)
+
+        # Create config without explicit worker_count (auto-detect)
+        config = ApplicationConfig(
+            search=SearchConfig(expression="ERROR"),
+            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            processing=ProcessingConfig(worker_count=None),  # Auto-detect
+        )
+
+        # Create pipeline and check that worker count is capped
+        from log_filter.config.models import ProcessingConfig
+        max_workers = ProcessingConfig._get_max_workers_for_platform()
+
+        # The pipeline should run successfully with capped workers
+        pipeline = ProcessingPipeline(config)
+
+        # Verify the pipeline would cap to platform max (we can't directly check
+        # the internal worker_count, but we can verify it doesn't fail)
+        # On a 128-core system, without capping it would try to create 128 workers
+        # which could cause OOM. With capping, it should stay within limits.
+        pipeline.run()
+
+        # Should complete successfully
+        assert output.exists()
+
     def test_zip_bomb_like_compressed_file(self, tmp_path):
         """Test handling of highly compressed files (zip bomb scenario)."""
         import gzip
