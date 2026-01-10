@@ -2,14 +2,22 @@ include README.md
 include LICENSE
 include CHANGELOG.md
 include RELEASE_NOTES.md
+include PROJECT_OVERVIEW.md
+include PYPI_PUBLISHING.md
 include pyproject.toml
 include requirements.txt
 include requirements-dev.txt
+include *.template
+include .editorconfig
+include .flake8
+include .pre-commit-config.yaml
 
 recursive-include src *.py
 recursive-include src py.typed
 recursive-include tests *.py
-recursive-include docs *.md *.rst *.py
+recursive-include docs *.md *.rst *.py *.bat
+include docs/Makefile
+recursive-include docs/_static *.gitkeep
 
 exclude .gitignore
 exclude .dockerignore
