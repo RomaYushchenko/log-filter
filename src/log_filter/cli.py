@@ -132,6 +132,22 @@ Examples:
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 
+    # Level normalization
+    normalize_group = parser.add_mutually_exclusive_group()
+    normalize_group.add_argument(
+        "--normalize-levels",
+        dest="normalize_log_levels",
+        action="store_true",
+        default=None,
+        help="Normalize abbreviated log levels (E->ERROR, W->WARN, etc.) [default: enabled]",
+    )
+    normalize_group.add_argument(
+        "--no-normalize-levels",
+        dest="normalize_log_levels",
+        action="store_false",
+        help="Disable log level normalization (use raw levels from logs)",
+    )
+
     return parser
 
 
@@ -372,9 +388,19 @@ def build_config_from_args(
         args.workers or processing_section.get("max_workers") or config_dict.get("workers")
     )
 
+    # Normalize log levels: CLI arg > config file > default (True)
+    normalize_log_levels = True  # default
+    if args.normalize_log_levels is not None:
+        normalize_log_levels = args.normalize_log_levels
+    elif "normalize_log_levels" in processing_section:
+        normalize_log_levels = processing_section.get("normalize_log_levels", True)
+    elif "normalize_log_levels" in config_dict:
+        normalize_log_levels = config_dict.get("normalize_log_levels", True)
+
     processing_config = ProcessingConfig(
         worker_count=worker_count,
         debug=args.debug or processing_section.get("debug") or config_dict.get("debug", False),
+        normalize_log_levels=normalize_log_levels,
     )
 
     # Build complete application config

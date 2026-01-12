@@ -138,10 +138,14 @@ class ProcessingConfig:
     Attributes:
         worker_count: Number of worker threads (None = auto-detect)
         debug: Whether to enable debug logging
+        normalize_log_levels: Whether to normalize abbreviated log levels (E, W, I, D)
+                             to full names (ERROR, WARN, INFO, DEBUG).
+                             Default: True (user-friendly)
     """
 
     worker_count: Optional[int] = None
     debug: bool = False
+    normalize_log_levels: bool = True
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""

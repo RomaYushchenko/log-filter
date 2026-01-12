@@ -73,7 +73,10 @@ def _process_file_worker(args: tuple) -> tuple:
 
         # Create record filter
         filters: list = []
-        parser = StreamingRecordParser(max_record_size_bytes=max_record_size_bytes)
+        parser = StreamingRecordParser(
+            max_record_size_bytes=max_record_size_bytes,
+            normalize_levels=config.processing.normalize_log_levels,
+        )
 
         if config.search.date_from or config.search.date_to:
             date_filter = DateRangeFilter(
@@ -105,11 +108,19 @@ def _process_file_worker(args: tuple) -> tuple:
                 continue
 
             # Evaluate expression
-            if evaluate(ast, record.content, config.search.ignore_case, config.search.use_regex):
+            # For level-normalized records, prepend the normalized level to enable
+            # searching for "ERROR" to match records with "E" level
+            search_text = record.content
+            if record.level:
+                # Prepend normalized level to search text for matching
+                search_text = f"{record.level} {record.content}"
+
+            if evaluate(ast, search_text, config.search.ignore_case, config.search.use_regex):
                 stats_collector.increment_records_matched()
                 match_count += 1
 
                 # Store matched record with file path if needed
+                # Note: Store original content, not search_text
                 if include_path:
                     matched_records.append(f"{file_meta.path}: {record.content}")
                 else:

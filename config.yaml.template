@@ -152,6 +152,12 @@ processing:
   # "strict"  = Raise error on invalid characters
   errors: "replace"
 
+  # Normalize abbreviated log levels (default: true)
+  # true  = "ERROR" matches both "ERROR" and "E", "WARN" matches "WARN" and "W", etc.
+  # false = Exact match only - "ERROR" matches only "ERROR"
+  # Supported abbreviations: E→ERROR, W→WARN, I→INFO, D→DEBUG, T→TRACE, F→FATAL
+  normalize_log_levels: true
+
   # Enable debug logging (default: false)
   # Shows detailed processing information for troubleshooting
   debug: false

@@ -133,7 +133,16 @@
 
     "_comment_errors": "Error handling for encoding errors (default: 'replace')",
     "_comment_errors_options": "replace = Replace invalid characters with �, ignore = Skip invalid characters, strict = Raise error on invalid characters",
-    "errors": "replace"
+    "errors": "replace",
+
+    "_comment_normalize": "Normalize abbreviated log levels (default: true)",
+    "_comment_normalize_true": "true = 'ERROR' matches both 'ERROR' and 'E', 'WARN' matches 'WARN' and 'W', etc.",
+    "_comment_normalize_false": "false = Exact match only - 'ERROR' matches only 'ERROR'",
+    "_comment_normalize_abbr": "Supported abbreviations: E→ERROR, W→WARN, I→INFO, D→DEBUG, T→TRACE, F→FATAL",
+    "normalize_log_levels": true,
+
+    "_comment_debug": "Enable debug logging (default: false). Shows detailed processing information for troubleshooting",
+    "debug": false
   },
 
   "_comment_examples": "============================================================================",

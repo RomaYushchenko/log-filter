@@ -50,10 +50,31 @@ class StreamingRecordParser:
         r"([A-Z]+)"  # level: ERROR, WARN, INFO, etc.
     )
 
+    # Level normalization mapping (hardcoded, no configuration needed)
+    LEVEL_NORMALIZATION = {
+        # Single-character abbreviations
+        "E": "ERROR",
+        "W": "WARN",
+        "I": "INFO",
+        "D": "DEBUG",
+        "T": "TRACE",
+        "F": "FATAL",
+        # Full names (pass-through for backward compatibility)
+        "ERROR": "ERROR",
+        "WARN": "WARN",
+        "WARNING": "WARN",  # Normalize WARNING to WARN
+        "INFO": "INFO",
+        "DEBUG": "DEBUG",
+        "TRACE": "TRACE",
+        "FATAL": "FATAL",
+        "CRITICAL": "CRITICAL",
+    }
+
     def __init__(
         self,
         record_start_pattern: Optional[re.Pattern] = None,
         max_record_size_bytes: Optional[int] = None,
+        normalize_levels: bool = True,
     ) -> None:
         """Initialize the streaming record parser.
 
@@ -63,9 +84,13 @@ class StreamingRecordParser:
             max_record_size_bytes: Maximum record size in bytes.
                                   Records exceeding this will raise an error.
                                   None means unlimited.
+            normalize_levels: Whether to normalize abbreviated log levels (E, W, I, D)
+                            to full names (ERROR, WARN, INFO, DEBUG).
+                            Default: True (user-friendly)
         """
         self.record_start_pattern = record_start_pattern or self.DEFAULT_RECORD_START_PATTERN
         self.max_record_size_bytes = max_record_size_bytes
+        self.normalize_levels = normalize_levels
 
     def parse_lines(
         self, lines: Iterator[str], file_path: Optional[str] = None
@@ -183,7 +208,9 @@ class StreamingRecordParser:
         level = None
 
         if first_line_info:
-            date_str, time_str, level = first_line_info
+            date_str, time_str, raw_level = first_line_info
+            # Normalize level (e.g., 'E' -> 'ERROR')
+            level = self._normalize_level(raw_level) if raw_level else None
             # Try to parse the timestamp
             try:
                 timestamp_str = f"{date_str} {time_str}"
@@ -215,6 +242,34 @@ class StreamingRecordParser:
             level=level,
             size_bytes=size_bytes,
         )
+
+    def _normalize_level(self, level: str) -> str:
+        """Normalize log level to standard format.
+
+        Converts single-character abbreviations (E, W, I, D, T, F) to full names
+        (ERROR, WARN, INFO, DEBUG, TRACE, FATAL). Also normalizes variations like
+        WARNING -> WARN.
+
+        Args:
+            level: Raw level from log (e.g., 'E', 'ERROR', 'W', 'WARNING')
+
+        Returns:
+            Normalized level (e.g., 'ERROR', 'WARN', 'INFO')
+
+        Example:
+            >>> parser = StreamingRecordParser(normalize_levels=True)
+            >>> parser._normalize_level('E')
+            'ERROR'
+            >>> parser._normalize_level('ERROR')
+            'ERROR'
+            >>> parser._normalize_level('WARNING')
+            'WARN'
+        """
+        if not self.normalize_levels:
+            return level
+
+        # Simple dictionary lookup - no custom mappings needed
+        return self.LEVEL_NORMALIZATION.get(level.upper(), level)
 
     def is_record_start(self, line: str) -> bool:
         """Check if a line is the start of a new record.
