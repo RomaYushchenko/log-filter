@@ -368,10 +368,10 @@ log-filter --config config.yaml
 ```yaml
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
-  search_root: /var/log
+  path: /var/log
   include_patterns:
     - "*.log"
   exclude_patterns:

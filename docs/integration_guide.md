@@ -43,7 +43,7 @@ def filter_logs(log_dir: str, expression: str, output_file: str):
     config = ApplicationConfig(
         search=SearchConfig(
             expression=expression,
-            case_sensitive=False
+            ignore_case=False
         ),
         files=FileConfig(
             search_root=Path(log_dir),
@@ -136,7 +136,7 @@ class CustomLogPipeline:
     def __init__(self, expression: str):
         # Parse expression
         self.ast = parse(expression)
-        self.evaluator = Evaluator(self.ast, case_sensitive=False)
+        self.evaluator = Evaluator(self.ast, ignore_case=False)
         
         # Set up components
         self.record_parser = StreamingRecordParser()
@@ -801,7 +801,7 @@ module Fluent::Plugin
     Fluent::Plugin.register_filter('log_filter', self)
     
     config_param :expression, :string
-    config_param :case_sensitive, :bool, default: false
+    config_param :ignore_case, :bool, default: false
     
     def filter(tag, time, record)
       content = record['message'] || record['log'] || ''
@@ -829,7 +829,7 @@ Configuration:
 <filter app.**>
   @type log_filter
   expression "ERROR OR WARNING"
-  case_sensitive false
+  ignore_case false
 </filter>
 
 <match app.**>
@@ -932,10 +932,10 @@ data:
   config.yaml: |
     search:
       expression: "ERROR OR CRITICAL"
-      case_sensitive: false
+      ignore_case: false
     
     files:
-      search_root: /var/log
+      path: /var/log
       include_patterns:
         - "*.log"
         - "*.gz"
@@ -1168,7 +1168,7 @@ jobs = {}
 
 class FilterRequest(BaseModel):
     expression: str
-    case_sensitive: bool = False
+    ignore_case: bool = False
     max_workers: int = 4
 
 class FilterResponse(BaseModel):

@@ -28,7 +28,7 @@ search:
     (status:(500 OR 502 OR 503 OR 504)) OR
     (ERROR AND (payment OR checkout OR cart)) OR
     (CRITICAL AND NOT health-check)
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log/webapp
@@ -157,7 +157,7 @@ search:
       (deadlock OR lock-wait-timeout) OR
       (too many connections)
     )
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log
@@ -295,7 +295,7 @@ search:
       (api OR endpoint OR request OR response)
     ) OR
     (response-time AND (> OR exceeded OR high))
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log/api
@@ -439,7 +439,7 @@ search:
     (xss OR csrf OR rce OR lfi OR rfi) OR
     (suspicious OR anomaly OR unusual) OR
     (brute-force OR dos OR ddos)
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log

@@ -30,10 +30,10 @@ Basic Setup
         log_file="app.log",
         format="json"  # or "text"
     )
-    
+
     # Get logger
     logger = get_logger(__name__)
-    
+
     # Log messages
     logger.info("Processing started")
     logger.error("Failed to open file", extra={"file": "app.log"})
@@ -55,7 +55,7 @@ Structured Logging
 .. code-block:: python
 
     logger = get_logger(__name__)
-    
+
     # JSON-formatted structured logs
     logger.info(
         "File processed",
@@ -66,7 +66,7 @@ Structured Logging
             "duration_ms": 1250
         }
     )
-    
+
     # Output (JSON):
     # {
     #   "timestamp": "2026-01-08T10:30:45.123Z",
@@ -102,7 +102,7 @@ File Logging
 
     # Create logger that writes to file
     logger = create_file_logger(Path("processing.log"))
-    
+
     logger.info("Processing started")
     # Writes to processing.log
 
@@ -126,20 +126,20 @@ Thread-safe progress tracking with visual feedback.
     from log_filter.utils.progress import ProgressTracker
 
     files = ["app.log", "db.log", "web.log"]
-    
+
     tracker = ProgressTracker(
         total=len(files),
         desc="Processing files",
         unit="files"
     )
-    
+
     for file in files:
         # Process file
         process_file(file)
-        
+
         # Update progress
         tracker.update(1)
-    
+
     tracker.close()
 
 Output:
@@ -164,11 +164,11 @@ Advanced Progress
         miniters=1,          # Update frequency
         dynamic_ncols=True   # Auto-adjust to terminal width
     )
-    
+
     for i in range(1000):
         # Process record
         process_record(i)
-        
+
         # Update with custom stats
         tracker.update(1)
         tracker.set_postfix(
@@ -199,11 +199,11 @@ Simple counter without visual display.
     from log_filter.utils.progress import ProgressCounter
 
     counter = ProgressCounter()
-    
+
     for item in items:
         process(item)
         counter.increment()
-    
+
     print(f"Processed {counter.count} items")
 
 Text Highlighting
@@ -226,7 +226,7 @@ ANSI color highlighting for terminal output.
     from log_filter.utils.highlighter import TextHighlighter
 
     highlighter = TextHighlighter()
-    
+
     # Highlight matching terms
     text = "ERROR: Database connection failed"
     highlighted = highlighter.highlight(text, ["ERROR", "database"])
@@ -245,7 +245,7 @@ Colors
         background=False,         # No background color
         bold=True                 # Bold text
     )
-    
+
     highlighted = highlighter.highlight(text, ["ERROR"])
 
 Available colors:
@@ -258,12 +258,12 @@ Case-Insensitive Highlighting
 .. code-block:: python
 
     highlighter = TextHighlighter()
-    
+
     text = "Error in database connection"
     highlighted = highlighter.highlight(
-        text, 
+        text,
         ["ERROR", "DATABASE"],
-        case_sensitive=False
+        ignore_case=False
     )
     # Highlights "Error" and "database"
 
@@ -274,7 +274,7 @@ Disable Highlighting
 
     # For non-terminal output or plain text
     highlighter = TextHighlighter(enabled=False)
-    
+
     highlighted = highlighter.highlight(text, ["ERROR"])
     # Returns original text without ANSI codes
 
@@ -306,29 +306,29 @@ Complete Utilities Example
     configure_logging(level="INFO")
     logger = get_logger(__name__)
     highlighter = TextHighlighter()
-    
+
     files = ["app.log", "db.log", "web.log"]
     matches = []
-    
+
     # Process with progress tracking
     with ProgressTracker(total=len(files), desc="Scanning") as progress:
         for file in files:
             logger.info("Processing file", extra={"file": file})
-            
+
             # Simulated processing
             for line in read_file(file):
                 if "ERROR" in line:
                     highlighted = highlighter.highlight(line, ["ERROR"])
                     matches.append(highlighted)
-            
+
             progress.update(1)
-    
+
     # Display results
     logger.info("Processing complete", extra={
         "files": len(files),
         "matches": len(matches)
     })
-    
+
     for match in matches:
         print(match)
 

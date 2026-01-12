@@ -48,7 +48,7 @@ class TestArgumentParser:
         """Test parsing minimal required arguments."""
         parser = create_argument_parser()
         args = parser.parse_args(["--expr", "ERROR"])
-        assert args.expr == "ERROR"
+        assert args.expression == "ERROR"
         assert args.ignore_case is False
         assert args.regex is False
 
@@ -56,7 +56,7 @@ class TestArgumentParser:
         """Test parsing all search-related arguments."""
         parser = create_argument_parser()
         args = parser.parse_args(["--expr", "ERROR AND Kafka", "--ignore-case", "--regex"])
-        assert args.expr == "ERROR AND Kafka"
+        assert args.expression == "ERROR AND Kafka"
         assert args.ignore_case is True
         assert args.regex is True
 
@@ -242,7 +242,7 @@ class TestConfigurationBuilding:
         assert config.search.expression == "ERROR"
         assert config.search.ignore_case is False
         assert config.search.use_regex is False
-        assert config.files.search_root == Path(".")
+        assert config.files.path == Path(".")
         assert config.output.output_file == Path("filter-result.log")
 
     def test_build_full_config(self, tmp_path: Path) -> None:
@@ -294,7 +294,7 @@ class TestConfigurationBuilding:
         assert config.search.time_to == time(17, 0, 0)
 
         # File config
-        assert config.files.search_root == tmp_path
+        assert config.files.path == tmp_path
         assert config.files.file_masks == ["app.log"]
         assert config.files.max_file_size_mb == 100
         assert config.files.max_record_size_kb == 64
@@ -338,7 +338,7 @@ class TestConfigurationBuilding:
 
         assert config.search.expression == "ERROR AND Kafka"
         assert config.search.ignore_case is True
-        assert config.files.search_root == tmp_path
+        assert config.files.path == tmp_path
         assert config.output.show_progress is True
 
     def test_build_config_cli_overrides_file(self, tmp_path: Path) -> None:
@@ -412,7 +412,7 @@ class TestIntegration:
 
         assert config.search.expression == "ERROR OR WARNING"
         assert config.search.ignore_case is True
-        assert config.files.search_root == tmp_path
+        assert config.files.path == tmp_path
         assert config.output.show_progress is True
         assert config.output.show_stats is True
         assert config.processing.worker_count == 4
@@ -442,7 +442,7 @@ class TestIntegration:
 
         assert config.search.expression == "ERROR"
         assert config.search.ignore_case is True  # Overridden
-        assert config.files.search_root == tmp_path
+        assert config.files.path == tmp_path
         assert config.output.show_progress is True  # Added
         assert config.processing.worker_count == 8  # Overridden
 

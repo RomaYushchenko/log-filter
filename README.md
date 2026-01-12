@@ -12,6 +12,7 @@
 
 - **🔍 Boolean Expressions**: Search with AND, OR, NOT operators for complex patterns
 - **⚡ Multi-threaded**: Parallel processing delivers 5-10x speedup (5,000+ lines/sec)
+- **🏷️ Log Level Normalization**: Automatically matches abbreviated levels (E→ERROR, W→WARN, etc.)
 - **📊 Statistics**: Built-in metrics tracking and performance monitoring
 - **🗓️ Date/Time Filtering**: Native support for date and time range filtering
 - **🔧 Flexible Configuration**: YAML config files, environment variables, CLI arguments
@@ -56,6 +57,10 @@ log-filter --version
 # Search for errors
 log-filter "ERROR" /var/log
 
+# Works with abbreviated levels (E, W, I, D, T, F)
+# Searches for "ERROR" will match logs with both "ERROR" and "E" levels
+log-filter "ERROR" /var/log/production
+
 # Boolean expression
 log-filter "ERROR AND database" /var/log
 
@@ -70,6 +75,9 @@ log-filter "ERROR" /var/log --after 2024-01-01
 
 # Show statistics
 log-filter "ERROR" /var/log --stats
+
+# Disable level normalization (match exact text only)
+log-filter "ERROR" /var/log --no-normalize-levels
 ```
 
 ### Example Output
@@ -135,6 +143,37 @@ log-filter "ERROR" /var/log \
 log-filter "ERROR" /var/log/app /var/log/system /var/log/nginx
 ```
 
+### Log Level Normalization
+
+Production logs often use abbreviated log levels (E, W, I, D) to save space. Log Filter automatically normalizes these abbreviations, allowing you to search using full level names:
+
+```bash
+# Search for "ERROR" matches both "ERROR" and "E" in logs
+log-filter "ERROR" /var/log/production
+
+# Supported abbreviations:
+# E → ERROR
+# W → WARN (also WARN, WARNING)
+# I → INFO  
+# D → DEBUG
+# T → TRACE
+# F → FATAL
+
+# Example: Your production log format
+# 2025-01-08 10:00:00.000+0000 E Database connection failed
+# 2025-01-08 10:00:01.000+0000 W Connection pool exhausted
+
+# Both will be matched by:
+log-filter "ERROR OR WARN" /var/log
+
+# Disable normalization if needed (exact match only)
+log-filter "ERROR" /var/log --no-normalize-levels
+
+# Configure in YAML
+# processing:
+#   normalize_log_levels: true  # default
+```
+
 ## 🔧 Advanced Configuration
 
 Create `config.yaml`:
@@ -142,10 +181,10 @@ Create `config.yaml`:
 ```yaml
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
-  search_root: "/var/log"
+  path: "/var/log"
   include_patterns:
     - "*.log"
   exclude_patterns:
@@ -168,6 +207,7 @@ processing:
   max_workers: 8
   buffer_size: 32768
   encoding: "utf-8"
+  normalize_log_levels: true  # Enable level normalization (default)
   debug: false
 ```
 

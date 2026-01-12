@@ -52,7 +52,7 @@ class FileConfig:
     """Configuration for file operations.
 
     Attributes:
-        search_root: Root directory to search for log files
+        path: Path to search for log files
         file_masks: List of filename patterns to include (empty = all files)
         include_patterns: Glob patterns for files to include (empty = all files)
         exclude_patterns: Glob patterns for files to exclude
@@ -61,7 +61,7 @@ class FileConfig:
         extensions: Allowed file extensions
     """
 
-    search_root: Path = Path(".")
+    path: Path = Path(".")
     file_masks: list[str] = field(default_factory=list)
     include_patterns: list[str] = field(default_factory=list)
     exclude_patterns: list[str] = field(default_factory=list)
@@ -71,11 +71,11 @@ class FileConfig:
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""
-        if not self.search_root.exists():
-            raise ValueError(f"Search root does not exist: {self.search_root}")
+        if not self.path.exists():
+            raise ValueError(f"Path does not exist: {self.path}")
 
-        if not self.search_root.is_dir():
-            raise ValueError(f"Search root is not a directory: {self.search_root}")
+        if not self.path.is_dir():
+            raise ValueError(f"Path is not a directory: {self.path}")
 
         if self.max_file_size_mb is not None and self.max_file_size_mb <= 0:
             raise ValueError(f"max_file_size_mb must be positive, got {self.max_file_size_mb}")
@@ -138,10 +138,14 @@ class ProcessingConfig:
     Attributes:
         worker_count: Number of worker threads (None = auto-detect)
         debug: Whether to enable debug logging
+        normalize_log_levels: Whether to normalize abbreviated log levels (E, W, I, D)
+                             to full names (ERROR, WARN, INFO, DEBUG).
+                             Default: True (user-friendly)
     """
 
     worker_count: Optional[int] = None
     debug: bool = False
+    normalize_log_levels: bool = True
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""

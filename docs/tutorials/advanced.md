@@ -77,10 +77,10 @@ EOF
 # large-file-config.yaml
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
-  search_root: .
+  path: .
   include_patterns:
     - "large.log"
 
@@ -328,7 +328,7 @@ def main():
     config = ApplicationConfig(
         search=SearchConfig(
             expression="ERROR OR CRITICAL",
-            case_sensitive=False
+            ignore_case=False
         ),
         files=FileConfig(
             search_root=Path("/var/log/app"),
@@ -800,7 +800,7 @@ search:
   expression: "ERROR"
 
 files:
-  search_root: /path/to/logs
+  path: /path/to/logs
   include_patterns:
     - "large-file.log"
 

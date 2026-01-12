@@ -53,10 +53,10 @@ data:
   config.yaml: |
     search:
       expression: "ERROR OR CRITICAL"
-      case_sensitive: false
+      ignore_case: false
     
     files:
-      search_root: /logs
+      path: /logs
       include_patterns:
         - "*.log"
     
@@ -386,7 +386,7 @@ data:
     search:
       expression: "ERROR OR CRITICAL"
     files:
-      search_root: /logs
+      path: /logs
     output:
       output_file: /output/errors.txt
 
@@ -401,7 +401,7 @@ data:
     search:
       expression: "WARNING"
     files:
-      search_root: /logs
+      path: /logs
     output:
       output_file: /output/warnings.txt
 
@@ -621,7 +621,7 @@ data:
     search:
       expression: ".*"  # All records
     files:
-      search_root: /pipeline
+      path: /pipeline
       include_patterns: ["01-collected.txt"]
     output:
       output_file: /pipeline/02-deduped.txt
@@ -631,7 +631,7 @@ data:
     search:
       expression: "(database OR sql) OR (payment OR transaction) OR (auth OR login)"
     files:
-      search_root: /pipeline
+      path: /pipeline
       include_patterns: ["02-deduped.txt"]
     output:
       output_file: /pipeline/03-categorized.txt

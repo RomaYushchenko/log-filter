@@ -45,7 +45,7 @@ class TestEndToEndWorkflows:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -73,7 +73,7 @@ class TestEndToEndWorkflows:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="(ERROR OR WARN) AND NOT timeout"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -103,7 +103,7 @@ class TestEndToEndWorkflows:
             search=SearchConfig(
                 expression="ERROR", date_from=date(2025, 1, 2), date_to=date(2025, 1, 2)
             ),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -131,7 +131,7 @@ class TestEndToEndWorkflows:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="error", ignore_case=True),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -155,7 +155,7 @@ class TestEndToEndWorkflows:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -179,7 +179,7 @@ class TestEndToEndWorkflows:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".gz",)),
+            files=FileConfig(path=tmp_path, extensions=(".gz",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -224,7 +224,7 @@ class TestRealWorldScenarios:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR AND (timeout OR deadlock OR Unavailable)"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(
                 output_file=output, include_file_path=True, show_progress=False, show_stats=False
             ),
@@ -251,7 +251,7 @@ class TestRealWorldScenarios:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="WARN AND (slow OR exhausted)"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -274,7 +274,7 @@ class TestEdgeCases:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=empty_dir),
+            files=FileConfig(path=empty_dir),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -296,7 +296,7 @@ class TestEdgeCases:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="CRITICAL"),
-            files=FileConfig(search_root=log_dir),
+            files=FileConfig(path=log_dir),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -327,7 +327,7 @@ class TestEdgeCases:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=log_dir),
+            files=FileConfig(path=log_dir),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -355,7 +355,7 @@ class TestEdgeCases:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=log_dir),
+            files=FileConfig(path=log_dir),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -382,7 +382,7 @@ class TestEdgeCases:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=log_dir),
+            files=FileConfig(path=log_dir),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -413,7 +413,7 @@ class TestStatisticsAndReporting:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=log_dir),
+            files=FileConfig(path=log_dir),
             output=OutputConfig(output_file=output, show_stats=True, show_progress=False),
         )
 
@@ -437,7 +437,7 @@ class TestStatisticsAndReporting:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=log_dir),
+            files=FileConfig(path=log_dir),
             output=OutputConfig(
                 output_file=output, dry_run=True, show_progress=False, show_stats=False
             ),
@@ -469,7 +469,7 @@ class TestConcurrentProcessing:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=log_dir),
+            files=FileConfig(path=log_dir),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             processing=ProcessingConfig(worker_count=2),
         )

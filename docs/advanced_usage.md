@@ -226,7 +226,7 @@ search:
     (ERROR OR CRITICAL) AND 
     NOT (deprecated OR "known issue") AND
     (database OR network OR timeout)
-  case_sensitive: false
+  ignore_case: false
 ```
 
 This finds:
@@ -256,7 +256,7 @@ search:
       (authorization AND (unauthorized OR forbidden)) OR
       (sql AND (injection OR malicious))
     ) AND NOT (health-check OR monitoring)
-  case_sensitive: false
+  ignore_case: false
 ```
 
 ### Expression Optimization
@@ -373,7 +373,7 @@ from datetime import datetime, time
 # Create individual filters
 expression_filter = ExpressionFilter(
     expression="ERROR AND database",
-    case_sensitive=False
+    ignore_case=False
 )
 
 date_filter = DateRangeFilter(

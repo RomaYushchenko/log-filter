@@ -35,8 +35,8 @@ from log_filter.processing.pipeline import ProcessingPipeline
 class TestPathTraversalVulnerabilities:
     """Test protection against path traversal attacks."""
 
-    def test_path_traversal_in_search_root(self, tmp_path):
-        """Test that path traversal in search_root is handled safely."""
+    def test_path_traversal_in_path(self, tmp_path):
+        """Test that path traversal in path is handled safely."""
         # Create a test file outside the intended directory
         outside_dir = tmp_path / "outside"
         outside_dir.mkdir()
@@ -53,7 +53,7 @@ class TestPathTraversalVulnerabilities:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="SECRET"),
-            files=FileConfig(search_root=traversal_path, extensions=(".log",)),
+            files=FileConfig(path=traversal_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -79,7 +79,7 @@ class TestPathTraversalVulnerabilities:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=system_root, extensions=(".log",)),
+            files=FileConfig(path=system_root, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -110,7 +110,7 @@ class TestPathTraversalVulnerabilities:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -146,7 +146,7 @@ class TestExpressionInjection:
         for expr in malicious_expressions:
             config = ApplicationConfig(
                 search=SearchConfig(expression=expr),
-                files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+                files=FileConfig(path=tmp_path, extensions=(".log",)),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
 
@@ -180,7 +180,7 @@ class TestExpressionInjection:
         for pattern in redos_patterns:
             config = ApplicationConfig(
                 search=SearchConfig(expression=pattern, use_regex=True),
-                files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+                files=FileConfig(path=tmp_path, extensions=(".log",)),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
                 processing=ProcessingConfig(worker_count=1),
             )
@@ -213,7 +213,7 @@ class TestExpressionInjection:
 
         config = ApplicationConfig(
             search=SearchConfig(expression=expr),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -245,7 +245,7 @@ class TestResourceExhaustionDoS:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -271,7 +271,7 @@ class TestResourceExhaustionDoS:
         with pytest.raises(ValueError) as exc_info:
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
-                files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+                files=FileConfig(path=tmp_path, extensions=(".log",)),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
                 processing=ProcessingConfig(worker_count=10000),  # Excessive
             )
@@ -299,7 +299,7 @@ class TestResourceExhaustionDoS:
         # The pipeline should cap auto-detected workers to platform maximum
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             processing=ProcessingConfig(worker_count=None),  # Auto-detect
         )
@@ -334,7 +334,7 @@ class TestResourceExhaustionDoS:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".gz",)),
+            files=FileConfig(path=tmp_path, extensions=(".gz",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -363,7 +363,7 @@ class TestFileAccessControl:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(
                 output_file=dangerous_output, show_progress=False, show_stats=False
             ),
@@ -391,7 +391,7 @@ class TestFileAccessControl:
         try:
             config = ApplicationConfig(
                 search=SearchConfig(expression="SECRET"),
-                files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+                files=FileConfig(path=tmp_path, extensions=(".log",)),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
 
@@ -431,7 +431,7 @@ class TestInformationDisclosure:
         # Invalid expression should give clean error
         config = ApplicationConfig(
             search=SearchConfig(expression="((("),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output),
         )
 
@@ -468,7 +468,7 @@ class TestInputValidation:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -494,7 +494,7 @@ class TestInputValidation:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -516,7 +516,7 @@ class TestInputValidation:
             with pytest.raises(ValueError):
                 config = ApplicationConfig(
                     search=SearchConfig(expression="ERROR"),
-                    files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+                    files=FileConfig(path=tmp_path, extensions=(".log",)),
                     output=OutputConfig(output_file=output),
                     processing=ProcessingConfig(worker_count=count),
                 )
@@ -545,7 +545,7 @@ class TestEncodingSecurityr:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -567,7 +567,7 @@ class TestEncodingSecurityr:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -591,7 +591,7 @@ class TestConcurrencySecurity:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             processing=ProcessingConfig(worker_count=4),
         )
@@ -619,7 +619,7 @@ class TestConcurrencySecurity:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             processing=ProcessingConfig(worker_count=4),
         )

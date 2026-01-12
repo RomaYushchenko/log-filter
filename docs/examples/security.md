@@ -30,7 +30,7 @@ search:
       (failed OR denied OR invalid OR incorrect)
     ) OR
     (password AND (wrong OR incorrect OR invalid))
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log
@@ -273,7 +273,7 @@ search:
       (-- OR /* OR */) OR
       (xp_cmdshell OR sp_executesql)
     )
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log
@@ -460,7 +460,7 @@ search:
     (directory AND (traversal OR listing)) OR
     (path AND (../ OR ..\\)) OR
     (sensitive AND (file OR directory OR data))
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log
@@ -679,7 +679,7 @@ search:
       (plain-text OR unencrypted OR cleartext)
     ) OR
     (pii AND (exposed OR leaked OR unauthorized))
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log

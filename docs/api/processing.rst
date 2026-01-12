@@ -22,7 +22,7 @@ Parses multi-line log records from raw text lines.
     from log_filter.processing.record_parser import StreamingRecordParser
 
     parser = StreamingRecordParser()
-    
+
     # Feed lines to parser
     lines = [
         "2026-01-08 10:30:45 ERROR Database connection failed",
@@ -30,12 +30,12 @@ Parses multi-line log records from raw text lines.
         "  Caused by: Network timeout",
         "2026-01-08 10:30:46 INFO Retrying connection..."
     ]
-    
+
     for line in lines:
         records = parser.feed_line(line, line_number=1)
         for record in records:
             print(f"{record.level}: {record.content[:50]}")
-    
+
     # Get final record
     final_records = parser.finalize()
 
@@ -55,13 +55,13 @@ Supported log formats:
 
     # Standard format
     2026-01-08 10:30:45 ERROR Database connection failed
-    
+
     # With milliseconds
     2026-01-08 10:30:45.123 WARNING Slow query detected
-    
+
     # ISO format
     2026-01-08T10:30:45Z INFO Operation completed
-    
+
     # Multi-line record
     2026-01-08 10:30:45 ERROR Exception in handler
       at Handler.process(handler.py:123)
@@ -86,8 +86,8 @@ Worker thread that processes individual files.
 
     # Create worker
     ast = parse("ERROR OR WARNING")
-    evaluator = Evaluator(ast, case_sensitive=False)
-    
+    evaluator = Evaluator(ast, ignore_case=False)
+
     worker = FileWorker(
         worker_id=0,
         evaluator=evaluator,
@@ -95,7 +95,7 @@ Worker thread that processes individual files.
         output_writer=output_writer,
         stats_collector=stats_collector
     )
-    
+
     # Process a file
     result = worker.process_file(Path("app.log"))
     print(f"Processed {result.records_processed} records")
@@ -130,13 +130,13 @@ Orchestrates the complete processing pipeline with multi-threading.
         output=output_config,
         processing=ProcessingConfig(max_workers=4)
     )
-    
+
     pipeline = ProcessingPipeline(config)
-    
+
     # Process files
     files = [Path("app.log"), Path("db.log"), Path("web.log")]
     result = pipeline.process(files)
-    
+
     print(f"Processed {result.total_files} files")
     print(f"Found {result.total_matches} matches")
     print(f"Time: {result.total_time:.2f}s")
@@ -168,7 +168,7 @@ Complete Processing Example
     config = ApplicationConfig(
         search=SearchConfig(
             expression="ERROR AND database",
-            case_sensitive=False
+            ignore_case=False
         ),
         files=FileConfig(
             search_root=Path("/var/log"),
@@ -183,11 +183,11 @@ Complete Processing Example
             buffer_size=8192
         )
     )
-    
+
     # Create and run pipeline
     pipeline = ProcessingPipeline(config)
     result = pipeline.run()
-    
+
     # Display results
     print(f"Files processed: {result.total_files}")
     print(f"Records processed: {result.total_records}")
@@ -204,7 +204,7 @@ Error Handling
     from log_filter.core.exceptions import FileHandlingError
 
     pipeline = ProcessingPipeline(config)
-    
+
     try:
         result = pipeline.run()
     except FileHandlingError as e:
@@ -226,14 +226,14 @@ Progress Monitoring
 .. code-block:: python
 
     from log_filter.processing.pipeline import ProcessingPipeline
-    
+
     pipeline = ProcessingPipeline(config)
-    
+
     # Process with progress callback
     def progress_callback(files_done, total_files):
         percent = (files_done / total_files) * 100
         print(f"Progress: {files_done}/{total_files} ({percent:.1f}%)")
-    
+
     result = pipeline.run(progress_callback=progress_callback)
 
 Progress information:
@@ -252,16 +252,16 @@ Worker Count
 .. code-block:: python
 
     import os
-    
+
     # Use CPU count
     workers = os.cpu_count()
-    
+
     # For I/O-bound tasks, can use more
     workers = os.cpu_count() * 2
-    
+
     # For CPU-bound tasks, match CPU count
     workers = os.cpu_count()
-    
+
     config = ProcessingConfig(max_workers=workers)
 
 Guidelines:
@@ -277,10 +277,10 @@ Buffer Size
 
     # Small files: smaller buffer
     config = ProcessingConfig(buffer_size=4096)
-    
+
     # Large files: larger buffer
     config = ProcessingConfig(buffer_size=65536)
-    
+
     # Default (balanced)
     config = ProcessingConfig(buffer_size=8192)
 
@@ -301,7 +301,7 @@ Memory Management
         buffer_size=4096,           # Smaller buffers
         chunk_size=100              # Process in smaller chunks
     )
-    
+
     # For high-memory servers
     config = ProcessingConfig(
         max_workers=16,             # More workers
@@ -320,12 +320,12 @@ Typical performance characteristics:
     Throughput: ~5,000-10,000 lines/sec
     Latency: <1 second
     Memory: ~50-100 MB
-    
+
     # Medium files (10-100 MB)
     Throughput: ~3,000-5,000 lines/sec
     Latency: 2-20 seconds
     Memory: ~100-200 MB
-    
+
     # Large files (100-1000 MB)
     Throughput: ~2,000-3,000 lines/sec
     Latency: 30-300 seconds

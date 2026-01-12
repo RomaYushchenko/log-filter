@@ -52,11 +52,11 @@ log-filter -c config.json
 # Search configuration
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 # File selection
 files:
-  search_root: /var/log
+  path: /var/log
   include_patterns:
     - "*.log"
     - "*.txt"
@@ -92,7 +92,7 @@ logging:
 {
   "search": {
     "expression": "ERROR OR CRITICAL",
-    "case_sensitive": false
+    "ignore_case": false
   },
   "files": {
     "search_root": "/var/log",
@@ -152,7 +152,7 @@ filters   → Optional (no filtering by default)
 ```yaml
 search:
   expression: string    # Boolean expression (required)
-  case_sensitive: bool  # Case-sensitive matching (default: false)
+  ignore_case: bool  # Case-sensitive matching (default: false)
 ```
 
 #### `expression` (required)
@@ -191,7 +191,7 @@ expression: |
 expression: '"database connection failed" OR "out of memory"'
 ```
 
-#### `case_sensitive` (optional)
+#### `ignore_case` (optional)
 
 **Type:** `boolean`  
 **Default:** `false`  
@@ -202,13 +202,13 @@ expression: '"database connection failed" OR "out of memory"'
 # Case-insensitive (default)
 search:
   expression: "error"
-  case_sensitive: false
+  ignore_case: false
 # Matches: error, Error, ERROR, eRRoR
 
 # Case-sensitive
 search:
   expression: "Error"
-  case_sensitive: true
+  ignore_case: true
 # Matches: Error only
 ```
 
@@ -220,7 +220,7 @@ search:
 
 ```yaml
 files:
-  search_root: string | list       # Root directory/directories (required)
+  path: string | list       # Root directory/directories (required)
   include_patterns: list           # Include file patterns (optional)
   exclude_patterns: list           # Exclude file patterns (optional)
   recursive: bool                  # Recursive scanning (default: true)
@@ -237,18 +237,18 @@ files:
 ```yaml
 # Single directory
 files:
-  search_root: /var/log
+  path: /var/log
 
 # Multiple directories
 files:
-  search_root:
+  path:
     - /var/log
     - /tmp/logs
     - /opt/app/logs
 
 # Absolute and relative paths
 files:
-  search_root:
+  path:
     - /var/log        # Absolute
     - ./logs          # Relative
     - ~/application/logs  # Home directory
@@ -761,10 +761,10 @@ search:
   expression: |
     (ERROR OR CRITICAL OR FATAL) AND
     NOT (test OR debug OR mock)
-  case_sensitive: false
+  ignore_case: false
 
 files:
-  search_root: /var/log/production
+  path: /var/log/production
   include_patterns:
     - "*.log"
   exclude_patterns:
@@ -794,10 +794,10 @@ logging:
 # development-debug.yaml
 search:
   expression: "ERROR OR WARNING"
-  case_sensitive: false
+  ignore_case: false
 
 files:
-  search_root: ./logs
+  path: ./logs
   include_patterns:
     - "*.log"
     - "*.txt"
@@ -834,10 +834,10 @@ search:
     ) OR
     (sql AND injection) OR
     (xss OR csrf)
-  case_sensitive: false
+  ignore_case: false
 
 files:
-  search_root:
+  path:
     - /var/log/auth
     - /var/log/security
     - /var/log/app
@@ -869,10 +869,10 @@ search:
   expression: |
     (slow OR latency OR timeout) AND
     (query OR request OR response)
-  case_sensitive: false
+  ignore_case: false
 
 files:
-  search_root: /var/log/app
+  path: /var/log/app
   include_patterns:
     - "performance.log"
     - "access.log"
@@ -897,10 +897,10 @@ logging:
 # log-aggregation.yaml
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
-  search_root:
+  path:
     - /var/log/api
     - /var/log/web
     - /var/log/worker
@@ -938,7 +938,7 @@ Configuration values can reference environment variables using `${VAR}` syntax:
 
 ```yaml
 files:
-  search_root: ${LOG_DIR}
+  path: ${LOG_DIR}
 
 output:
   output_file: ${OUTPUT_DIR}/errors-{date}.txt
@@ -1004,11 +1004,11 @@ search:
 # Search for database errors in production logs
 search:
   expression: "ERROR AND database"
-  case_sensitive: false  # Case-insensitive by default
+  ignore_case: false  # Case-insensitive by default
 
 # Scan production log directory
 files:
-  search_root: /var/log/production
+  path: /var/log/production
   include_patterns:
     - "*.log"  # Only .log files
   exclude_patterns:
@@ -1020,7 +1020,7 @@ files:
 ```yaml
 # ✅ Good: Flexible across environments
 files:
-  search_root: ${LOG_DIR}
+  path: ${LOG_DIR}
 
 output:
   output_file: ${OUTPUT_DIR}/errors.txt

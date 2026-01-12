@@ -507,10 +507,10 @@ C:\ProgramData\log-filter\config.yaml  # Windows
 # config.yaml
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
-  search_root: "/var/log"
+  path: "/var/log"
   include_patterns:
     - "*.log"
     - "*.log.gz"

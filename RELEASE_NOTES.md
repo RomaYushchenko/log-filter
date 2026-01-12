@@ -191,7 +191,7 @@ search:
   expression: "ERROR OR CRITICAL"
   
 files:
-  search_root: "/var/log"
+  path: "/var/log"
   include_patterns: ["*.log"]
   
 output:

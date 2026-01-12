@@ -12,10 +12,10 @@
     "_comment_examples": "Examples: 'ERROR', 'ERROR AND database', '(ERROR OR CRITICAL) AND NOT test'",
     "expression": "ERROR",
 
-    "_comment_case_sensitive": "Case-sensitive search (default: false)",
-    "_comment_case_true": "true = 'ERROR' matches only 'ERROR'",
-    "_comment_case_false": "false = 'ERROR' matches 'error', 'Error', 'ERROR', etc.",
-    "case_sensitive": false
+    "_comment_ignore_case": "Case-insensitive search (default: false)",
+    "_comment_ignore_case_true": "true = 'ERROR' matches 'error', 'Error', 'ERROR', etc.",
+    "_comment_ignore_case_false": "false = 'ERROR' matches only 'ERROR'",
+    "ignore_case": false
   },
 
   "_comment_files": "============================================================================",
@@ -23,8 +23,8 @@
   "_comment_files_end": "============================================================================",
 
   "files": {
-    "_comment_search_root": "Root directory to search for log files",
-    "search_root": "/var/log",
+    "_comment_path": "Path to search for log files",
+    "path": "/var/log",
 
     "_comment_include": "Include only files matching these patterns (glob patterns). If empty or null, includes all files",
     "include_patterns": [
@@ -120,10 +120,7 @@
 
   "processing": {
     "_comment_workers": "Maximum worker threads (default: auto-detect = 2 * CPU cores)",
-    "_comment_workers_e,
-
-    "_comment_debug": "Enable debug logging (default: false). Shows detailed processing information for troubleshooting",
-    "debug": falsexamples": "null or 0 = Auto-detect, 1 = Single-threaded, 4-8 = Good for most systems, 16+ = High-performance systems",
+    "_comment_workers_examples": "null or 0 = Auto-detect, 1 = Single-threaded, 4-8 = Good for most systems, 16+ = High-performance systems",
     "max_workers": null,
 
     "_comment_buffer": "Buffer size for reading files in bytes (default: 8192)",
@@ -136,7 +133,16 @@
 
     "_comment_errors": "Error handling for encoding errors (default: 'replace')",
     "_comment_errors_options": "replace = Replace invalid characters with �, ignore = Skip invalid characters, strict = Raise error on invalid characters",
-    "errors": "replace"
+    "errors": "replace",
+
+    "_comment_normalize": "Normalize abbreviated log levels (default: true)",
+    "_comment_normalize_true": "true = 'ERROR' matches both 'ERROR' and 'E', 'WARN' matches 'WARN' and 'W', etc.",
+    "_comment_normalize_false": "false = Exact match only - 'ERROR' matches only 'ERROR'",
+    "_comment_normalize_abbr": "Supported abbreviations: E→ERROR, W→WARN, I→INFO, D→DEBUG, T→TRACE, F→FATAL",
+    "normalize_log_levels": true,
+
+    "_comment_debug": "Enable debug logging (default: false). Shows detailed processing information for troubleshooting",
+    "debug": false
   },
 
   "_comment_examples": "============================================================================",

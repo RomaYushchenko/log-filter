@@ -56,7 +56,7 @@ A Python-based high-performance log filtering tool that performs boolean search 
     - `"ERROR AND NOT Heartbeat"`
 
 - **Search Modes**:
-  - Case-insensitive search (`--ignore-case` or `case_sensitive: false`)
+  - Case-insensitive search (`--ignore-case` or `ignore_case: true`)
   - Regular expression matching (`--regex`)
   - Match highlighting with `<<< >>>` markers (`--highlight`)
 
@@ -69,7 +69,7 @@ A Python-based high-performance log filtering tool that performs boolean search 
 - **File Filtering**:
   - Include patterns with glob support (`include_patterns` in config)
   - Exclude patterns with glob support (`exclude_patterns` in config)
-  - Specify search directory (`--path` or `search_root`)
+  - Specify search directory (`--path`)
   - Set maximum file size limit (`--max-file-size` or `max_file_size`)
   - Set maximum record size limit (`--max-record-size` or `max_record_size`)
   - Control directory traversal depth (`max_depth` in config)
@@ -205,37 +205,37 @@ A Python-based high-performance log filtering tool that performs boolean search 
 log-filter --config searchConfig.json
 
 # Simple error search
-log-filter --expr "ERROR"
+log-filter --expression "ERROR"
 
 # Complex boolean search
-log-filter --expr "ERROR AND Kafka"
-log-filter --expr "ERROR AND NOT Heartbeat"
-log-filter --expr "(ERROR AND Kafka) OR WARN"
+log-filter --expression "ERROR AND Kafka"
+log-filter --expression "ERROR AND NOT Heartbeat"
+log-filter --expression "(ERROR AND Kafka) OR WARN"
 
 # Regex pattern search
-log-filter --expr "ERROR [0-9]{3}" --regex
-log-filter --expr "^.* E" --regex
+log-filter --expression "ERROR [0-9]{3}" --regex
+log-filter --expression "^.* E" --regex
 
 # Date range filtering
-log-filter --expr "ERROR" --from 2025-01-01 --to 2025-01-10
+log-filter --expression "ERROR" --from 2025-01-01 --to 2025-01-10
 
 # Time range filtering (business hours)
-log-filter --expr "ERROR" --from-time 09:00:00 --to-time 17:00:00
+log-filter --expression "ERROR" --from-time 09:00:00 --to-time 17:00:00
 
 # Custom directory search
-log-filter --expr "ERROR" --path "/var/log/myapp"
+log-filter --expression "ERROR" --path "/var/log/myapp"
 
 # High-performance search with custom workers
-log-filter --expr "ERROR" --workers 16
+log-filter --expression "ERROR" --workers 16
 
 # With statistics and progress
-log-filter --expr "ERROR" --stats --progress
+log-filter --expression "ERROR" --stats --progress
 
 # Output to custom file
-log-filter --expr "ERROR" --output my-errors.txt
+log-filter --expression "ERROR" --output my-errors.txt
 
 # Dry-run to preview files
-log-filter --expr "ERROR" --dry-run-details
+log-filter --expression "ERROR" --dry-run-details
 ```
 
 ### Configuration File Examples
@@ -245,10 +245,10 @@ log-filter --expr "ERROR" --dry-run-details
 ```yaml
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
-  search_root: "/var/log"
+  path: "/var/log"
   include_patterns:
     - "*.log"
     - "*.log.gz"
@@ -270,7 +270,7 @@ processing:
 {
   "search": {
     "expression": "\"ERROR\" AND (\"database\" OR \"connection\")",
-    "case_sensitive": false
+    "ignore_case": false
   },
   "files": {
     "search_root": "/var/log",
@@ -327,7 +327,7 @@ from log_filter.main import main
 import sys
 
 # Programmatic execution
-sys.argv = ['log-filter', '--expr', 'ERROR', '--stats']
+sys.argv = ['log-filter', '--expression', 'ERROR', '--stats']
 main()
 ```
 

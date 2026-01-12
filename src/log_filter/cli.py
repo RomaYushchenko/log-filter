@@ -7,6 +7,7 @@ from command-line arguments and configuration files.
 
 import argparse
 import json
+import logging
 import sys
 from datetime import date, time
 from pathlib import Path
@@ -29,6 +30,9 @@ from log_filter.config.models import (
 )
 from log_filter.core.exceptions import ConfigurationError
 
+# Initialize logger
+logger = logging.getLogger(__name__)
+
 
 def create_argument_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
@@ -42,10 +46,10 @@ def create_argument_parser() -> argparse.ArgumentParser:
         epilog="""
 Examples:
   log-filter --config searchConfig.json
-  log-filter --expr "ERROR AND Kafka"
-  log-filter --expr "ERROR" --from 2025-01-01 --to 2025-01-10
-  log-filter --expr "ERROR [0-9]{3}" --regex
-  log-filter --expr "ERROR" --path /var/log/myapp --workers 8
+  log-filter --expression "ERROR AND Kafka"
+  log-filter --expression "ERROR" --from 2025-01-01 --to 2025-01-10
+  log-filter --expression "ERROR [0-9]{3}" --regex
+  log-filter --expression "ERROR" --path /var/log/myapp --workers 8
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -61,7 +65,9 @@ Examples:
     parser.add_argument("--config", type=Path, help="Load parameters from YAML/JSON config file")
 
     # Search expression
-    parser.add_argument("--expr", help="Boolean search expression (e.g., 'ERROR AND Kafka')")
+    parser.add_argument(
+        "--expression", "--expr", help="Boolean search expression (e.g., 'ERROR AND Kafka')"
+    )
 
     # File filtering
     parser.add_argument("--file-name", help="Substring to filter input files")
@@ -125,6 +131,22 @@ Examples:
         "--workers", type=int, help="Number of parallel worker threads (default: CPU cores)"
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
+
+    # Level normalization
+    normalize_group = parser.add_mutually_exclusive_group()
+    normalize_group.add_argument(
+        "--normalize-levels",
+        dest="normalize_log_levels",
+        action="store_true",
+        default=None,
+        help="Normalize abbreviated log levels (E->ERROR, W->WARN, etc.) [default: enabled]",
+    )
+    normalize_group.add_argument(
+        "--no-normalize-levels",
+        dest="normalize_log_levels",
+        action="store_false",
+        help="Disable log level normalization (use raw levels from logs)",
+    )
 
     return parser
 
@@ -265,19 +287,16 @@ def build_config_from_args(
 
     # Build search config
     # Try nested structure first, then flat
-    expression = args.expr or search_section.get("expression") or config_dict.get("expr")
+    expression = args.expression or search_section.get("expression") or config_dict.get("expr")
     if not expression:
         raise ConfigurationError(
-            "Search expression is required. Use --expr or provide in config file."
+            "Search expression is required. Use --expression or provide in config file."
         )
 
-    # For ignore_case: nested uses "case_sensitive" (inverted), flat uses "ignore_case"
+    # Get ignore_case from CLI args or config
     ignore_case_value = args.ignore_case
     if not ignore_case_value:
-        if "case_sensitive" in search_section:
-            ignore_case_value = not search_section["case_sensitive"]
-        else:
-            ignore_case_value = config_dict.get("ignore_case", False)
+        ignore_case_value = search_section.get("ignore_case", config_dict.get("ignore_case", False))
 
     search_config = SearchConfig(
         expression=expression,
@@ -302,20 +321,27 @@ def build_config_from_args(
         file_masks = fn if isinstance(fn, list) else [fn]
 
     # Handle path - nested vs flat
-    search_root = args.path
-    if search_root == Path("."):
+    path_value = args.path
+    if path_value == Path("."):
         # User didn't specify --path, check config file
-        if "search_root" in files_section:
-            search_root = Path(files_section["search_root"])
+        if "path" in files_section:
+            path_value = Path(files_section["path"])
+        elif "search_root" in files_section:
+            # Backward compatibility - deprecated
+            logger.warning(
+                "Config key 'search_root' is deprecated and will be removed in v3.0. "
+                "Please use 'path' instead."
+            )
+            path_value = Path(files_section["search_root"])
         elif "path" in config_dict:
-            search_root = Path(config_dict["path"])
+            path_value = Path(config_dict["path"])
 
     # Get include/exclude patterns from nested structure
     include_patterns = files_section.get("include_patterns", [])
     exclude_patterns = files_section.get("exclude_patterns", [])
 
     file_config = FileConfig(
-        search_root=search_root,
+        path=path_value,
         file_masks=file_masks,
         include_patterns=include_patterns,
         exclude_patterns=exclude_patterns,
@@ -362,9 +388,19 @@ def build_config_from_args(
         args.workers or processing_section.get("max_workers") or config_dict.get("workers")
     )
 
+    # Normalize log levels: CLI arg > config file > default (True)
+    normalize_log_levels = True  # default
+    if args.normalize_log_levels is not None:
+        normalize_log_levels = args.normalize_log_levels
+    elif "normalize_log_levels" in processing_section:
+        normalize_log_levels = processing_section.get("normalize_log_levels", True)
+    elif "normalize_log_levels" in config_dict:
+        normalize_log_levels = config_dict.get("normalize_log_levels", True)
+
     processing_config = ProcessingConfig(
         worker_count=worker_count,
         debug=args.debug or processing_section.get("debug") or config_dict.get("debug", False),
+        normalize_log_levels=normalize_log_levels,
     )
 
     # Build complete application config
@@ -404,7 +440,7 @@ def main() -> None:
         # CLI testing output - print() is appropriate for user-facing CLI feedback
         print("Configuration loaded successfully:")  # noqa: T201
         print(f"  Expression: {config.search.expression}")  # noqa: T201
-        print(f"  Root path: {config.files.search_root}")  # noqa: T201
+        print(f"  Path: {config.files.path}")  # noqa: T201
         print(f"  Output: {config.output.output_file}")  # noqa: T201
     except ConfigurationError as e:
         print(f"Error: {e}", file=sys.stderr)

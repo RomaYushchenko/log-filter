@@ -122,13 +122,13 @@ Boolean Expressions
 
     # AND operator
     log-filter "ERROR AND database" /var/log
-    
-    # OR operator  
+
+    # OR operator
     log-filter "ERROR OR WARNING" /var/log
-    
+
     # NOT operator
     log-filter "ERROR NOT timeout" /var/log
-    
+
     # Complex expression
     log-filter "(ERROR OR CRITICAL) AND database" /var/log
 
@@ -139,10 +139,10 @@ Date/Time Filtering
 
     # Specific date range
     log-filter "ERROR" /var/log --date-from 2026-01-01 --date-to 2026-01-31
-    
+
     # Specific time range
     log-filter "ERROR" /var/log --time-from 09:00:00 --time-to 17:00:00
-    
+
     # Combine date and time
     log-filter "ERROR" /var/log \
         --date-from 2026-01-01 \
@@ -156,10 +156,10 @@ File Pattern Filtering
 
     # Include specific patterns
     log-filter "ERROR" /var/log -i "*.log" -i "*.log.gz"
-    
+
     # Exclude patterns
     log-filter "ERROR" /var/log -e "*.old" -e "*.tmp"
-    
+
     # Combine include and exclude
     log-filter "ERROR" /var/log -i "*.log" -e "debug.log"
 
@@ -170,13 +170,13 @@ Output Control
 
     # Write to file
     log-filter "ERROR" /var/log -o errors.txt
-    
+
     # Overwrite existing file
     log-filter "ERROR" /var/log -o errors.txt --overwrite
-    
+
     # Dry run (count only)
     log-filter "ERROR" /var/log --dry-run --stats
-    
+
     # Quiet mode
     log-filter "ERROR" /var/log -o errors.txt --quiet
 
@@ -187,10 +187,10 @@ Performance Tuning
 
     # Use 8 worker threads
     log-filter "ERROR" /var/log -w 8
-    
+
     # Increase buffer size
     log-filter "ERROR" /var/log --buffer-size 65536
-    
+
     # Specify encoding
     log-filter "ERROR" /var/log --encoding utf-16
 
@@ -211,10 +211,10 @@ Example configuration file:
     # config.yaml
     search:
       expression: "ERROR AND database"
-      case_sensitive: false
+      ignore_case: false
       date_from: "2026-01-01"
       date_to: "2026-01-31"
-    
+
     files:
       search_root: "/var/log"
       include_patterns:
@@ -223,12 +223,12 @@ Example configuration file:
       exclude_patterns:
         - "*.old"
       max_depth: 5
-    
+
     output:
       output_file: "errors.txt"
       show_stats: true
       verbose: false
-    
+
     processing:
       max_workers: 4
       buffer_size: 8192
@@ -274,21 +274,21 @@ Output:
     ================================================================================
     Processing Statistics
     ================================================================================
-    
+
     Files:
       Processed:     10
       Matched:       7 (70.0%)
       Skipped:       0
-    
+
     Records:
       Total:         15,000
       Matched:       240 (1.6%)
-    
+
     Performance:
       Time:          12.5s
       Throughput:    1,200 records/sec
       Speed:         4.0 MB/sec
-    
+
     ================================================================================
 
 Verbose Output
@@ -322,7 +322,7 @@ Shows statistics without writing output:
 .. code-block:: text
 
     [DRY RUN] No output file will be created
-    
+
     Files: 10 | Records: 15,000 | Matches: 240 (1.6%)
 
 Exit Codes
@@ -354,7 +354,7 @@ Configure via environment variables:
     export LOG_FILTER_ENCODING=utf-8
     export LOG_FILTER_BUFFER_SIZE=16384
     export LOG_FILTER_VERBOSE=1
-    
+
     log-filter "ERROR" /var/log
 
 Supported variables:
@@ -375,7 +375,7 @@ Bash Completion
 
     # Add to ~/.bashrc
     eval "$(log-filter --completion bash)"
-    
+
     # Then use tab completion
     log-filter "ERROR" /var/log --<TAB>
 
@@ -396,10 +396,10 @@ Piping
 
     # Pipe to other commands
     log-filter "ERROR" /var/log | grep "database" | less
-    
+
     # Count matches
     log-filter "ERROR" /var/log | wc -l
-    
+
     # Extract timestamps
     log-filter "ERROR" /var/log | cut -d' ' -f1-2
 
@@ -410,7 +410,7 @@ Redirection
 
     # Redirect to file (alternative to -o)
     log-filter "ERROR" /var/log > errors.txt 2>&1
-    
+
     # Append to existing file
     log-filter "ERROR" /var/log >> errors.txt
 
@@ -436,9 +436,9 @@ Monitoring
 
     #!/bin/bash
     # alert-on-critical.sh
-    
+
     MATCHES=$(log-filter "CRITICAL" /var/log --dry-run --quiet | grep -oP '\d+' | tail -1)
-    
+
     if [ "$MATCHES" -gt 10 ]; then
         echo "ALERT: $MATCHES critical errors found!"
         # Send alert...
@@ -478,7 +478,7 @@ Common Issues
 
     # Check if files are readable
     log-filter "ERROR" /var/log --verbose
-    
+
     # Try case-insensitive
     log-filter "error" /var/log
 
@@ -488,7 +488,7 @@ Common Issues
 
     # Run with sudo
     sudo log-filter "ERROR" /var/log
-    
+
     # Or change permissions
     chmod +r /var/log/*.log
 
@@ -498,7 +498,7 @@ Common Issues
 
     # Reduce workers
     log-filter "ERROR" /var/log -w 2
-    
+
     # Reduce buffer size
     log-filter "ERROR" /var/log --buffer-size 4096
 
