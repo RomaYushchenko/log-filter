@@ -301,20 +301,27 @@ def build_config_from_args(
         file_masks = fn if isinstance(fn, list) else [fn]
 
     # Handle path - nested vs flat
-    search_root = args.path
-    if search_root == Path("."):
+    path_value = args.path
+    if path_value == Path("."):
         # User didn't specify --path, check config file
-        if "search_root" in files_section:
-            search_root = Path(files_section["search_root"])
+        if "path" in files_section:
+            path_value = Path(files_section["path"])
+        elif "search_root" in files_section:
+            # Backward compatibility - deprecated
+            logger.warning(
+                "Config key 'search_root' is deprecated and will be removed in v3.0. "
+                "Please use 'path' instead."
+            )
+            path_value = Path(files_section["search_root"])
         elif "path" in config_dict:
-            search_root = Path(config_dict["path"])
+            path_value = Path(config_dict["path"])
 
     # Get include/exclude patterns from nested structure
     include_patterns = files_section.get("include_patterns", [])
     exclude_patterns = files_section.get("exclude_patterns", [])
 
     file_config = FileConfig(
-        search_root=search_root,
+        path=path_value,
         file_masks=file_masks,
         include_patterns=include_patterns,
         exclude_patterns=exclude_patterns,
@@ -403,7 +410,7 @@ def main() -> None:
         # CLI testing output - print() is appropriate for user-facing CLI feedback
         print("Configuration loaded successfully:")  # noqa: T201
         print(f"  Expression: {config.search.expression}")  # noqa: T201
-        print(f"  Root path: {config.files.search_root}")  # noqa: T201
+        print(f"  Path: {config.files.path}")  # noqa: T201
         print(f"  Output: {config.output.output_file}")  # noqa: T201
     except ConfigurationError as e:
         print(f"Error: {e}", file=sys.stderr)

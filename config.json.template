@@ -23,8 +23,8 @@
   "_comment_files_end": "============================================================================",
 
   "files": {
-    "_comment_search_root": "Root directory to search for log files",
-    "search_root": "/var/log",
+    "_comment_path": "Path to search for log files",
+    "path": "/var/log",
 
     "_comment_include": "Include only files matching these patterns (glob patterns). If empty or null, includes all files",
     "include_patterns": [

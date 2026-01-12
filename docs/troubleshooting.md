@@ -795,7 +795,7 @@ cat config.yaml
 # search:
 #   expression: "..."
 # files:
-#   search_root: "..."
+#   path: "..."
 
 # 3. Use template as starting point
 log-filter --generate-config > config.yaml

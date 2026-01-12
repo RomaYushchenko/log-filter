@@ -287,7 +287,7 @@ class TestEndToEndBenchmarks:
         def run_pipeline():
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
-                files=FileConfig(search_root=benchmark_data),
+                files=FileConfig(path=benchmark_data),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
             pipeline = ProcessingPipeline(config)
@@ -303,7 +303,7 @@ class TestEndToEndBenchmarks:
         def run_pipeline():
             config = ApplicationConfig(
                 search=SearchConfig(expression="(ERROR OR WARN) AND Message"),
-                files=FileConfig(search_root=benchmark_data),
+                files=FileConfig(path=benchmark_data),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
             pipeline = ProcessingPipeline(config)
@@ -337,7 +337,7 @@ class TestScalabilityBenchmarks:
         def run_pipeline():
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
-                files=FileConfig(search_root=tmp_path, file_masks=[f"test_{num_lines}.log"]),
+                files=FileConfig(path=tmp_path, file_masks=[f"test_{num_lines}.log"]),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
             pipeline = ProcessingPipeline(config)
@@ -362,7 +362,7 @@ class TestScalabilityBenchmarks:
         def run_pipeline():
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
-                files=FileConfig(search_root=data_dir),
+                files=FileConfig(path=data_dir),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
             pipeline = ProcessingPipeline(config)
@@ -397,7 +397,7 @@ class TestMemoryEfficiencyBenchmarks:
         def run_pipeline():
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
-                files=FileConfig(search_root=tmp_path, file_masks=["large.log"]),
+                files=FileConfig(path=tmp_path, file_masks=["large.log"]),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
             pipeline = ProcessingPipeline(config)

@@ -102,7 +102,7 @@ search:
   ignore_case: false
 
 files:
-  search_root: /logs
+  path: /logs
   include_patterns:
     - "*.log"
 

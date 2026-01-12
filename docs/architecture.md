@@ -458,7 +458,7 @@ class SearchConfig:
 @dataclass
 class FileConfig:
     """File scanning configuration."""
-    search_root: Path
+    path: Path
     include_patterns: List[str]
     exclude_patterns: List[str]
 

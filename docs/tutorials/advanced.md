@@ -80,7 +80,7 @@ search:
   ignore_case: false
 
 files:
-  search_root: .
+  path: .
   include_patterns:
     - "large.log"
 
@@ -800,7 +800,7 @@ search:
   expression: "ERROR"
 
 files:
-  search_root: /path/to/logs
+  path: /path/to/logs
   include_patterns:
     - "large-file.log"
 

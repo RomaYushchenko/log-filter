@@ -93,29 +93,29 @@ class TestFileConfig:
     def test_default_config(self) -> None:
         """Test default file config."""
         config = FileConfig()
-        assert config.search_root == Path(".")
+        assert config.path == Path(".")
         assert config.file_masks == []
         assert config.max_file_size_mb is None
         assert config.max_record_size_kb is None
         assert config.extensions == (".log", ".gz")
 
-    def test_custom_search_root(self, tmp_path: Path) -> None:
-        """Test custom search root."""
-        config = FileConfig(search_root=tmp_path)
-        assert config.search_root == tmp_path
+    def test_custom_path(self, tmp_path: Path) -> None:
+        """Test custom path."""
+        config = FileConfig(path=tmp_path)
+        assert config.path == tmp_path
 
-    def test_nonexistent_search_root(self) -> None:
-        """Test nonexistent search root raises error."""
-        with pytest.raises(ValueError, match="Search root does not exist"):
-            FileConfig(search_root=Path("/nonexistent/path"))
+    def test_nonexistent_path(self) -> None:
+        """Test nonexistent path raises error."""
+        with pytest.raises(ValueError, match="Path does not exist"):
+            FileConfig(path=Path("/nonexistent/path"))
 
-    def test_search_root_not_directory(self, tmp_path: Path) -> None:
-        """Test search root that's not a directory raises error."""
+    def test_path_not_directory(self, tmp_path: Path) -> None:
+        """Test path that's not a directory raises error."""
         file_path = tmp_path / "test.log"
         file_path.touch()
 
-        with pytest.raises(ValueError, match="Search root is not a directory"):
-            FileConfig(search_root=file_path)
+        with pytest.raises(ValueError, match="Path is not a directory"):
+            FileConfig(path=file_path)
 
     def test_with_file_masks(self) -> None:
         """Test config with file masks."""
@@ -310,7 +310,7 @@ class TestApplicationConfig:
             date_from=date(2025, 1, 1),
         )
         files = FileConfig(
-            search_root=tmp_path,
+            path=tmp_path,
             file_masks=["error"],
             max_file_size_mb=100,
         )
@@ -349,7 +349,7 @@ class TestConfigIntegration:
                 date_to=date(2025, 1, 7),
             ),
             files=FileConfig(
-                search_root=tmp_path,
+                path=tmp_path,
                 file_masks=["app", "server"],
                 max_file_size_mb=500,
                 max_record_size_kb=100,

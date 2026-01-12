@@ -264,7 +264,7 @@ search:
   ignore_case: false
 
 files:
-  search_root: .
+  path: .
   include_patterns:
     - "*.log"
 

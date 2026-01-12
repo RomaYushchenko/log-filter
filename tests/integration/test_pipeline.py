@@ -207,7 +207,7 @@ class TestProcessingPipeline:
         # Create configuration
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR", ignore_case=True, use_regex=False),
-            files=FileConfig(search_root=tmp_path, file_masks=[], extensions=(".log",)),
+            files=FileConfig(path=tmp_path, file_masks=[], extensions=(".log",)),
             output=OutputConfig(
                 output_file=tmp_path / "output.log", show_progress=False, show_stats=False
             ),
@@ -242,7 +242,7 @@ class TestProcessingPipeline:
                 date_from=date(2025, 1, 4),
                 date_to=date(2025, 1, 6),
             ),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(
                 output_file=tmp_path / "output.log", show_progress=False, show_stats=False
             ),
@@ -266,7 +266,7 @@ class TestProcessingPipeline:
         # Create configuration with dry-run
         config = ApplicationConfig(
             search=SearchConfig(expression="test"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(
                 output_file=tmp_path / "output.log",
                 dry_run=True,
@@ -289,7 +289,7 @@ class TestProcessingPipeline:
         """Test pipeline handles directory with no matching files."""
         config = ApplicationConfig(
             search=SearchConfig(expression="test"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(
                 output_file=tmp_path / "output.log", show_progress=False, show_stats=False
             ),

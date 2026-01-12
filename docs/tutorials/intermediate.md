@@ -112,7 +112,7 @@ Search both application and database logs with specific patterns:
 ```yaml
 # config.yaml
 files:
-  search_root: test-logs/
+  path: test-logs/
   include_patterns:
     - "app-*.log"
     - "db-*.log"
@@ -130,7 +130,7 @@ Using configuration:
 
 ```yaml
 files:
-  search_root: test-logs/
+  path: test-logs/
   include_patterns:
     - "*.log"
   exclude_patterns:
@@ -205,7 +205,7 @@ search:
   end_time: "18:00:00"
 
 files:
-  search_root: test-logs/
+  path: test-logs/
   include_patterns:
     - "*.log"
 
@@ -245,7 +245,7 @@ log-filter --expr "ERROR" --input test-logs/app-2026-01-01.log.gz
 
 ```yaml
 files:
-  search_root: test-logs/
+  path: test-logs/
   include_patterns:
     - "*.log"
     - "*.log.gz"
@@ -271,7 +271,7 @@ processing:
   max_workers: 4
 
 files:
-  search_root: test-logs/
+  path: test-logs/
   include_patterns:
     - "*.log"
 
@@ -396,7 +396,7 @@ search:
   ignore_case: false
 
 files:
-  search_root: /var/log/myapp
+  path: /var/log/myapp
   include_patterns:
     - "application-*.log"
     - "application-*.log.gz"
@@ -429,7 +429,7 @@ search:
   ignore_case: false
 
 files:
-  search_root: ./logs
+  path: ./logs
   include_patterns:
     - "*.log"
 
@@ -550,7 +550,7 @@ Search all logs except database logs:
 ```yaml
 # config.yaml
 files:
-  search_root: test-logs/
+  path: test-logs/
   include_patterns:
     - "*.log"
   exclude_patterns:
@@ -599,7 +599,7 @@ search:
   end_time: "17:00:00"
 
 files:
-  search_root: test-logs/
+  path: test-logs/
   include_patterns:
     - "app-*.log"
 
@@ -648,7 +648,7 @@ processing:
 
 ```yaml
 files:
-  search_root: test-logs/
+  path: test-logs/
   exclude_patterns:
     - "*.old"
   # Missing include_patterns!
@@ -671,7 +671,7 @@ search:
   end_date: "{yesterday}"
 
 files:
-  search_root: /var/log/app
+  path: /var/log/app
   include_patterns:
     - "*.log"
     - "*.log.gz"
@@ -694,7 +694,7 @@ search:
   end_time: "23:59:59"
 
 files:
-  search_root: /var/log/app
+  path: /var/log/app
   include_patterns:
     - "application-*.log"
 
@@ -716,7 +716,7 @@ search:
   ignore_case: false
 
 files:
-  search_root: /var/log
+  path: /var/log
   include_patterns:
     - "auth.log"
     - "access.log"

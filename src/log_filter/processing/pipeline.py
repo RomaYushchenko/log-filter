@@ -183,8 +183,8 @@ class ProcessingPipeline:
         if not self.config.search.expression:
             raise ConfigurationError("Search expression is required")
 
-        if not self.config.files.search_root.exists():
-            raise ConfigurationError(f"Root path does not exist: {self.config.files.search_root}")
+        if not self.config.files.path.exists():
+            raise ConfigurationError(f"Path does not exist: {self.config.files.path}")
 
     def run(self) -> None:
         """Run the complete processing pipeline.
@@ -289,7 +289,7 @@ class ProcessingPipeline:
             Configured file scanner
         """
         return FileScanner(
-            root_path=self.config.files.search_root,
+            root_path=self.config.files.path,
             file_masks=self.config.files.file_masks,
             include_patterns=self.config.files.include_patterns,
             exclude_patterns=self.config.files.exclude_patterns,

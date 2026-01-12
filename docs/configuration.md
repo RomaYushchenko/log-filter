@@ -93,7 +93,7 @@ search:
   time_to: "17:00:00"
 
 files:
-  search_root: "/var/log"
+  path: "/var/log"
   include_patterns:
     - "*.log"
     - "*.log.gz"
@@ -209,7 +209,7 @@ Root directory to search.
 
 ```yaml
 files:
-  search_root: "/var/log"
+  path: "/var/log"
 ```
 
 **CLI** (positional argument):
@@ -594,7 +594,7 @@ search:
   ignore_case: false
 
 files:
-  search_root: "/var/log"
+  path: "/var/log"
   include_patterns:
     - "*.log"
     - "*.log.gz"
@@ -616,7 +616,7 @@ search:
   time_to: "17:00:00"
 
 files:
-  search_root: "/var/log/app"
+  path: "/var/log/app"
   include_patterns:
     - "app-*.log"
 
@@ -640,7 +640,7 @@ search:
   date_to: "2026-01-31"
 
 files:
-  search_root: "/var/log/mysql"
+  path: "/var/log/mysql"
   include_patterns:
     - "*.log"
     - "*.log.gz"
@@ -662,7 +662,7 @@ search:
   expression: "ERROR"
 
 files:
-  search_root: "/var/log"
+  path: "/var/log"
   include_patterns:
     - "*.log"
     - "*.gz"
@@ -760,7 +760,7 @@ search:
   time_to: str (HH:MM:SS)       # Optional
 
 files:
-  search_root: str               # Required
+  path: str               # Required
   include_patterns: list[str]    # Optional
   exclude_patterns: list[str]    # Optional
   follow_symlinks: bool          # Optional, default: false

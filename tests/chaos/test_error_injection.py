@@ -185,7 +185,7 @@ class TestRecordSizeErrors:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -201,16 +201,16 @@ class TestRecordSizeErrors:
 class TestConfigurationErrors:
     """Test handling of invalid configurations."""
 
-    def test_invalid_search_root(self, tmp_path):
-        """Test handling non-existent search root."""
+    def test_invalid_path(self, tmp_path):
+        """Test handling non-existent path."""
         missing_dir = tmp_path / "missing"
         output = tmp_path / "output.log"
 
-        # FileConfig validates search_root exists at construction
-        with pytest.raises(ValueError, match="Search root does not exist"):
+        # FileConfig validates path exists at construction
+        with pytest.raises(ValueError, match="Path does not exist"):
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
-                files=FileConfig(search_root=missing_dir),
+                files=FileConfig(path=missing_dir),
                 output=OutputConfig(output_file=output),
             )
 
@@ -224,7 +224,7 @@ class TestConfigurationErrors:
         # Unbalanced parentheses - correctly raises ConfigurationError
         config = ApplicationConfig(
             search=SearchConfig(expression="(ERROR OR WARN"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output),
         )
         pipeline = ProcessingPipeline(config)
@@ -250,7 +250,7 @@ class TestConfigurationErrors:
         try:
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
-                files=FileConfig(search_root=tmp_path, file_masks=["test.log"]),
+                files=FileConfig(path=tmp_path, file_masks=["test.log"]),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
 
@@ -275,7 +275,7 @@ class TestResourceExhaustion:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -318,7 +318,7 @@ class TestResourceExhaustion:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -342,7 +342,7 @@ class TestConcurrentErrors:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             processing=ProcessingConfig(worker_count=4),
         )
@@ -367,7 +367,7 @@ class TestConcurrentErrors:
 
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
-                files=FileConfig(search_root=tmp_path, file_masks=["test.log"]),
+                files=FileConfig(path=tmp_path, file_masks=["test.log"]),
                 output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
             )
 
@@ -393,7 +393,7 @@ class TestMalformedData:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -426,7 +426,7 @@ class TestMalformedData:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -465,7 +465,7 @@ class TestInterruptedOperations:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path, extensions=(".log",)),
+            files=FileConfig(path=tmp_path, extensions=(".log",)),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -579,7 +579,7 @@ class TestEdgeCaseScenarios:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 
@@ -610,7 +610,7 @@ class TestEdgeCaseScenarios:
 
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
-            files=FileConfig(search_root=tmp_path),
+            files=FileConfig(path=tmp_path),
             output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
         )
 

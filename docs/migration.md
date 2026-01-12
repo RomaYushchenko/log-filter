@@ -1,4 +1,100 @@
-# Migration Guide: v1.x to v2.0
+# Migration Guide
+
+## v2.x to v3.0 (Upcoming)
+
+### Configuration Parameter Rename: `search_root` → `path`
+
+**Breaking Change**: The `search_root` configuration parameter has been renamed to `path` for consistency with the `--path` CLI argument.
+
+#### Why This Change?
+
+The project had an inconsistency:
+- CLI uses: `--path /var/log`
+- Config used: `search_root: "/var/log"`
+
+This created confusion for users. Now both use `path`.
+
+#### Migration Steps
+
+**1. Update YAML Configuration Files**
+
+```yaml
+# OLD (v2.x)
+files:
+  search_root: "/var/log"
+  
+# NEW (v3.0)
+files:
+  path: "/var/log"
+```
+
+**2. Update JSON Configuration Files**
+
+```json
+// OLD (v2.x)
+{
+  "files": {
+    "search_root": "/var/log"
+  }
+}
+
+// NEW (v3.0)
+{
+  "files": {
+    "path": "/var/log"
+  }
+}
+```
+
+**3. Update Python API Calls**
+
+```python
+# OLD (v2.x)
+from log_filter.config.models import FileConfig
+
+config = FileConfig(search_root=Path("/var/log"))
+
+# NEW (v3.0)
+config = FileConfig(path=Path("/var/log"))
+```
+
+**4. Update Test Code**
+
+```python
+# OLD (v2.x)
+assert config.files.search_root == Path("/var/log")
+
+# NEW (v3.0)
+assert config.files.path == Path("/var/log")
+```
+
+#### Backward Compatibility (Deprecation Period)
+
+For a smooth transition, v2.1.0 supports both `path` and `search_root` with a deprecation warning:
+
+```bash
+# If using search_root in config file:
+WARNING: Config key 'search_root' is deprecated and will be removed in v3.0. 
+Please use 'path' instead.
+```
+
+**Recommendation**: Update your configuration files now to avoid breaking changes in v3.0.
+
+#### Automated Migration Script
+
+```bash
+# Find and update all config files
+find . -name "*.yaml" -o -name "*.json" | while read file; do
+    sed -i 's/search_root:/path:/g' "$file"
+    echo "Updated: $file"
+done
+```
+
+---
+
+## v1.x to v2.0
+
+### Migration Guide: v1.x to v2.0
 
 Upgrade from log-filter v1.x to v2.0.
 
@@ -291,7 +387,7 @@ search:
   ignore_case: true
 
 files:
-  search_root: "/var/log"
+  path: "/var/log"
   include_patterns:
     - "*.log"
   exclude_patterns:

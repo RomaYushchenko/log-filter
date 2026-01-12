@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Configuration Consistency**: Renamed `search_root` configuration parameter to `path` to match the `--path` CLI argument
+  - This change affects configuration files (YAML/JSON) and the Python API
+  - Backward compatibility maintained with deprecation warning for `search_root`
+  - See [Migration Guide](docs/migration.md) for details
+
 ### Added
 - **Version Flag**: Added `--version` flag to display the installed version of log-filter
 

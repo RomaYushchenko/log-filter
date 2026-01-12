@@ -69,7 +69,7 @@ A Python-based high-performance log filtering tool that performs boolean search 
 - **File Filtering**:
   - Include patterns with glob support (`include_patterns` in config)
   - Exclude patterns with glob support (`exclude_patterns` in config)
-  - Specify search directory (`--path` or `search_root`)
+  - Specify search directory (`--path`)
   - Set maximum file size limit (`--max-file-size` or `max_file_size`)
   - Set maximum record size limit (`--max-record-size` or `max_record_size`)
   - Control directory traversal depth (`max_depth` in config)
@@ -248,7 +248,7 @@ search:
   ignore_case: false
 
 files:
-  search_root: "/var/log"
+  path: "/var/log"
   include_patterns:
     - "*.log"
     - "*.log.gz"
