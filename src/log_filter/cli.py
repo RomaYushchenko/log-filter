@@ -33,6 +33,7 @@ from log_filter.core.exceptions import ConfigurationError
 # Initialize logger
 logger = logging.getLogger(__name__)
 
+
 def create_argument_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
 
