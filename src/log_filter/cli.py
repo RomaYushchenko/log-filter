@@ -7,6 +7,7 @@ from command-line arguments and configuration files.
 
 import argparse
 import json
+import logging
 import sys
 from datetime import date, time
 from pathlib import Path
@@ -29,6 +30,8 @@ from log_filter.config.models import (
 )
 from log_filter.core.exceptions import ConfigurationError
 
+# Initialize logger
+logger = logging.getLogger(__name__)
 
 def create_argument_parser() -> argparse.ArgumentParser:
     """Create and configure the argument parser.
