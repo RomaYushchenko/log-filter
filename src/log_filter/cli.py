@@ -42,10 +42,10 @@ def create_argument_parser() -> argparse.ArgumentParser:
         epilog="""
 Examples:
   log-filter --config searchConfig.json
-  log-filter --expr "ERROR AND Kafka"
-  log-filter --expr "ERROR" --from 2025-01-01 --to 2025-01-10
-  log-filter --expr "ERROR [0-9]{3}" --regex
-  log-filter --expr "ERROR" --path /var/log/myapp --workers 8
+  log-filter --expression "ERROR AND Kafka"
+  log-filter --expression "ERROR" --from 2025-01-01 --to 2025-01-10
+  log-filter --expression "ERROR [0-9]{3}" --regex
+  log-filter --expression "ERROR" --path /var/log/myapp --workers 8
         """,
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -61,7 +61,9 @@ Examples:
     parser.add_argument("--config", type=Path, help="Load parameters from YAML/JSON config file")
 
     # Search expression
-    parser.add_argument("--expr", help="Boolean search expression (e.g., 'ERROR AND Kafka')")
+    parser.add_argument(
+        "--expression", "--expr", help="Boolean search expression (e.g., 'ERROR AND Kafka')"
+    )
 
     # File filtering
     parser.add_argument("--file-name", help="Substring to filter input files")
@@ -265,10 +267,10 @@ def build_config_from_args(
 
     # Build search config
     # Try nested structure first, then flat
-    expression = args.expr or search_section.get("expression") or config_dict.get("expr")
+    expression = args.expression or search_section.get("expression") or config_dict.get("expr")
     if not expression:
         raise ConfigurationError(
-            "Search expression is required. Use --expr or provide in config file."
+            "Search expression is required. Use --expression or provide in config file."
         )
 
     # Get ignore_case from CLI args or config

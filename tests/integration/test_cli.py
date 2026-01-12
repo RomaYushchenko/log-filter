@@ -48,7 +48,7 @@ class TestArgumentParser:
         """Test parsing minimal required arguments."""
         parser = create_argument_parser()
         args = parser.parse_args(["--expr", "ERROR"])
-        assert args.expr == "ERROR"
+        assert args.expression == "ERROR"
         assert args.ignore_case is False
         assert args.regex is False
 
@@ -56,7 +56,7 @@ class TestArgumentParser:
         """Test parsing all search-related arguments."""
         parser = create_argument_parser()
         args = parser.parse_args(["--expr", "ERROR AND Kafka", "--ignore-case", "--regex"])
-        assert args.expr == "ERROR AND Kafka"
+        assert args.expression == "ERROR AND Kafka"
         assert args.ignore_case is True
         assert args.regex is True
 

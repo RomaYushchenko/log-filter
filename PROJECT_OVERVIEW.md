@@ -205,37 +205,37 @@ A Python-based high-performance log filtering tool that performs boolean search 
 log-filter --config searchConfig.json
 
 # Simple error search
-log-filter --expr "ERROR"
+log-filter --expression "ERROR"
 
 # Complex boolean search
-log-filter --expr "ERROR AND Kafka"
-log-filter --expr "ERROR AND NOT Heartbeat"
-log-filter --expr "(ERROR AND Kafka) OR WARN"
+log-filter --expression "ERROR AND Kafka"
+log-filter --expression "ERROR AND NOT Heartbeat"
+log-filter --expression "(ERROR AND Kafka) OR WARN"
 
 # Regex pattern search
-log-filter --expr "ERROR [0-9]{3}" --regex
-log-filter --expr "^.* E" --regex
+log-filter --expression "ERROR [0-9]{3}" --regex
+log-filter --expression "^.* E" --regex
 
 # Date range filtering
-log-filter --expr "ERROR" --from 2025-01-01 --to 2025-01-10
+log-filter --expression "ERROR" --from 2025-01-01 --to 2025-01-10
 
 # Time range filtering (business hours)
-log-filter --expr "ERROR" --from-time 09:00:00 --to-time 17:00:00
+log-filter --expression "ERROR" --from-time 09:00:00 --to-time 17:00:00
 
 # Custom directory search
-log-filter --expr "ERROR" --path "/var/log/myapp"
+log-filter --expression "ERROR" --path "/var/log/myapp"
 
 # High-performance search with custom workers
-log-filter --expr "ERROR" --workers 16
+log-filter --expression "ERROR" --workers 16
 
 # With statistics and progress
-log-filter --expr "ERROR" --stats --progress
+log-filter --expression "ERROR" --stats --progress
 
 # Output to custom file
-log-filter --expr "ERROR" --output my-errors.txt
+log-filter --expression "ERROR" --output my-errors.txt
 
 # Dry-run to preview files
-log-filter --expr "ERROR" --dry-run-details
+log-filter --expression "ERROR" --dry-run-details
 ```
 
 ### Configuration File Examples
@@ -327,7 +327,7 @@ from log_filter.main import main
 import sys
 
 # Programmatic execution
-sys.argv = ['log-filter', '--expr', 'ERROR', '--stats']
+sys.argv = ['log-filter', '--expression', 'ERROR', '--stats']
 main()
 ```
 
