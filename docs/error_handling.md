@@ -760,7 +760,7 @@ def debug_expression(expression: str, test_text: str):
     
     # Evaluate
     print("3. Evaluation:")
-    evaluator = Evaluator(ast, case_sensitive=False)
+    evaluator = Evaluator(ast, ignore_case=False)
     result = evaluator.evaluate(test_text)
     print(f"   Result: {result}")
     print()

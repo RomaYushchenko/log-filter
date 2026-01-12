@@ -52,7 +52,7 @@ log-filter -c config.json
 # Search configuration
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 # File selection
 files:
@@ -92,7 +92,7 @@ logging:
 {
   "search": {
     "expression": "ERROR OR CRITICAL",
-    "case_sensitive": false
+    "ignore_case": false
   },
   "files": {
     "search_root": "/var/log",
@@ -152,7 +152,7 @@ filters   → Optional (no filtering by default)
 ```yaml
 search:
   expression: string    # Boolean expression (required)
-  case_sensitive: bool  # Case-sensitive matching (default: false)
+  ignore_case: bool  # Case-sensitive matching (default: false)
 ```
 
 #### `expression` (required)
@@ -191,7 +191,7 @@ expression: |
 expression: '"database connection failed" OR "out of memory"'
 ```
 
-#### `case_sensitive` (optional)
+#### `ignore_case` (optional)
 
 **Type:** `boolean`  
 **Default:** `false`  
@@ -202,13 +202,13 @@ expression: '"database connection failed" OR "out of memory"'
 # Case-insensitive (default)
 search:
   expression: "error"
-  case_sensitive: false
+  ignore_case: false
 # Matches: error, Error, ERROR, eRRoR
 
 # Case-sensitive
 search:
   expression: "Error"
-  case_sensitive: true
+  ignore_case: true
 # Matches: Error only
 ```
 
@@ -761,7 +761,7 @@ search:
   expression: |
     (ERROR OR CRITICAL OR FATAL) AND
     NOT (test OR debug OR mock)
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log/production
@@ -794,7 +794,7 @@ logging:
 # development-debug.yaml
 search:
   expression: "ERROR OR WARNING"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: ./logs
@@ -834,7 +834,7 @@ search:
     ) OR
     (sql AND injection) OR
     (xss OR csrf)
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root:
@@ -869,7 +869,7 @@ search:
   expression: |
     (slow OR latency OR timeout) AND
     (query OR request OR response)
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log/app
@@ -897,7 +897,7 @@ logging:
 # log-aggregation.yaml
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root:
@@ -1004,7 +1004,7 @@ search:
 # Search for database errors in production logs
 search:
   expression: "ERROR AND database"
-  case_sensitive: false  # Case-insensitive by default
+  ignore_case: false  # Case-insensitive by default
 
 # Scan production log directory
 files:

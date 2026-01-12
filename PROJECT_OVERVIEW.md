@@ -56,7 +56,7 @@ A Python-based high-performance log filtering tool that performs boolean search 
     - `"ERROR AND NOT Heartbeat"`
 
 - **Search Modes**:
-  - Case-insensitive search (`--ignore-case` or `case_sensitive: false`)
+  - Case-insensitive search (`--ignore-case` or `ignore_case: true`)
   - Regular expression matching (`--regex`)
   - Match highlighting with `<<< >>>` markers (`--highlight`)
 
@@ -245,7 +245,7 @@ log-filter --expr "ERROR" --dry-run-details
 ```yaml
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: "/var/log"
@@ -270,7 +270,7 @@ processing:
 {
   "search": {
     "expression": "\"ERROR\" AND (\"database\" OR \"connection\")",
-    "case_sensitive": false
+    "ignore_case": false
   },
   "files": {
     "search_root": "/var/log",

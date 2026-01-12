@@ -275,7 +275,7 @@ These options were removed in v2.0:
 # config.ini
 [search]
 pattern = ERROR
-case_sensitive = true
+ignore_case = false
 files = /var/log
 
 [output]
@@ -288,7 +288,7 @@ output_file = errors.txt
 # config.yaml
 search:
   expression: "ERROR"
-  case_sensitive: true
+  ignore_case: true
 
 files:
   search_root: "/var/log"
@@ -333,7 +333,7 @@ def convert_config(ini_path: str, yaml_path: str):
     yaml_config = {
         'search': {
             'expression': config.get('search', 'pattern', fallback='ERROR'),
-            'case_sensitive': config.getboolean('search', 'case_sensitive', fallback=False)
+            'ignore_case': config.getboolean('search', 'case_sensitive', fallback=False)
         },
         'files': {
             'search_root': config.get('search', 'files', fallback='/var/log'),

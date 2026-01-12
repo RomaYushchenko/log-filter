@@ -77,7 +77,7 @@ EOF
 # large-file-config.yaml
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: .
@@ -328,7 +328,7 @@ def main():
     config = ApplicationConfig(
         search=SearchConfig(
             expression="ERROR OR CRITICAL",
-            case_sensitive=False
+            ignore_case=False
         ),
         files=FileConfig(
             search_root=Path("/var/log/app"),

@@ -453,7 +453,7 @@ class RecordParser:
 class SearchConfig:
     """Search expression configuration."""
     expression: str
-    case_sensitive: bool = False
+    ignore_case: bool = False
 
 @dataclass
 class FileConfig:

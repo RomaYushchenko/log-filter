@@ -271,13 +271,10 @@ def build_config_from_args(
             "Search expression is required. Use --expr or provide in config file."
         )
 
-    # For ignore_case: nested uses "case_sensitive" (inverted), flat uses "ignore_case"
+    # Get ignore_case from CLI args or config
     ignore_case_value = args.ignore_case
     if not ignore_case_value:
-        if "case_sensitive" in search_section:
-            ignore_case_value = not search_section["case_sensitive"]
-        else:
-            ignore_case_value = config_dict.get("ignore_case", False)
+        ignore_case_value = search_section.get("ignore_case", config_dict.get("ignore_case", False))
 
     search_config = SearchConfig(
         expression=expression,

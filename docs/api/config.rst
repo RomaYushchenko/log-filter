@@ -29,17 +29,17 @@ Configuration for search behavior.
 
     config = SearchConfig(
         expression="ERROR AND database",
-        case_sensitive=False,
+        ignore_case=False,
         include_patterns=("*.log", "*.txt"),
         exclude_patterns=("*.old",)
     )
 
     print(f"Expression: {config.expression}")
-    print(f"Case sensitive: {config.case_sensitive}")
+    print(f"Ignore case: {config.ignore_case}")
 
 Attributes:
     * ``expression`` (str): Boolean search expression
-    * ``case_sensitive`` (bool): Whether search is case-sensitive (default: False)
+    * ``ignore_case`` (bool): Whether to ignore case when searching (default: False)
     * ``include_patterns`` (tuple[str, ...]): File patterns to include
     * ``exclude_patterns`` (tuple[str, ...]): File patterns to exclude
     * ``date_from`` (Optional[date]): Filter records from this date
@@ -176,7 +176,7 @@ Complete Configuration Example
     config = ApplicationConfig(
         search=SearchConfig(
             expression="(ERROR OR CRITICAL) AND database",
-            case_sensitive=False,
+            ignore_case=False,
             date_from=date(2026, 1, 1),
             date_to=date(2026, 1, 31),
             time_from=time(9, 0),
@@ -214,7 +214,7 @@ Example YAML configuration file:
     # config.yaml
     search:
       expression: "ERROR AND database"
-      case_sensitive: false
+      ignore_case: false
       date_from: "2026-01-01"
       date_to: "2026-01-31"
 

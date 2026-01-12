@@ -12,10 +12,10 @@
     "_comment_examples": "Examples: 'ERROR', 'ERROR AND database', '(ERROR OR CRITICAL) AND NOT test'",
     "expression": "ERROR",
 
-    "_comment_case_sensitive": "Case-sensitive search (default: false)",
-    "_comment_case_true": "true = 'ERROR' matches only 'ERROR'",
-    "_comment_case_false": "false = 'ERROR' matches 'error', 'Error', 'ERROR', etc.",
-    "case_sensitive": false
+    "_comment_ignore_case": "Case-insensitive search (default: false)",
+    "_comment_ignore_case_true": "true = 'ERROR' matches 'error', 'Error', 'ERROR', etc.",
+    "_comment_ignore_case_false": "false = 'ERROR' matches only 'ERROR'",
+    "ignore_case": false
   },
 
   "_comment_files": "============================================================================",
@@ -120,10 +120,7 @@
 
   "processing": {
     "_comment_workers": "Maximum worker threads (default: auto-detect = 2 * CPU cores)",
-    "_comment_workers_e,
-
-    "_comment_debug": "Enable debug logging (default: false). Shows detailed processing information for troubleshooting",
-    "debug": falsexamples": "null or 0 = Auto-detect, 1 = Single-threaded, 4-8 = Good for most systems, 16+ = High-performance systems",
+    "_comment_workers_examples": "null or 0 = Auto-detect, 1 = Single-threaded, 4-8 = Good for most systems, 16+ = High-performance systems",
     "max_workers": null,
 
     "_comment_buffer": "Buffer size for reading files in bytes (default: 8192)",

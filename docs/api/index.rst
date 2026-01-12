@@ -44,10 +44,10 @@ Basic usage example:
 
     # Parse a boolean expression
     ast = parse("ERROR AND database")
-    
+
     # Create evaluator
-    evaluator = Evaluator(ast, case_sensitive=False)
-    
+    evaluator = Evaluator(ast, ignore_case=False)
+
     # Evaluate against a log record
     record = LogRecord(
         timestamp=datetime.now(),
@@ -57,7 +57,7 @@ Basic usage example:
         line_number_start=10,
         line_number_end=10
     )
-    
+
     result = evaluator.evaluate(record.content)
     print(f"Match: {result}")  # True
 

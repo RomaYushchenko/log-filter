@@ -386,7 +386,7 @@ search:
     ) OR
     (duration AND (exceeded OR high)) OR
     (performance AND degradation)
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log/app

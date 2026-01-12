@@ -121,7 +121,7 @@ log-filter --expr "authentication AND (failed OR denied)" \
 # production-errors.yaml
 search:
   expression: "ERROR OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log/app
@@ -147,7 +147,7 @@ logging:
 # debug-config.yaml
 search:
   expression: "ERROR OR WARNING OR DEBUG"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: ./logs

@@ -781,7 +781,7 @@ cat /tmp/log-files.txt | xargs log-filter "WARNING" -o warnings.txt
 # config-performance.yaml
 search:
   expression: "ERROR"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: "/var/log"

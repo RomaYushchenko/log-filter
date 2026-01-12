@@ -261,7 +261,7 @@ Instead of typing long commands, save your settings to a file:
 # config.yaml
 search:
   expression: "ERROR OR WARNING"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: .
@@ -297,7 +297,7 @@ You can also use JSON format:
 {
   "search": {
     "expression": "ERROR OR WARNING",
-    "case_sensitive": false
+    "ignore_case": false
   },
   "files": {
     "search_root": ".",

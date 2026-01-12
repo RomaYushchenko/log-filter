@@ -99,7 +99,7 @@ EOF
 # config/config.yaml
 search:
   expression: "ERROR"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /logs

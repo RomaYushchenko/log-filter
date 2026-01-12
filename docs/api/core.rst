@@ -82,7 +82,7 @@ Example
 
     # Create evaluator from expression
     ast = parse("ERROR OR WARNING")
-    evaluator = Evaluator(ast, case_sensitive=False)
+    evaluator = Evaluator(ast, ignore_case=False)
 
     # Evaluate against text
     result1 = evaluator.evaluate("Error in database connection")
@@ -150,7 +150,7 @@ Here's a complete example combining tokenizer, parser, and evaluator:
     ast = parser.parse()
 
     # Step 3: Evaluate
-    evaluator = Evaluator(ast, case_sensitive=False)
+    evaluator = Evaluator(ast, ignore_case=False)
 
     test_texts = [
         "ERROR: Database connection lost",      # True
@@ -175,7 +175,7 @@ Best Practices
 --------------
 
 1. **Compile Once**: Create the evaluator once and reuse it for multiple evaluations
-2. **Case Sensitivity**: Use ``case_sensitive=False`` for case-insensitive matching (default is True)
+2. **Case Sensitivity**: Use ``ignore_case=False`` for case-insensitive matching (default is True)
 3. **Error Handling**: Always catch ``ParseError`` when parsing user-provided expressions
 4. **Expression Validation**: Validate expressions before creating the evaluator
 

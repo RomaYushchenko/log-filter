@@ -393,7 +393,7 @@ timestamp,level,message,file,line
 # production-config.yaml
 search:
   expression: "(ERROR OR CRITICAL) AND NOT health-check"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log/myapp
@@ -426,7 +426,7 @@ logging:
 # dev-config.yaml
 search:
   expression: "ERROR OR WARNING OR CRITICAL"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: ./logs
@@ -713,7 +713,7 @@ processing:
 # security-audit.yaml
 search:
   expression: "authentication OR authorization OR security OR injection"
-  case_sensitive: false
+  ignore_case: false
 
 files:
   search_root: /var/log
