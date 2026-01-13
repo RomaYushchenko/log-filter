@@ -24,6 +24,18 @@ search:
   # Can also use --regex flag on command line
   regex: false
 
+  # Match whole words only, not substrings (default: false)
+  # true  = "MOVE" won't match "MOVE_SNAPSHOT" or "MOVEMENT"
+  # false = "MOVE" matches anywhere (substring search)
+  # Can also use --word-boundary flag on command line
+  word_boundary: false
+
+  # Strip quote characters before matching (default: false)
+  # true  = Useful for JSON/CSV logs where values are quoted
+  # false = Quotes are treated as literal characters
+  # Can also use --strip-quotes or --exact-match flags
+  strip_quotes: false
+
 # ============================================================================
 # File Configuration
 # ============================================================================

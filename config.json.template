@@ -21,7 +21,19 @@
     "_comment_regex_true": "true = Interpret search terms as regex patterns (e.g., 'ERROR.*database')",
     "_comment_regex_false": "false = Plain text/boolean search",
     "_comment_regex_note": "Can also use --regex flag on command line",
-    "regex": false
+    "regex": false,
+
+    "_comment_word_boundary": "Match whole words only, not substrings (default: false)",
+    "_comment_word_boundary_true": "true = 'MOVE' won't match 'MOVE_SNAPSHOT' or 'MOVEMENT'",
+    "_comment_word_boundary_false": "false = 'MOVE' matches anywhere (substring search)",
+    "_comment_word_boundary_note": "Can also use --word-boundary flag on command line",
+    "word_boundary": false,
+
+    "_comment_strip_quotes": "Strip quote characters before matching (default: false)",
+    "_comment_strip_quotes_true": "true = Useful for JSON/CSV logs where values are quoted",
+    "_comment_strip_quotes_false": "false = Quotes are treated as literal characters",
+    "_comment_strip_quotes_note": "Can also use --strip-quotes or --exact-match flags",
+    "strip_quotes": false
   },
 
   "_comment_files": "============================================================================",

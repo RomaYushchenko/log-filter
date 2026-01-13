@@ -83,6 +83,21 @@ Examples:
     parser.add_argument(
         "--regex", action="store_true", help="Interpret search terms as regular expressions"
     )
+    parser.add_argument(
+        "--word-boundary",
+        action="store_true",
+        help="Match whole words only (not substrings). Example: 'MOVE' won't match 'MOVE_SNAPSHOT'",
+    )
+    parser.add_argument(
+        "--strip-quotes",
+        action="store_true",
+        help="Strip quote characters before matching (useful for JSON/CSV logs)",
+    )
+    parser.add_argument(
+        "--exact-match",
+        action="store_true",
+        help="Enable both --word-boundary and --strip-quotes for exact word matching",
+    )
 
     # Date/time filtering
     parser.add_argument("--from", dest="date_from", help="Start date (YYYY-MM-DD, inclusive)")
@@ -301,12 +316,28 @@ def build_config_from_args(
     if not ignore_case_value:
         ignore_case_value = search_section.get("ignore_case", config_dict.get("ignore_case", False))
 
+    # Handle --exact-match shorthand: enables both word_boundary and strip_quotes
+    word_boundary_value = args.word_boundary or args.exact_match
+    strip_quotes_value = args.strip_quotes or args.exact_match
+
+    # Get from config if not set by CLI
+    if not word_boundary_value:
+        word_boundary_value = search_section.get(
+            "word_boundary", config_dict.get("word_boundary", False)
+        )
+    if not strip_quotes_value:
+        strip_quotes_value = search_section.get(
+            "strip_quotes", config_dict.get("strip_quotes", False)
+        )
+
     search_config = SearchConfig(
         expression=expression,
         ignore_case=ignore_case_value,
         # Note: Config files use "regex" (recommended: search.regex), but model uses "use_regex"
         # Supports both "search.regex" (nested, recommended) and "use_regex" (root level, legacy)
         use_regex=args.regex or search_section.get("regex") or config_dict.get("use_regex", False),
+        word_boundary=word_boundary_value,
+        strip_quotes=strip_quotes_value,
         date_from=parse_date(
             args.date_from or date_section.get("from") or config_dict.get("date_from")
         ),
