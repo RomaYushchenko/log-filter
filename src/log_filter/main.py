@@ -64,7 +64,7 @@ def main() -> int:
         return 130
 
     except Exception as e:
-        logger.error(f"Processing failed: {e}", exc_info=True)
+        logger.error("Processing failed: %s", e, exc_info=True)
         return 1
 
 

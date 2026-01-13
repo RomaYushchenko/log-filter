@@ -32,7 +32,6 @@ class RecordFilter(ABC):
         Returns:
             True if record passes the filter
         """
-        pass
 
 
 class DateRangeFilter(RecordFilter):

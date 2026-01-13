@@ -230,7 +230,6 @@ class StreamingRecordParser:
                 logger.debug(
                     f"Failed to parse timestamp '{date_str} {time_str}' in {source_file}: {parse_error}"
                 )
-                pass
 
         return LogRecord(
             content=content,

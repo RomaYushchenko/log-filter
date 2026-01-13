@@ -8,19 +8,9 @@ filtering process including scanning, parsing, filtering, and writing.
 import logging
 import os
 import time
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor, as_completed
-from multiprocessing import Manager
-from pathlib import Path
-from typing import Optional
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
-from log_filter.config.models import (
-    ApplicationConfig,
-    FileConfig,
-    OutputConfig,
-    ProcessingConfig,
-    SearchConfig,
-)
-from log_filter.core.evaluator import evaluate
+from log_filter.config.models import ApplicationConfig, ProcessingConfig
 from log_filter.core.exceptions import ConfigurationError
 from log_filter.core.parser import parse
 from log_filter.domain.filters import (
@@ -31,11 +21,8 @@ from log_filter.domain.filters import (
     TimeRangeFilter,
 )
 from log_filter.domain.models import ASTNode
-from log_filter.infrastructure.file_handler_factory import FileHandlerFactory
 from log_filter.infrastructure.file_scanner import FileScanner
-from log_filter.infrastructure.file_writer import BufferedLogWriter
 from log_filter.processing.record_parser import StreamingRecordParser
-from log_filter.processing.worker import FileWorker
 from log_filter.statistics.collector import StatisticsCollector
 
 logger = logging.getLogger(__name__)
@@ -115,7 +102,14 @@ def _process_file_worker(args: tuple) -> tuple:
                 # Prepend normalized level to search text for matching
                 search_text = f"{record.level} {record.content}"
 
-            if evaluate(ast, search_text, config.search.ignore_case, config.search.use_regex):
+            if evaluate(
+                ast,
+                search_text,
+                config.search.ignore_case,
+                config.search.use_regex,
+                config.search.word_boundary,
+                config.search.strip_quotes,
+            ):
                 stats_collector.increment_records_matched()
                 match_count += 1
 
@@ -382,7 +376,6 @@ class ProcessingPipeline:
         # Track progress
         processed_count = 0
         total_files = len(files)
-        start_time = time.time()
         recent_times = []  # Track last 10 file completion times
 
         if use_multiprocessing:
@@ -400,9 +393,7 @@ class ProcessingPipeline:
                     processed_count += 1
 
                     try:
-                        file_meta_result, matches, stats_dict, matched_records, error = (
-                            future.result()
-                        )
+                        _, matches, stats_dict, matched_records, error = future.result()
                         file_duration = time.time() - file_start_time
 
                         if error:

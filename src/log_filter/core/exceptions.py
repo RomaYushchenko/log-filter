@@ -34,19 +34,13 @@ class ParseError(LogFilterException):
 class TokenizationError(ParseError):
     """Exception raised during tokenization."""
 
-    pass
-
 
 class EvaluationError(LogFilterException):
     """Exception raised during expression evaluation."""
 
-    pass
-
 
 class ConfigurationError(LogFilterException):
     """Exception raised for configuration validation errors."""
-
-    pass
 
 
 class FileHandlingError(LogFilterException):
