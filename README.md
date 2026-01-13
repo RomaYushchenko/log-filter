@@ -96,6 +96,34 @@ Statistics:
   Throughput: 27,024 lines/sec
 ```
 
+### Docker Quick Start
+
+#### Using Docker
+
+```powershell
+# Build image
+docker build -t log-filter:latest .
+
+# Run on local logs
+docker run --rm \
+  -v ${PWD}/test-logs:/logs:ro \
+  -v ${PWD}/output:/output \
+  log-filter:latest \
+  ERROR /logs -o /output/errors.txt --stats
+```
+
+#### Using Docker Compose
+
+```powershell
+# Run with local logs
+docker-compose -f docker-compose.local.yml run --rm log-filter-local
+
+# Development mode with live reload
+docker-compose -f docker-compose.dev.yml run --rm log-filter-dev
+```
+
+See [Docker Deployment Guide](docs/deployment.md#local-machine-setup-windowsmaclinux) for detailed instructions.
+
 ## 📚 Documentation
 
 - **[Quick Start Guide](https://log-filter.readthedocs.io/en/latest/quickstart.html)** - Learn the basics in 5 minutes

@@ -150,6 +150,67 @@ docker run --rm -it \
   "ERROR" "/logs"
 ```
 
+### Local Machine Setup (Windows/Mac/Linux)
+
+**For local development and testing:**
+
+#### Step 1: Prepare Environment
+
+```powershell
+# Create directories
+New-Item -ItemType Directory -Force -Path "output", "config", "test-logs"
+
+# Copy template config (if needed)
+Copy-Item config.yaml.template config/local.yaml
+```
+
+#### Step 2: Add Test Logs
+
+Place your log files in the `test-logs/` directory or create sample logs:
+
+```powershell
+# Example: Create sample log file
+@"
+2026-01-13 10:00:00 INFO Application started
+2026-01-13 10:01:23 ERROR Database connection failed
+2026-01-13 10:02:15 WARNING Cache miss for key: user_123
+2026-01-13 10:03:45 ERROR Failed to process request: timeout
+2026-01-13 10:05:33 CRITICAL System overload detected
+"@ | Out-File -FilePath "test-logs\app.log" -Encoding UTF8
+```
+
+#### Step 3: Run with Local Configuration
+
+```powershell
+# Option A: Using docker-compose.local.yml (recommended)
+docker-compose -f docker-compose.local.yml run --rm log-filter-local
+
+# Option B: Using docker run
+docker run --rm \
+  -v ${PWD}/test-logs:/logs:ro \
+  -v ${PWD}/output:/output \
+  log-filter:latest \
+  ERROR /logs -o /output/errors.txt --stats
+```
+
+#### Development Mode
+
+For live code editing:
+
+```powershell
+# Build dev image
+docker-compose -f docker-compose.dev.yml build
+
+# Run with mounted source code
+docker-compose -f docker-compose.dev.yml run --rm log-filter-dev \
+  ERROR /logs -o /output/errors.txt --stats
+```
+
+**Windows Users**: Use PowerShell and `${PWD}` for current directory paths.  
+**Linux/Mac Users**: Use `$(pwd)` instead of `${PWD}`.
+
+**Complete Guide**: See [Docker Local Setup Analysis](../.github/docs/analize/docker-local-setup-analysis.md) for comprehensive instructions, troubleshooting, and best practices.
+
 ### Docker Compose
 
 Create `docker-compose.yml`:

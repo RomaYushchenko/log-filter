@@ -30,7 +30,7 @@ RUN pip install --no-cache-dir -e .
 FROM python:3.12-slim
 
 # Set metadata
-LABEL maintainer="your-email@example.com"
+LABEL maintainer="yushenkoromaf7@gmail.com"
 LABEL description="High-performance log filtering tool with boolean expressions"
 LABEL version="2.0.0"
 
