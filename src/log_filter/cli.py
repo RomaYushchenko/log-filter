@@ -108,6 +108,9 @@ Examples:
     parser.add_argument(
         "--progress", action="store_true", help="Show progress messages during processing"
     )
+    parser.add_argument(
+        "--quiet", "-q", action="store_true", help="Suppress progress messages (quiet mode)"
+    )
     parser.add_argument("--stats", action="store_true", help="Show final processing statistics")
 
     # Dry-run modes
@@ -301,6 +304,8 @@ def build_config_from_args(
     search_config = SearchConfig(
         expression=expression,
         ignore_case=ignore_case_value,
+        # Note: Config files use "regex" (recommended: search.regex), but model uses "use_regex"
+        # Supports both "search.regex" (nested, recommended) and "use_regex" (root level, legacy)
         use_regex=args.regex or search_section.get("regex") or config_dict.get("use_regex", False),
         date_from=parse_date(
             args.date_from or date_section.get("from") or config_dict.get("date_from")
@@ -363,8 +368,9 @@ def build_config_from_args(
     if isinstance(output_file, str):
         output_file = Path(output_file)
 
-    # Handle quiet flag - it should override verbose
-    is_quiet = output_section.get("quiet", False) or config_dict.get("quiet", False)
+    # Handle quiet flag - CLI takes precedence over config
+    # Priority: CLI --quiet > Config quiet > CLI --progress > Config verbose
+    is_quiet = args.quiet or output_section.get("quiet", False) or config_dict.get("quiet", False)
     show_progress_value = (
         False
         if is_quiet
