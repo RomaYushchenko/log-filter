@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Basic log filtering for local logs
+  log-filter-local:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: log-filter:latest
+    container_name: log-filter-local
+    volumes:
+      # Windows: Use local test-logs directory
+      # Linux: Can use ./test-logs or /var/log
+      - ./test-logs:/logs:ro
+      - ./output:/output
+    environment:
+      - LOG_FILTER_WORKERS=4
+      - LOG_FILTER_BUFFER_SIZE=8192
+    # Example: search for errors
+    command: ["ERROR", "/logs", "-o", "/output/errors.txt", "--stats"]
+
+  # Filter with configuration file
+  log-filter-config:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: log-filter:latest
+    container_name: log-filter-config
+    volumes:
+      - ./test-logs:/logs:ro
+      - ./output:/output
+      - ./config:/config:ro
+    command: ["--config", "/config/local.yaml"]
+
+  # Interactive mode for local exploration
+  log-filter-interactive:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: log-filter:latest
+    container_name: log-filter-interactive
+    volumes:
+      - ./test-logs:/logs:ro
+      - ./output:/output
+    stdin_open: true
+    tty: true
+    entrypoint: ["/bin/bash"]
+
+networks:
+  default:
+    name: log-filter-local-network

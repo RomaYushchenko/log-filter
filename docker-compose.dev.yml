@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # Development service with live code reload
+  log-filter-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: log-filter:dev
+    container_name: log-filter-dev
+    volumes:
+      # Mount source code for live editing
+      - ./src:/app/src:ro
+      # Mount test logs
+      - ./test-logs:/logs:ro
+      # Mount output directory
+      - ./output:/output
+      # Mount local configuration
+      - ./config:/config:ro
+    environment:
+      - LOG_FILTER_WORKERS=4
+      - LOG_FILTER_BUFFER_SIZE=8192
+      - LOG_FILTER_VERBOSE=true
+      - PYTHONPATH=/app/src
+    working_dir: /app
+    # Override for interactive testing
+    command: ["--help"]
+
+  # Quick filter service for one-off tasks
+  log-filter-quick:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: log-filter:dev
+    volumes:
+      - ./src:/app/src:ro
+      - ./test-logs:/logs:ro
+      - ./output:/output
+    environment:
+      - LOG_FILTER_WORKERS=2
+      - PYTHONPATH=/app/src
+    # Example: search for ERROR in test logs
+    command: ["ERROR", "/logs", "-o", "/output/errors.txt", "--stats"]
+
+  # Test runner service
+  log-filter-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: log-filter:dev
+    volumes:
+      - ./src:/app/src:ro
+      - ./tests:/app/tests:ro
+      - ./pyproject.toml:/app/pyproject.toml:ro
+    environment:
+      - PYTHONPATH=/app/src
+    working_dir: /app
+    command: ["pytest", "tests/", "-v"]
+
+networks:
+  default:
+    name: log-filter-dev-network

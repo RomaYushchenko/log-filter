@@ -30,7 +30,7 @@ RUN pip install --no-cache-dir -e .
 FROM python:3.12-slim
 
 # Set metadata
-LABEL maintainer="your-email@example.com"
+LABEL maintainer="yushenkoromaf7@gmail.com"
 LABEL description="High-performance log filtering tool with boolean expressions"
 LABEL version="2.0.0"
 
@@ -39,6 +39,12 @@ RUN useradd -m -u 1000 -s /bin/bash logfilter
 
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
+
+# Copy source code (needed for editable install)
+COPY --from=builder /app/src /app/src
+COPY --from=builder /app/pyproject.toml /app/pyproject.toml
+COPY --from=builder /app/README.md /app/README.md
+COPY --from=builder /app/LICENSE /app/LICENSE
 
 # Set environment variables
 ENV PATH="/opt/venv/bin:$PATH" \

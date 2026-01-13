@@ -19,6 +19,14 @@ recursive-include docs *.md *.rst *.py *.bat
 include docs/Makefile
 recursive-include docs/_static *.gitkeep
 
+include Dockerfile.dev
+include docker-compose.dev.yml
+include docker-compose.local.yml
+recursive-include config *.md *.yaml
+recursive-include output *.md
+recursive-include scripts *.ps1
+recursive-include test-logs *.md
+
 exclude .gitignore
 exclude .dockerignore
 exclude Dockerfile

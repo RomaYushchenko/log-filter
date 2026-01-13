@@ -77,6 +77,57 @@ log-filter --version
 # Output: log-filter 2.0.0
 ```
 
+### Option 3: Using Docker
+
+**No Python installation required - run directly from Docker:**
+
+1. **Build the image:**
+
+   ```powershell
+   # Clone repository
+   git clone https://github.com/RomaYushchenko/log-filter.git
+   cd log-filter
+   
+   # Build production image
+   docker build -t log-filter:latest .
+   ```
+
+2. **Run basic filter:**
+
+   ```powershell
+   # Windows PowerShell
+   docker run --rm `
+     -v ${PWD}/test-logs:/logs:ro `
+     -v ${PWD}/output:/output `
+     log-filter:latest `
+     ERROR /logs -o /output/errors.txt --stats
+   
+   # Linux/Mac bash
+   docker run --rm \
+     -v $(pwd)/test-logs:/logs:ro \
+     -v $(pwd)/output:/output \
+     log-filter:latest \
+     ERROR /logs -o /output/errors.txt --stats
+   ```
+
+3. **Using Docker Compose (recommended):**
+
+   ```powershell
+   # Run with local logs
+   docker-compose -f docker-compose.local.yml run --rm log-filter-local
+   
+   # Development mode with live code reload
+   docker-compose -f docker-compose.dev.yml run --rm log-filter-dev
+   ```
+
+**Benefits:**
+- No Python environment setup
+- Consistent across all platforms
+- Isolated from system dependencies
+- Perfect for production deployment
+
+**See Also:** [Docker Local Setup Guide](../.github/docs/analize/docker-local-setup-analysis.md) for complete instructions.
+
 ### Troubleshooting Installation
 
 **Issue: "pip: command not found"**

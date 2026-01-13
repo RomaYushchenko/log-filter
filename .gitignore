@@ -79,8 +79,20 @@ filter-result.log
 diagnostic_*.log
 hang_diagnosis.log
 
+# Docker local output
+output/*
+!output/README.md
+!output/.gitkeep
+
 # Project specific - local config
 config.json
+config/local.yaml
+config/*.local.yaml
+
+# Test logs (keep structure but not content)
+test-logs/*
+!test-logs/README.md
+!test-logs/.gitkeep
 
 # Documentation build
 docs/_build/
