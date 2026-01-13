@@ -18,6 +18,12 @@ search:
   # false = "ERROR" matches only "ERROR"
   ignore_case: false
 
+  # Enable regular expression matching (default: false)
+  # true  = Interpret search terms as regex patterns (e.g., "ERROR.*database")
+  # false = Plain text/boolean search
+  # Can also use --regex flag on command line
+  regex: false
+
 # ============================================================================
 # File Configuration
 # ============================================================================

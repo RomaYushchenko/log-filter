@@ -15,7 +15,13 @@
     "_comment_ignore_case": "Case-insensitive search (default: false)",
     "_comment_ignore_case_true": "true = 'ERROR' matches 'error', 'Error', 'ERROR', etc.",
     "_comment_ignore_case_false": "false = 'ERROR' matches only 'ERROR'",
-    "ignore_case": false
+    "ignore_case": false,
+
+    "_comment_regex": "Enable regular expression matching (default: false)",
+    "_comment_regex_true": "true = Interpret search terms as regex patterns (e.g., 'ERROR.*database')",
+    "_comment_regex_false": "false = Plain text/boolean search",
+    "_comment_regex_note": "Can also use --regex flag on command line",
+    "regex": false
   },
 
   "_comment_files": "============================================================================",
