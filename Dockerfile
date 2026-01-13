@@ -40,6 +40,12 @@ RUN useradd -m -u 1000 -s /bin/bash logfilter
 # Copy virtual environment from builder
 COPY --from=builder /opt/venv /opt/venv
 
+# Copy source code (needed for editable install)
+COPY --from=builder /app/src /app/src
+COPY --from=builder /app/pyproject.toml /app/pyproject.toml
+COPY --from=builder /app/README.md /app/README.md
+COPY --from=builder /app/LICENSE /app/LICENSE
+
 # Set environment variables
 ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \

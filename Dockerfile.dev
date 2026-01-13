@@ -40,5 +40,5 @@ USER logfilter
 # No need to copy source code in development mode
 
 # Default command for development
-ENTRYPOINT ["python", "-m", "log_filter.cli.main"]
+ENTRYPOINT ["python", "-m", "log_filter.main"]
 CMD ["--help"]
