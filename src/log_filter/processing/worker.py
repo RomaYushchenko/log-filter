@@ -108,6 +108,8 @@ class FileWorker:
         evaluator = ExpressionEvaluator(
             ignore_case=config.search.ignore_case,
             use_regex=config.search.use_regex,
+            word_boundary=config.search.word_boundary,
+            strip_quotes=config.search.strip_quotes,
             compiled_patterns=compiled_patterns,
         )
 

@@ -63,12 +63,16 @@ class ExpressionEvaluator:
     - Boolean operators: AND, OR, NOT
     - Case-sensitive and case-insensitive matching
     - Regular expression and substring matching
+    - Word boundary matching (exact words only)
+    - Quote character stripping (for structured data)
     """
 
     def __init__(
         self,
         ignore_case: bool = False,
         use_regex: bool = False,
+        word_boundary: bool = False,
+        strip_quotes: bool = False,
         compiled_patterns: dict[str, Pattern[str]] | None = None,
     ) -> None:
         """Initialize evaluator.
@@ -76,12 +80,18 @@ class ExpressionEvaluator:
         Args:
             ignore_case: Whether to perform case-insensitive matching
             use_regex: Whether to interpret search terms as regular expressions
+            word_boundary: Whether to match whole words only (not substrings)
+            strip_quotes: Whether to strip quote characters before matching
             compiled_patterns: Pre-compiled regex patterns (for performance)
         """
         self.ignore_case = ignore_case
         self.use_regex = use_regex
+        self.word_boundary = word_boundary
+        self.strip_quotes = strip_quotes
         self.compiled_patterns = compiled_patterns or {}
         self._regex_flags = re.IGNORECASE if ignore_case else 0
+        # Characters to strip when strip_quotes is enabled
+        self._quote_chars = ['"', "'", "`"]
 
     def evaluate(self, ast: ASTNode, text: str) -> bool:
         """Evaluate an AST node against text.
@@ -155,6 +165,11 @@ class ExpressionEvaluator:
         if not pattern:
             return False
 
+        # Apply quote stripping if enabled
+        if self.strip_quotes:
+            pattern = self._strip_quotes(pattern)
+            text = self._strip_quotes(text)
+
         if self.use_regex:
             return self._match_regex(pattern, text)
         else:
@@ -193,10 +208,23 @@ class ExpressionEvaluator:
         Returns:
             True if substring found, False otherwise
         """
+        if self.word_boundary:
+            # Use regex word boundary matching
+            flags = re.IGNORECASE if self.ignore_case else 0
+            # Escape special regex chars in pattern, then add word boundaries
+            escaped_pattern = re.escape(pattern)
+            try:
+                regex = re.compile(rf"\b{escaped_pattern}\b", flags)
+                return regex.search(text) is not None
+            except re.error:
+                # Fallback to substring matching if regex fails
+                if self.ignore_case:
+                    return pattern.lower() in text.lower()
+                return pattern in text
+        # Original substring matching
         if self.ignore_case:
             return pattern.lower() in text.lower()
-        else:
-            return pattern in text
+        return pattern in text
 
     def extract_patterns(self, ast: ASTNode) -> list[str]:
         """Extract all search patterns from an AST.
@@ -236,12 +264,27 @@ class ExpressionEvaluator:
             if len(node) >= 2:
                 self._collect_patterns(node[1], patterns)
 
+    def _strip_quotes(self, text: str) -> str:
+        """Strip quote characters from text.
+
+        Args:
+            text: Text to strip quotes from
+
+        Returns:
+            Text with quotes removed
+        """
+        for quote in self._quote_chars:
+            text = text.replace(quote, "")
+        return text
+
 
 def evaluate(
     ast: ASTNode,
     text: str,
     ignore_case: bool = False,
     use_regex: bool = False,
+    word_boundary: bool = False,
+    strip_quotes: bool = False,
 ) -> bool:
     """Convenience function to evaluate an AST against text.
 
@@ -250,6 +293,8 @@ def evaluate(
         text: The text to search in
         ignore_case: Whether to perform case-insensitive matching
         use_regex: Whether to interpret search terms as regular expressions
+        word_boundary: Whether to match whole words only (not substrings)
+        strip_quotes: Whether to strip quote characters before matching
 
     Returns:
         True if the expression matches the text, False otherwise
@@ -257,5 +302,10 @@ def evaluate(
     Raises:
         EvaluationError: If evaluation fails
     """
-    evaluator = ExpressionEvaluator(ignore_case=ignore_case, use_regex=use_regex)
+    evaluator = ExpressionEvaluator(
+        ignore_case=ignore_case,
+        use_regex=use_regex,
+        word_boundary=word_boundary,
+        strip_quotes=strip_quotes,
+    )
     return evaluator.evaluate(ast, text)

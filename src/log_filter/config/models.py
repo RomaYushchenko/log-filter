@@ -21,6 +21,8 @@ class SearchConfig:
         expression: Boolean search expression
         ignore_case: Whether to perform case-insensitive search
         use_regex: Whether to interpret search terms as regular expressions
+        word_boundary: Whether to match whole words only (not substrings)
+        strip_quotes: Whether to strip quote characters before matching
         date_from: Start date for filtering (inclusive)
         date_to: End date for filtering (inclusive)
         time_from: Start time for filtering (inclusive)
@@ -30,6 +32,8 @@ class SearchConfig:
     expression: str
     ignore_case: bool = False
     use_regex: bool = False
+    word_boundary: bool = False
+    strip_quotes: bool = False
     date_from: Optional[date] = None
     date_to: Optional[date] = None
     time_from: Optional[time] = None
