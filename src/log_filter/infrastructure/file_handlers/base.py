@@ -65,7 +65,6 @@ class AbstractFileHandler(ABC):
         Raises:
             FileHandlingError: If reading fails
         """
-        pass
 
     @abstractmethod
     def validate(self) -> tuple[bool, Optional[str]]:
@@ -79,7 +78,6 @@ class AbstractFileHandler(ABC):
             - is_valid: True if file can be read
             - error_message: None if valid, error description otherwise
         """
-        pass
 
     def get_size_bytes(self) -> int:
         """Get file size in bytes.

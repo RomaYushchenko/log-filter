@@ -106,7 +106,7 @@ class FileScanner:
         """
         # Optimization: Use include_patterns directly in glob for much faster scanning
         if self.include_patterns:
-            logger.info(f"Scanning for files matching patterns: {self.include_patterns}")
+            logger.info("Scanning for files matching patterns: %s", self.include_patterns)
             seen_paths: Set[Path] = set()
 
             for pattern in self.include_patterns:
@@ -128,7 +128,7 @@ class FileScanner:
                     yield metadata
         else:
             # Fallback: scan all files (slower)
-            logger.info(f"Scanning all files in {self.root_path}...")
+            logger.info("Scanning all files in %s...", self.root_path)
             glob_pattern = "**/*" if self.recursive else "*"
 
             for path in self.root_path.glob(glob_pattern):
