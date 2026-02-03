@@ -393,14 +393,18 @@ class ProcessingPipeline:
         if use_multiprocessing:
             # Use ProcessPoolExecutor for true parallelism
             with ProcessPoolExecutor(max_workers=worker_count) as executor:
-                # Submit all files for processing
+                # Submit all files for processing with index tracking
                 futures = {
-                    executor.submit(_process_file_worker, args): args[0] for args in worker_args
+                    executor.submit(_process_file_worker, args): (idx, args[0])
+                    for idx, args in enumerate(worker_args)
                 }
 
-                # Wait for completion and aggregate results
+                # Store results by index to preserve order when sort_by_timestamp is disabled
+                results_by_index = {}
+
+                # Wait for completion and collect results
                 for future in as_completed(futures):
-                    file_meta = futures[future]
+                    file_idx, file_meta = futures[future]
                     file_start_time = time.time()
                     processed_count += 1
 
@@ -408,26 +412,15 @@ class ProcessingPipeline:
                         _, matches, stats_dict, matched_records, error = future.result()
                         file_duration = time.time() - file_start_time
 
+                        # Store result with its original index
+                        results_by_index[file_idx] = {
+                            "matched_records": matched_records if not error else [],
+                            "stats_dict": stats_dict,
+                            "error": error,
+                        }
+
                         if error:
                             logger.error(f"Error processing {file_meta.path}: {error}")
-                        else:
-                            # Collect matched records
-                            if matched_records:
-                                all_matched_records.extend(matched_records)
-
-                            # Aggregate stats from worker process
-                            if stats_dict:
-                                self.stats.stats.records_total += stats_dict["records_total"]
-                                self.stats.stats.records_matched += stats_dict["records_matched"]
-                                self.stats.stats.records_skipped += stats_dict["records_skipped"]
-                                self.stats.stats.total_bytes_processed += stats_dict[
-                                    "total_bytes_processed"
-                                ]
-                                self.stats.stats.total_lines_processed += stats_dict[
-                                    "total_lines_processed"
-                                ]
-                                if stats_dict["files_processed"] > 0:
-                                    self.stats.increment_files_processed()
 
                         # Track recent file times for moving average
                         recent_times.append(file_duration)
@@ -454,6 +447,34 @@ class ProcessingPipeline:
 
                     except Exception as e:
                         logger.error(f"Error processing {file_meta.path}: {e}", exc_info=True)
+                        # Store empty result for failed file
+                        results_by_index[file_idx] = {
+                            "matched_records": [],
+                            "stats_dict": None,
+                            "error": str(e),
+                        }
+
+                # Aggregate results in original file order to preserve sort_input_files order
+                for idx in sorted(results_by_index.keys()):
+                    result = results_by_index[idx]
+
+                    # Collect matched records in order
+                    if result["matched_records"]:
+                        all_matched_records.extend(result["matched_records"])
+
+                    # Aggregate stats from worker process
+                    if result["stats_dict"]:
+                        self.stats.stats.records_total += result["stats_dict"]["records_total"]
+                        self.stats.stats.records_matched += result["stats_dict"]["records_matched"]
+                        self.stats.stats.records_skipped += result["stats_dict"]["records_skipped"]
+                        self.stats.stats.total_bytes_processed += result["stats_dict"][
+                            "total_bytes_processed"
+                        ]
+                        self.stats.stats.total_lines_processed += result["stats_dict"][
+                            "total_lines_processed"
+                        ]
+                        if result["stats_dict"]["files_processed"] > 0:
+                            self.stats.increment_files_processed()
         else:
             # Single-threaded mode (for debugging or small workloads)
             for args in worker_args:

@@ -230,7 +230,7 @@ class TestOutputConfig:
         """Test unlimited records (None or 0)."""
         config1 = OutputConfig(max_records_per_file=None)
         assert config1.max_records_per_file is None
-        
+
         config2 = OutputConfig(max_records_per_file=0)
         assert config2.max_records_per_file == 0
 

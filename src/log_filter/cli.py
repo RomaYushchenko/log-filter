@@ -444,12 +444,15 @@ def build_config_from_args(
         else output_section.get("output_file_pattern", "{base}-{index:03d}{ext}")
     )
 
-    sort_by_timestamp = not (
-        (hasattr(args, "no_sort_timestamps") and args.no_sort_timestamps)
-        or output_section.get("no_sort_timestamps", False)
-    )
-    if "sort_by_timestamp" in output_section:
+    # CLI flag takes precedence over config file
+    if hasattr(args, "no_sort_timestamps") and args.no_sort_timestamps:
+        sort_by_timestamp = False
+    elif "sort_by_timestamp" in output_section:
         sort_by_timestamp = output_section.get("sort_by_timestamp", True)
+    elif "no_sort_timestamps" in output_section:
+        sort_by_timestamp = not output_section.get("no_sort_timestamps", False)
+    else:
+        sort_by_timestamp = True
 
     output_config = OutputConfig(
         output_file=output_file,
@@ -481,12 +484,14 @@ def build_config_from_args(
         normalize_log_levels = config_dict.get("normalize_log_levels", True)
 
     # Sort input files: CLI arg > config file > default (True)
-    sort_input_files = not (
-        (hasattr(args, "no_sort_files") and args.no_sort_files)
-        or processing_section.get("no_sort_files", False)
-    )
-    if "sort_input_files" in processing_section:
+    if hasattr(args, "no_sort_files") and args.no_sort_files:
+        sort_input_files = False
+    elif "sort_input_files" in processing_section:
         sort_input_files = processing_section.get("sort_input_files", True)
+    elif "no_sort_files" in processing_section:
+        sort_input_files = not processing_section.get("no_sort_files", False)
+    else:
+        sort_input_files = True
 
     processing_config = ProcessingConfig(
         worker_count=worker_count,

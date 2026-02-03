@@ -89,16 +89,14 @@ class TestExtractDateAndIndexFromFilename:
         # This will match index-only pattern (the "-1" at the end)
         assert result is not None
         assert result[1] == 1  # Index part
-        
+
         # Test a filename that truly has no valid pattern
         result = extract_date_and_index_from_filename("app-invalid.log")
         assert result is None
 
     def test_with_path(self) -> None:
         """Test that function works with full paths."""
-        result = extract_date_and_index_from_filename(
-            "/var/log/app/tug-02-02-2026-1.log.gz"
-        )
+        result = extract_date_and_index_from_filename("/var/log/app/tug-02-02-2026-1.log.gz")
         assert result is not None
         date, index = result
         assert date == datetime(2026, 2, 2)
@@ -106,9 +104,7 @@ class TestExtractDateAndIndexFromFilename:
 
     def test_windows_path(self) -> None:
         """Test with Windows-style path."""
-        result = extract_date_and_index_from_filename(
-            r"C:\logs\application-2026-01-15-3.log"
-        )
+        result = extract_date_and_index_from_filename(r"C:\logs\application-2026-01-15-3.log")
         assert result is not None
         date, index = result
         assert date == datetime(2026, 1, 15)
@@ -134,9 +130,9 @@ class TestSortFilesByDateAndIndex:
             self.create_file_meta("tug-02-01-2026-1.log"),
             self.create_file_meta("tug-02-02-2026-1.log"),
         ]
-        
+
         sorted_files = sort_files_by_date_and_index(files)
-        
+
         assert len(sorted_files) == 3
         assert sorted_files[0].path.name == "tug-02-01-2026-1.log"
         assert sorted_files[1].path.name == "tug-02-02-2026-1.log"
@@ -149,9 +145,9 @@ class TestSortFilesByDateAndIndex:
             self.create_file_meta("tug-02-02-2026-1.log"),
             self.create_file_meta("tug-02-02-2026-2.log"),
         ]
-        
+
         sorted_files = sort_files_by_date_and_index(files)
-        
+
         assert sorted_files[0].path.name == "tug-02-02-2026-1.log"
         assert sorted_files[1].path.name == "tug-02-02-2026-2.log"
         assert sorted_files[2].path.name == "tug-02-02-2026-3.log"
@@ -164,16 +160,16 @@ class TestSortFilesByDateAndIndex:
             self.create_file_meta("app-02-02-2026-1.log"),
             self.create_file_meta("app-02-03-2026-2.log"),
         ]
-        
+
         sorted_files = sort_files_by_date_and_index(files)
-        
+
         expected_order = [
             "app-02-02-2026-1.log",
             "app-02-02-2026-2.log",
             "app-02-03-2026-1.log",
             "app-02-03-2026-2.log",
         ]
-        
+
         for i, expected_name in enumerate(expected_order):
             assert sorted_files[i].path.name == expected_name
 
@@ -185,13 +181,13 @@ class TestSortFilesByDateAndIndex:
             self.create_file_meta("tug-02-01-2026-1.log"),
             self.create_file_meta("application.log"),
         ]
-        
+
         sorted_files = sort_files_by_date_and_index(files, fallback_sort_key="name")
-        
+
         # First two should be dated files (chronologically)
         assert sorted_files[0].path.name == "tug-02-01-2026-1.log"
         assert sorted_files[1].path.name == "tug-02-02-2026-1.log"
-        
+
         # Last two should be undated files (alphabetically)
         assert sorted_files[2].path.name == "application.log"
         assert sorted_files[3].path.name == "unknown.log"
@@ -215,12 +211,12 @@ class TestSortFilesByDateAndIndex:
             self.create_file_meta("tug-02-01-2026-1.log"),
         ]
         original_order = [f.path.name for f in files]
-        
+
         sorted_files = sort_files_by_date_and_index(files)
-        
+
         # Original list should be unchanged
         assert [f.path.name for f in files] == original_order
-        
+
         # Sorted list should be different
         assert sorted_files[0].path.name == "tug-02-01-2026-1.log"
 
@@ -228,12 +224,12 @@ class TestSortFilesByDateAndIndex:
         """Test sorting files with different date formats."""
         files = [
             self.create_file_meta("server_20260203_1.log"),  # YYYYMMDD
-            self.create_file_meta("app-02-02-2026-1.log"),    # DD-MM-YYYY
-            self.create_file_meta("log-2026-02-01-1.log"),    # YYYY-MM-DD
+            self.create_file_meta("app-02-02-2026-1.log"),  # DD-MM-YYYY
+            self.create_file_meta("log-2026-02-01-1.log"),  # YYYY-MM-DD
         ]
-        
+
         sorted_files = sort_files_by_date_and_index(files)
-        
+
         # All should be sorted by date regardless of format
         assert sorted_files[0].path.name == "log-2026-02-01-1.log"
         assert sorted_files[1].path.name == "app-02-02-2026-1.log"
@@ -246,9 +242,9 @@ class TestSortFilesByDateAndIndex:
             self.create_file_meta("apple.log"),
             self.create_file_meta("banana.log"),
         ]
-        
+
         sorted_files = sort_files_by_date_and_index(files, fallback_sort_key="name")
-        
+
         assert sorted_files[0].path.name == "apple.log"
         assert sorted_files[1].path.name == "banana.log"
         assert sorted_files[2].path.name == "zebra.log"
@@ -260,9 +256,9 @@ class TestSortFilesByDateAndIndex:
             self.create_file_meta("small.log", size_bytes=1000),
             self.create_file_meta("medium.log", size_bytes=2000),
         ]
-        
+
         sorted_files = sort_files_by_date_and_index(files, fallback_sort_key="size")
-        
+
         assert sorted_files[0].path.name == "small.log"
         assert sorted_files[1].path.name == "medium.log"
         assert sorted_files[2].path.name == "large.log"
@@ -274,9 +270,9 @@ class TestSortFilesByDateAndIndex:
             self.create_file_meta("app-31-12-2025-1.log"),
             self.create_file_meta("app-15-06-2026-1.log"),
         ]
-        
+
         sorted_files = sort_files_by_date_and_index(files)
-        
+
         assert sorted_files[0].path.name == "app-31-12-2025-1.log"
         assert sorted_files[1].path.name == "app-15-06-2026-1.log"
         assert sorted_files[2].path.name == "app-01-01-2027-1.log"
