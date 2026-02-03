@@ -9,7 +9,7 @@ decompression using pigz if available for improved performance.
 import gzip
 import logging
 import shutil
-import subprocess
+import subprocess  # nosec B404 - Required for pigz parallel decompression
 from pathlib import Path
 from typing import Iterator, Optional
 
@@ -102,7 +102,8 @@ class GzipFileHandler(AbstractFileHandler):
         """
         try:
             # Use pigz with -dc flags: -d (decompress), -c (to stdout)
-            with subprocess.Popen(
+            # Safe use: pigz command with validated file path, no shell injection
+            with subprocess.Popen(  # nosec B603 B607
                 ["pigz", "-dc", str(self.file_path)],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
