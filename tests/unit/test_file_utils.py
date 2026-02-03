@@ -33,7 +33,9 @@ class TestExtractDateAndIndexFromFilename:
 
     def test_mm_dd_yyyy_format(self) -> None:
         """Test parsing MM-DD-YYYY-N format (American format)."""
-        result = extract_date_and_index_from_filename("tug-integration-service-12-15-2025-32.log.gz")
+        result = extract_date_and_index_from_filename(
+            "tug-integration-service-12-15-2025-32.log.gz"
+        )
         assert result is not None
         date, index = result
         assert date == datetime(2025, 12, 15)
