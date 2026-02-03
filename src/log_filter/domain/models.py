@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from datetime import date, datetime, time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 
 @dataclass(frozen=True)
@@ -19,6 +19,7 @@ class LogRecord:
         timestamp: Parsed timestamp from the first line
         level: Log level (ERROR, WARN, INFO, etc.)
         size_bytes: Total size of the record in bytes
+        _searchable_content_cache: Cached searchable content with level prepended
     """
 
     content: str
@@ -29,6 +30,7 @@ class LogRecord:
     timestamp: Optional[datetime] = None
     level: Optional[str] = None
     size_bytes: int = 0
+    _searchable_content_cache: Optional[str] = field(default=None, init=False, repr=False)
 
     @property
     def line_count(self) -> int:
@@ -44,6 +46,35 @@ class LogRecord:
     def time(self) -> Optional[time]:
         """Extract time from timestamp."""
         return self.timestamp.time() if self.timestamp else None
+
+    @property
+    def searchable_content(self) -> str:
+        """Get content with level prepended for search operations (cached).
+
+        Performance optimization: This property caches the prepended level + content string
+        to avoid repeated string concatenation during evaluation. For 10M records with
+        avg 500 chars, this saves ~5GB of temporary string allocations.
+
+        The cached value is computed once on first access and reused for subsequent calls.
+
+        Returns:
+            Content with level prepended if level exists, otherwise just content.
+            Example: "ERROR Connection timeout..." if level is "ERROR"
+
+        Usage in worker:
+            # Instead of: search_text = f"{record.level} {record.content}" (on every eval)
+            # Use: search_text = record.searchable_content (cached, no string allocation)
+        """
+        # Use object.__setattr__ to set cache on frozen dataclass
+        if object.__getattribute__(self, "_searchable_content_cache") is None:
+            cached: str
+            if self.level:
+                cached = f"{self.level} {self.content}"
+            else:
+                cached = self.content
+            object.__setattr__(self, "_searchable_content_cache", cached)
+
+        return cast(str, object.__getattribute__(self, "_searchable_content_cache"))
 
 
 @dataclass
@@ -74,6 +105,7 @@ class FileMetadata:
         is_compressed: Whether the file is compressed
         is_readable: Whether the file can be read
         skip_reason: Reason for skipping this file (if applicable)
+        mtime: File modification time (Unix timestamp, for sorting)
     """
 
     path: Path
@@ -82,6 +114,7 @@ class FileMetadata:
     is_compressed: bool
     is_readable: bool = True
     skip_reason: Optional[str] = None
+    mtime: float = 0.0
 
     @property
     def size_mb(self) -> float:

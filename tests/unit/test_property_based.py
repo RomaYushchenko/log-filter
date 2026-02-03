@@ -119,7 +119,11 @@ class TestParserProperties:
 
     @given(
         st.lists(
-            st.text(alphabet=string.ascii_letters, min_size=1, max_size=5), min_size=1, max_size=3
+            st.text(alphabet=string.ascii_letters, min_size=1, max_size=5).filter(
+                lambda x: x.upper() not in ["AND", "OR", "NOT"]
+            ),
+            min_size=1,
+            max_size=3,
         ),
         st.sampled_from(["AND", "OR"]),
     )

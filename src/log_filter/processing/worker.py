@@ -24,6 +24,11 @@ from log_filter.utils.highlighter import TextHighlighter
 
 logger = logging.getLogger(__name__)
 
+# Progress logging optimization constants
+# Using power of 2 for bitwise AND operation (faster than modulo)
+PROGRESS_CHECK_MASK = (1 << 17) - 1  # 131,072 records (2^17)
+PROGRESS_TIME_THRESHOLD = 60  # Log every 60 seconds (reduced frequency)
+
 
 class FileWorker:
     """Worker for processing a single log file.
@@ -145,9 +150,13 @@ class FileWorker:
                 self.stats_collector.add_bytes_processed(record.size_bytes)
                 self.stats_collector.add_lines_processed(record.line_count)
 
-                # Log progress every 50,000 records or every 30 seconds
+                # Performance optimization: Log progress periodically
+                # Bitwise AND with power-of-2 mask is faster than modulo
+                # Check every ~131k records or every 60 seconds
                 current_time = time.time()
-                if (records_processed % 50000 == 0) or (current_time - last_progress_time > 30):
+                if (records_processed & PROGRESS_CHECK_MASK) == 0 or (
+                    current_time - last_progress_time > PROGRESS_TIME_THRESHOLD
+                ):
                     mb_processed = bytes_processed_in_file / (1024 * 1024)
                     logger.debug(
                         f"Processing {file_path.name}: {records_processed:,} records, "

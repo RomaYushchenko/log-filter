@@ -119,6 +119,29 @@ Examples:
         "--highlight", action="store_true", help="Highlight matches with <<< >>> markers"
     )
 
+    # Chunked output options
+    parser.add_argument(
+        "--max-records-per-file",
+        type=int,
+        metavar="N",
+        help="Maximum records per output file (0 = unlimited, default: 500)",
+    )
+    parser.add_argument(
+        "--output-pattern",
+        type=str,
+        help="Template for chunk filenames: {base}, {index}, {ext}, {timestamp} (default: {base}-{index:03d}{ext})",
+    )
+    parser.add_argument(
+        "--no-sort-timestamps",
+        action="store_true",
+        help="Disable chronological sorting of output records by timestamp",
+    )
+    parser.add_argument(
+        "--no-sort-files",
+        action="store_true",
+        help="Disable pre-sorting of input files by date/index from filename",
+    )
+
     # Display options
     parser.add_argument(
         "--progress", action="store_true", help="Show progress messages during processing"
@@ -408,6 +431,29 @@ def build_config_from_args(
         else (args.progress or output_section.get("verbose") or config_dict.get("progress", False))
     )
 
+    # Get chunked output settings
+    max_records_per_file = (
+        args.max_records_per_file
+        if hasattr(args, "max_records_per_file") and args.max_records_per_file is not None
+        else output_section.get("max_records_per_file", 500)
+    )
+
+    output_pattern = (
+        args.output_pattern
+        if hasattr(args, "output_pattern") and args.output_pattern
+        else output_section.get("output_file_pattern", "{base}-{index:03d}{ext}")
+    )
+
+    # CLI flag takes precedence over config file
+    if hasattr(args, "no_sort_timestamps") and args.no_sort_timestamps:
+        sort_by_timestamp = False
+    elif "sort_by_timestamp" in output_section:
+        sort_by_timestamp = output_section.get("sort_by_timestamp", True)
+    elif "no_sort_timestamps" in output_section:
+        sort_by_timestamp = not output_section.get("no_sort_timestamps", False)
+    else:
+        sort_by_timestamp = True
+
     output_config = OutputConfig(
         output_file=output_file,
         include_file_path=not (args.no_path or output_section.get("no_path", False)),
@@ -418,6 +464,9 @@ def build_config_from_args(
         show_stats=args.stats or output_section.get("stats") or config_dict.get("stats", False),
         dry_run=args.dry_run or config_dict.get("dry_run", False),
         dry_run_details=args.dry_run_details or config_dict.get("dry_run_details", False),
+        max_records_per_file=max_records_per_file,
+        output_file_pattern=output_pattern,
+        sort_by_timestamp=sort_by_timestamp,
     )
 
     # Build processing config
@@ -434,10 +483,21 @@ def build_config_from_args(
     elif "normalize_log_levels" in config_dict:
         normalize_log_levels = config_dict.get("normalize_log_levels", True)
 
+    # Sort input files: CLI arg > config file > default (True)
+    if hasattr(args, "no_sort_files") and args.no_sort_files:
+        sort_input_files = False
+    elif "sort_input_files" in processing_section:
+        sort_input_files = processing_section.get("sort_input_files", True)
+    elif "no_sort_files" in processing_section:
+        sort_input_files = not processing_section.get("no_sort_files", False)
+    else:
+        sort_input_files = True
+
     processing_config = ProcessingConfig(
         worker_count=worker_count,
         debug=args.debug or processing_section.get("debug") or config_dict.get("debug", False),
         normalize_log_levels=normalize_log_levels,
+        sort_input_files=sort_input_files,
     )
 
     # Build complete application config

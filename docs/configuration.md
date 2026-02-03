@@ -111,12 +111,16 @@ output:
   show_stats: true
   verbose: false
   quiet: false
+  max_records_per_file: 500                    # Records per file (0 = unlimited)
+  output_file_pattern: "{base}-{index:03d}{ext}"  # Filename template
+  sort_by_timestamp: true                      # Sort results chronologically
 
 processing:
   max_workers: 4
   buffer_size: 8192
   encoding: "utf-8"
   errors: "replace"
+  sort_input_files: true  # Pre-sort files by date/index
 ```
 
 ### Using Configuration File
@@ -448,6 +452,83 @@ output:
 log-filter "ERROR" /var/log --quiet
 ```
 
+### Max Records Per File
+
+Maximum number of records per output file. Enables automatic file chunking.
+
+```yaml
+output:
+  max_records_per_file: 500  # Default: 500 (0 = unlimited)
+```
+
+**CLI**:
+```bash
+# Chunk output into files of 1000 records each
+log-filter "ERROR" /var/log -o results.log --max-records-per-file 1000
+
+# Disable chunking (single file)
+log-filter "ERROR" /var/log -o results.log --max-records-per-file 0
+```
+
+**Behavior**:
+- When `> 0`: Creates multiple files (results-001.log, results-002.log, ...)
+- When `0`: Creates single file at specified path
+- Each chunk file contains exactly this many records (except last file)
+
+### Output File Pattern
+
+Template for chunked output filenames.
+
+```yaml
+output:
+  output_file_pattern: "{base}-{index:03d}{ext}"  # Default
+```
+
+**CLI**:
+```bash
+log-filter "ERROR" /var/log -o results.log \
+  --output-pattern "{base}_part{index:02d}{ext}"
+```
+
+**Available placeholders**:
+- `{base}`: Base filename without extension (e.g., "results")
+- `{index}`: File index (1, 2, 3, ...)
+- `{ext}`: File extension including dot (e.g., ".log")
+
+**Format specifiers**:
+- `{index:03d}`: Zero-padded 3 digits (001, 002, ...)
+- `{index:02d}`: Zero-padded 2 digits (01, 02, ...)
+- `{index:d}`: No padding (1, 2, ...)
+
+**Examples**:
+- `{base}-{index:03d}{ext}` → results-001.log, results-002.log
+- `{base}_part{index:02d}{ext}` → results_part01.log, results_part02.log
+- `{base}.{index:d}{ext}` → results.1.log, results.2.log
+
+### Sort By Timestamp
+
+Sort output records chronologically by timestamp.
+
+```yaml
+output:
+  sort_by_timestamp: true  # Default: true
+```
+
+**CLI**:
+```bash
+# Enable sorting (default)
+log-filter "ERROR" /var/log -o results.log
+
+# Disable sorting
+log-filter "ERROR" /var/log -o results.log --no-sort-timestamps
+```
+
+**Behavior**:
+- Records sorted from oldest to newest
+- Records without timestamps placed at end
+- Sorting happens after all files processed but before writing
+- Works with both single and chunked output
+
 ## Processing Configuration
 
 ### Max Workers
@@ -468,6 +549,39 @@ log-filter "ERROR" /var/log -w 8
 - **I/O-bound** (many files): 2× CPU count
 - **CPU-bound** (complex expressions): 1× CPU count
 - **Large files**: Fewer workers (memory constraint)
+
+### Sort Input Files
+
+Pre-sort input files by date and index extracted from filenames.
+
+```yaml
+processing:
+  sort_input_files: true  # Default: true
+```
+
+**CLI**:
+```bash
+# Enable file sorting (default)
+log-filter "ERROR" /var/log -o results.log
+
+# Disable file sorting
+log-filter "ERROR" /var/log -o results.log --no-sort-files
+```
+
+**Behavior**:
+- Files sorted chronologically before processing
+- Recognized patterns: DD-MM-YYYY-N, YYYY-MM-DD-N, YYYYMMDD_N, index-only
+- Example: app-01-15-2026-1.log, app-01-16-2026-1.log, app-01-17-2026-1.log
+- Files without recognized patterns sorted alphabetically
+- Ensures chronological processing for date-rotated logs
+
+**Examples of recognized filenames**:
+```
+app-15-01-2026-1.log     → January 15, 2026, index 1
+app-2026-01-15-2.log     → January 15, 2026, index 2
+app_20260115_3.log       → January 15, 2026, index 3
+app-001.log              → Index 001 only
+```
 
 ### Buffer Size
 

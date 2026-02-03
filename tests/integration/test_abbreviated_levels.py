@@ -38,7 +38,12 @@ class TestAbbreviatedLevelFiltering:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output,
+                show_progress=False,
+                show_stats=False,
+                max_records_per_file=None,
+            ),
             processing=ProcessingConfig(normalize_log_levels=True),
         )
 
@@ -68,7 +73,12 @@ class TestAbbreviatedLevelFiltering:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR AND database", ignore_case=True),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output,
+                show_progress=False,
+                show_stats=False,
+                max_records_per_file=None,
+            ),
             processing=ProcessingConfig(normalize_log_levels=True),
         )
 
@@ -97,7 +107,12 @@ class TestAbbreviatedLevelFiltering:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR OR WARN"),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output,
+                show_progress=False,
+                show_stats=False,
+                max_records_per_file=None,
+            ),
             processing=ProcessingConfig(normalize_log_levels=True),
         )
 
@@ -128,7 +143,12 @@ class TestAbbreviatedLevelFiltering:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output,
+                show_progress=False,
+                show_stats=False,
+                max_records_per_file=None,
+            ),
             processing=ProcessingConfig(normalize_log_levels=True),
         )
 
@@ -156,7 +176,12 @@ class TestAbbreviatedLevelFiltering:
         config = ApplicationConfig(
             search=SearchConfig(expression="database", ignore_case=True),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output,
+                show_progress=False,
+                show_stats=False,
+                max_records_per_file=None,
+            ),
             processing=ProcessingConfig(normalize_log_levels=True),
         )
 
@@ -184,7 +209,12 @@ class TestAbbreviatedLevelFiltering:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output,
+                show_progress=False,
+                show_stats=False,
+                max_records_per_file=None,
+            ),
             processing=ProcessingConfig(normalize_log_levels=False),
         )
 
@@ -229,7 +259,12 @@ class TestAllLevelAbbreviations:
             config = ApplicationConfig(
                 search=SearchConfig(expression=expression),
                 files=FileConfig(path=tmp_path),
-                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+                output=OutputConfig(
+                    output_file=output,
+                    show_progress=False,
+                    show_stats=False,
+                    max_records_per_file=None,
+                ),
                 processing=ProcessingConfig(normalize_log_levels=True),
             )
 
