@@ -421,13 +421,15 @@ class TestCompilePatterns:
         assert "ERROR" in patterns
 
     def test_compile_invalid_regex(self) -> None:
-        """Test that invalid regex patterns are skipped."""
+        """Test that invalid regex patterns raise ConfigurationError during compilation."""
+        from log_filter.core.exceptions import ConfigurationError
+
         # Create an AST manually with invalid regex
         ast = ("WORD", "[invalid")
-        patterns = compile_patterns_from_ast(ast, ignore_case=False)
 
-        # Invalid pattern should be skipped
-        assert len(patterns) == 0
+        # Invalid pattern should raise ConfigurationError
+        with pytest.raises(ConfigurationError, match="Invalid regex pattern"):
+            compile_patterns_from_ast(ast, ignore_case=False)
 
     def test_compiled_patterns_work_with_evaluator(self) -> None:
         """Test that compiled patterns work correctly with evaluator."""

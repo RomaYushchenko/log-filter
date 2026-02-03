@@ -208,6 +208,32 @@ class TestOutputConfig:
         assert config.dry_run is True
         assert config.dry_run_details is True
 
+    def test_chunked_output_defaults(self) -> None:
+        """Test chunked output default values."""
+        config = OutputConfig()
+        assert config.max_records_per_file == 500
+        assert config.output_file_pattern == "{base}-{index:03d}{ext}"
+        assert config.sort_by_timestamp is True
+
+    def test_chunked_output_custom(self) -> None:
+        """Test chunked output custom values."""
+        config = OutputConfig(
+            max_records_per_file=1000,
+            output_file_pattern="{base}_{index:05d}{ext}",
+            sort_by_timestamp=False,
+        )
+        assert config.max_records_per_file == 1000
+        assert config.output_file_pattern == "{base}_{index:05d}{ext}"
+        assert config.sort_by_timestamp is False
+
+    def test_unlimited_records_per_file(self) -> None:
+        """Test unlimited records (None or 0)."""
+        config1 = OutputConfig(max_records_per_file=None)
+        assert config1.max_records_per_file is None
+
+        config2 = OutputConfig(max_records_per_file=0)
+        assert config2.max_records_per_file == 0
+
 
 class TestProcessingConfig:
     """Tests for ProcessingConfig."""
@@ -237,6 +263,26 @@ class TestProcessingConfig:
         """Test debug mode enabled."""
         config = ProcessingConfig(debug=True)
         assert config.debug is True
+
+    def test_sort_input_files_default(self) -> None:
+        """Test sort_input_files default value."""
+        config = ProcessingConfig()
+        assert config.sort_input_files is True
+
+    def test_sort_input_files_disabled(self) -> None:
+        """Test disabling input file sorting."""
+        config = ProcessingConfig(sort_input_files=False)
+        assert config.sort_input_files is False
+
+    def test_normalize_log_levels_default(self) -> None:
+        """Test normalize_log_levels default value."""
+        config = ProcessingConfig()
+        assert config.normalize_log_levels is True
+
+    def test_normalize_log_levels_disabled(self) -> None:
+        """Test disabling log level normalization."""
+        config = ProcessingConfig(normalize_log_levels=False)
+        assert config.normalize_log_levels is False
 
     def test_worker_count_exceeds_platform_maximum(self) -> None:
         """Test that excessive worker count raises error."""

@@ -46,7 +46,9 @@ class TestEndToEndWorkflows:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -74,7 +76,9 @@ class TestEndToEndWorkflows:
         config = ApplicationConfig(
             search=SearchConfig(expression="(ERROR OR WARN) AND NOT timeout"),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -104,7 +108,9 @@ class TestEndToEndWorkflows:
                 expression="ERROR", date_from=date(2025, 1, 2), date_to=date(2025, 1, 2)
             ),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -132,7 +138,9 @@ class TestEndToEndWorkflows:
         config = ApplicationConfig(
             search=SearchConfig(expression="error", ignore_case=True),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -156,7 +164,9 @@ class TestEndToEndWorkflows:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -180,7 +190,9 @@ class TestEndToEndWorkflows:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=tmp_path, extensions=(".gz",)),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -226,7 +238,11 @@ class TestRealWorldScenarios:
             search=SearchConfig(expression="ERROR AND (timeout OR deadlock OR Unavailable)"),
             files=FileConfig(path=tmp_path),
             output=OutputConfig(
-                output_file=output, include_file_path=True, show_progress=False, show_stats=False
+                output_file=output,
+                include_file_path=True,
+                show_progress=False,
+                show_stats=False,
+                max_records_per_file=None,
             ),
         )
 
@@ -252,7 +268,9 @@ class TestRealWorldScenarios:
         config = ApplicationConfig(
             search=SearchConfig(expression="WARN AND (slow OR exhausted)"),
             files=FileConfig(path=tmp_path),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -275,7 +293,9 @@ class TestEdgeCases:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=empty_dir),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -297,7 +317,9 @@ class TestEdgeCases:
         config = ApplicationConfig(
             search=SearchConfig(expression="CRITICAL"),
             files=FileConfig(path=log_dir),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -328,7 +350,9 @@ class TestEdgeCases:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=log_dir),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -356,7 +380,9 @@ class TestEdgeCases:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=log_dir),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -383,7 +409,9 @@ class TestEdgeCases:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=log_dir),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -414,7 +442,9 @@ class TestStatisticsAndReporting:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=log_dir),
-            output=OutputConfig(output_file=output, show_stats=True, show_progress=False),
+            output=OutputConfig(
+                output_file=output, show_stats=True, show_progress=False, max_records_per_file=None
+            ),
         )
 
         pipeline = ProcessingPipeline(config)
@@ -470,7 +500,9 @@ class TestConcurrentProcessing:
         config = ApplicationConfig(
             search=SearchConfig(expression="ERROR"),
             files=FileConfig(path=log_dir),
-            output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+            output=OutputConfig(
+                output_file=output, show_progress=False, show_stats=False, max_records_per_file=None
+            ),
             processing=ProcessingConfig(worker_count=2),
         )
 

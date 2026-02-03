@@ -399,6 +399,124 @@ log-filter "ERROR" /var/log -w 8
 log-filter "ERROR" /var/log  # Default behavior
 ```
 
+### 13. Sorted and Chunked Output
+
+Manage large result sets with automatic sorting and file splitting:
+
+#### Automatic File Chunking
+
+Split large output into manageable files (default: 500 records per file):
+
+```bash
+log-filter "ERROR" /var/log -o results.log
+```
+
+**Creates**:
+```text
+results-001.log  (500 records)
+results-002.log  (500 records)
+results-003.log  (remaining records)
+```
+
+#### Custom Chunk Size
+
+```bash
+# 1000 records per file
+log-filter "ERROR" /var/log -o results.log --max-records-per-file 1000
+
+# Disable chunking (single file)
+log-filter "ERROR" /var/log -o results.log --max-records-per-file 0
+```
+
+#### Custom Filename Pattern
+
+```bash
+log-filter "ERROR" /var/log -o results.log \
+  --output-pattern "{base}_part{index:02d}{ext}"
+```
+
+**Creates**: `results_part01.log`, `results_part02.log`, ...
+
+#### Timestamp Sorting
+
+Results are automatically sorted chronologically (oldest → newest):
+
+```bash
+# Sorted output (default)
+log-filter "ERROR" /var/log -o results.log
+
+# Disable sorting
+log-filter "ERROR" /var/log -o results.log --no-sort-timestamps
+```
+
+#### File Pre-sorting
+
+Input files are automatically processed with intelligent ordering:
+
+**Sorting Strategy:**
+1. Files are grouped by their parent directory
+2. Within each directory:
+   - **Files WITHOUT date/index** (e.g., `application.log`, `current.log`) are processed FIRST
+   - **Files WITH date/index** (e.g., `app-12-15-2025-1.log`) are processed AFTER in chronological order
+3. Directories are sorted by their earliest dated file
+4. Directories with only undated files are processed first
+
+```bash
+# Example sorting within a directory:
+#   application.log           ← Undated file (processed first)
+#   current.log              ← Undated file
+#   app-12-15-2025-1.log     ← Dated files in chronological order
+#   app-12-15-2025-2.log
+#   app-12-16-2025-1.log
+log-filter "ERROR" /var/log -o results.log
+
+# Disable file sorting
+log-filter "ERROR" /var/log -o results.log --no-sort-files
+```
+
+**Why undated files first?**
+- Main log files (like `application.log`) often contain current/active logs
+- Configuration or initialization logs should be processed before rotated archives
+- Ensures you see the "live" log context before historical rotations
+
+**Supported filename patterns**:
+- `DD-MM-YYYY-N`: app-15-01-2026-1.log (European format: 15th January 2026)
+- `MM-DD-YYYY-N`: app-12-15-2025-32.log (American format: December 15th, 2025)
+- `YYYY-MM-DD-N`: app-2026-01-15-2.log
+- `YYYYMMDD_N`: app_20260115_3.log
+- Index only: app-001.log
+
+**Note**: For ambiguous dates like `01-02-2026-1.log` (could be Jan 2 or Feb 1), the parser defaults to DD-MM-YYYY (European format). If the European interpretation is invalid (e.g., month > 12), it automatically tries MM-DD-YYYY (American format).
+
+#### Complete Example
+
+```bash
+# Process production logs with all features
+log-filter "(ERROR OR CRITICAL)" /var/log/production \
+  -o critical-errors.log \
+  --max-records-per-file 1000 \
+  --output-pattern "{base}-{index:03d}{ext}" \
+  --stats
+```
+
+**Result**:
+```text
+Files processed in chronological order:
+  prod-01-15-2026-1.log
+  prod-01-16-2026-1.log
+  prod-01-17-2026-1.log
+
+Output created (sorted oldest→newest):
+  critical-errors-001.log (1000 records)
+  critical-errors-002.log (1000 records)
+  critical-errors-003.log (523 records)
+
+Statistics:
+  Files Processed: 3
+  Records Matched: 2523
+  Duration: 5.2s
+```
+
 ## Common Use Cases
 
 ### Find All Errors Today

@@ -129,7 +129,28 @@
     "dry_run": false,
 
     "_comment_dry_run_details": "Dry run with details - show detailed file statistics (default: false)",
-    "dry_run_details": false
+    "dry_run_details": false,
+
+    "_comment_chunked": "============================================================================",
+    "_comment_chunked_section": "Chunked Output Configuration (New in 2.0)",
+    "_comment_chunked_end": "============================================================================",
+
+    "_comment_max_records": "Maximum records per output file (default: 500, 0 = unlimited)",
+    "_comment_max_records_note": "Enables automatic file splitting for large result sets",
+    "_comment_max_records_examples": "500 = Default, creates files with 500 records each; 1000 = Larger chunks for fewer files; 0 = Single file (disable chunking)",
+    "max_records_per_file": 500,
+
+    "_comment_pattern": "Output filename pattern for chunked files (default: '{base}-{index:03d}{ext}')",
+    "_comment_pattern_placeholders": "Placeholders: {base} = Base filename without extension (e.g., 'results'), {index} = File index (1, 2, 3, ...), {ext} = File extension including dot (e.g., '.log')",
+    "_comment_pattern_format": "Format specifiers: {index:03d} = Zero-padded 3 digits (001, 002, ...), {index:02d} = Zero-padded 2 digits (01, 02, ...)",
+    "_comment_pattern_examples": "{base}-{index:03d}{ext} → results-001.log, results-002.log; {base}_part{index:02d}{ext} → results_part01.log, results_part02.log; {base}.{index:d}{ext} → results.1.log, results.2.log",
+    "output_file_pattern": "{base}-{index:03d}{ext}",
+
+    "_comment_sort_timestamp": "Sort output records by timestamp (default: true)",
+    "_comment_sort_timestamp_true": "true = Results sorted chronologically (oldest → newest)",
+    "_comment_sort_timestamp_false": "false = Results in processing order (no sorting)",
+    "_comment_sort_timestamp_note": "Records without timestamps placed at end when sorting enabled",
+    "sort_by_timestamp": true
   },
 
   "_comment_processing": "============================================================================",
@@ -158,6 +179,17 @@
     "_comment_normalize_false": "false = Exact match only - 'ERROR' matches only 'ERROR'",
     "_comment_normalize_abbr": "Supported abbreviations: E→ERROR, W→WARN, I→INFO, D→DEBUG, T→TRACE, F→FATAL",
     "normalize_log_levels": true,
+
+    "_comment_file_sorting": "============================================================================",
+    "_comment_file_sorting_section": "File Pre-sorting (New in 2.0)",
+    "_comment_file_sorting_end": "============================================================================",
+
+    "_comment_sort_files": "Sort input files by date and index before processing (default: true)",
+    "_comment_sort_files_true": "true = Files processed in chronological order",
+    "_comment_sort_files_false": "false = Files processed in discovery order",
+    "_comment_sort_files_patterns": "Recognized filename patterns: DD-MM-YYYY-N → app-15-01-2026-1.log; YYYY-MM-DD-N → app-2026-01-15-2.log; YYYYMMDD_N → app_20260115_3.log; Index-only → app-001.log",
+    "_comment_sort_files_note": "Files without recognized patterns sorted alphabetically",
+    "sort_input_files": true,
 
     "_comment_debug": "Enable debug logging (default: false). Shows detailed processing information for troubleshooting",
     "debug": false
@@ -231,17 +263,59 @@
       "expression": "ERROR"
     },
     "files": {
-      "search_root": "/var/log"
+      "search_root": "/var/log",
+      "max_file_size": 500
     },
     "output": {
-      "output_file": "errors.txt",
-      "overwrite": true,
+      "output_file": null,
       "quiet": true
     },
     "processing": {
       "max_workers": 16,
       "buffer_size": 65536
     }
+  },
+
+  "_example_5": {
+    "_name": "Large Dataset with Chunked Output (New in 2.0)",
+    "_description": "Process large production logs with automatic file splitting",
+    "search": {
+      "expression": "(ERROR OR CRITICAL) AND NOT test"
+    },
+    "files": {
+      "path": "/var/log/production",
+      "include_patterns": ["*.log"]
+    },
+    "output": {
+      "output_file": "critical-errors.log",
+      "overwrite": true,
+      "max_records_per_file": 1000,
+      "output_file_pattern": "{base}-{index:03d}{ext}",
+      "sort_by_timestamp": true,
+      "stats": true
+    },
+    "processing": {
+      "sort_input_files": true,
+      "max_workers": 8
+    }
+  },
+
+  "_example_6": {
+    "_name": "Single File Output (Disable Chunking)",
+    "_description": "For moderate result sets that fit in one file",
+    "search": {
+      "expression": "ERROR"
+    },
+    "files": {
+      "path": "/var/log/app"
+    },
+    "output": {
+      "output_file": "all-errors.log",
+      "max_records_per_file": 0,
+      "sort_by_timestamp": true,
+      "stats": true
+    }
+  }
   },
 
   "_example_5": {

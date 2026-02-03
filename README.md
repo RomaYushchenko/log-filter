@@ -15,7 +15,9 @@
 - **🏷️ Log Level Normalization**: Automatically matches abbreviated levels (E→ERROR, W→WARN, etc.)
 - **📊 Statistics**: Built-in metrics tracking and performance monitoring
 - **🗓️ Date/Time Filtering**: Native support for date and time range filtering
-- **🔧 Flexible Configuration**: YAML config files, environment variables, CLI arguments
+- **� Smart Sorting**: Chronological ordering with file pre-sorting and timestamp sorting
+- **📦 Chunked Output**: Automatic file splitting to prevent large output files
+- **�🔧 Flexible Configuration**: YAML config files, environment variables, CLI arguments
 - **🐳 Docker Ready**: Production-ready containers and Kubernetes manifests
 - **🛡️ Type Safe**: Full type hints for better IDE support
 - **✅ Production Tested**: 706 tests with 89.73% coverage, zero critical vulnerabilities
@@ -202,6 +204,62 @@ log-filter "ERROR" /var/log --no-normalize-levels
 #   normalize_log_levels: true  # default
 ```
 
+### Sorted Chunked Output
+
+Log Filter can automatically sort results by timestamp and split large output into manageable chunks:
+
+```bash
+# Automatic file splitting (default: 500 records per file)
+log-filter "ERROR" /var/log -o results.log
+# Creates: results-001.log, results-002.log, results-003.log, ...
+
+# Custom chunk size (1000 records per file)
+log-filter "ERROR" /var/log -o results.log --max-records-per-file 1000
+
+# Custom filename pattern
+log-filter "ERROR" /var/log -o results.log \
+  --output-pattern "{base}_part{index:02d}{ext}"
+# Creates: results_part01.log, results_part02.log, ...
+
+# Disable chunking (single file)
+log-filter "ERROR" /var/log -o results.log --max-records-per-file 0
+
+# Sort results by timestamp (chronological order)
+log-filter "ERROR" /var/log -o results.log
+# Results sorted: oldest → newest
+
+# Disable timestamp sorting
+log-filter "ERROR" /var/log -o results.log --no-sort-timestamps
+
+# File pre-sorting (process files in date order)
+# Automatically sorts input files like: app-01-15-2026-1.log, app-01-16-2026-1.log
+log-filter "ERROR" /var/log -o results.log
+# Files processed in chronological order
+
+# Disable file sorting
+log-filter "ERROR" /var/log -o results.log --no-sort-files
+
+# Example: Large production log analysis
+log-filter "(ERROR OR CRITICAL)" /var/log/production \
+  -o critical-errors.log \
+  --max-records-per-file 500 \
+  --output-pattern "{base}-{index:03d}{ext}"
+# Output: critical-errors-001.log (500 records)
+#         critical-errors-002.log (500 records)
+#         critical-errors-003.log (remaining records)
+# All sorted chronologically
+```
+
+#### Supported Filename Patterns for Pre-sorting
+
+Log Filter recognizes these date patterns in filenames:
+- `DD-MM-YYYY-N` (e.g., app-15-01-2026-1.log)
+- `YYYY-MM-DD-N` (e.g., app-2026-01-15-1.log)
+- `YYYYMMDD_N` (e.g., app_20260115_1.log)
+- Index-only (e.g., app-001.log, app-002.log)
+
+Files are processed in chronological order based on date + index.
+
 ## 🔧 Advanced Configuration
 
 Create `config.yaml`:
@@ -230,12 +288,17 @@ output:
   verbose: false
   quiet: false
   dry_run: false
+  # Chunked output configuration
+  max_records_per_file: 500                    # Records per file (0 = unlimited)
+  output_file_pattern: "{base}-{index:03d}{ext}"  # Filename template
+  sort_by_timestamp: true                      # Sort results chronologically
 
 processing:
   max_workers: 8
   buffer_size: 32768
   encoding: "utf-8"
   normalize_log_levels: true  # Enable level normalization (default)
+  sort_input_files: true      # Pre-sort input files by date/index
   debug: false
 ```
 

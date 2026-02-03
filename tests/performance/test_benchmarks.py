@@ -288,7 +288,12 @@ class TestEndToEndBenchmarks:
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
                 files=FileConfig(path=benchmark_data),
-                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+                output=OutputConfig(
+                    output_file=output,
+                    show_progress=False,
+                    show_stats=False,
+                    max_records_per_file=None,
+                ),
             )
             pipeline = ProcessingPipeline(config)
             pipeline.run()
@@ -304,7 +309,12 @@ class TestEndToEndBenchmarks:
             config = ApplicationConfig(
                 search=SearchConfig(expression="(ERROR OR WARN) AND Message"),
                 files=FileConfig(path=benchmark_data),
-                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+                output=OutputConfig(
+                    output_file=output,
+                    show_progress=False,
+                    show_stats=False,
+                    max_records_per_file=None,
+                ),
             )
             pipeline = ProcessingPipeline(config)
             pipeline.run()
@@ -338,7 +348,12 @@ class TestScalabilityBenchmarks:
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
                 files=FileConfig(path=tmp_path, file_masks=[f"test_{num_lines}.log"]),
-                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+                output=OutputConfig(
+                    output_file=output,
+                    show_progress=False,
+                    show_stats=False,
+                    max_records_per_file=None,
+                ),
             )
             pipeline = ProcessingPipeline(config)
             pipeline.run()
@@ -363,7 +378,12 @@ class TestScalabilityBenchmarks:
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
                 files=FileConfig(path=data_dir),
-                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+                output=OutputConfig(
+                    output_file=output,
+                    show_progress=False,
+                    show_stats=False,
+                    max_records_per_file=None,
+                ),
             )
             pipeline = ProcessingPipeline(config)
             pipeline.run()
@@ -398,7 +418,12 @@ class TestMemoryEfficiencyBenchmarks:
             config = ApplicationConfig(
                 search=SearchConfig(expression="ERROR"),
                 files=FileConfig(path=tmp_path, file_masks=["large.log"]),
-                output=OutputConfig(output_file=output, show_progress=False, show_stats=False),
+                output=OutputConfig(
+                    output_file=output,
+                    show_progress=False,
+                    show_stats=False,
+                    max_records_per_file=None,
+                ),
             )
             pipeline = ProcessingPipeline(config)
             pipeline.run()
