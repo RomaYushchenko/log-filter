@@ -3,7 +3,7 @@
 from dataclasses import dataclass, field
 from datetime import date, datetime, time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 
 @dataclass(frozen=True)
@@ -67,13 +67,14 @@ class LogRecord:
         """
         # Use object.__setattr__ to set cache on frozen dataclass
         if object.__getattribute__(self, "_searchable_content_cache") is None:
+            cached: str
             if self.level:
                 cached = f"{self.level} {self.content}"
             else:
                 cached = self.content
             object.__setattr__(self, "_searchable_content_cache", cached)
 
-        return object.__getattribute__(self, "_searchable_content_cache")
+        return cast(str, object.__getattribute__(self, "_searchable_content_cache"))
 
 
 @dataclass

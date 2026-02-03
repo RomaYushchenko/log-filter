@@ -110,6 +110,12 @@ class GzipFileHandler(AbstractFileHandler):
                 bufsize=OPTIMAL_BUFFER_SIZE,
             ) as proc:
                 # Read from process stdout with proper encoding
+                if proc.stdout is None:
+                    raise FileHandlingError(
+                        f"Failed to read stdout from pigz process for {self.file_path}",
+                        file_path=self.file_path,
+                    )
+
                 for line in proc.stdout:
                     try:
                         decoded_line = line.decode(self.encoding, errors=self.errors)
@@ -134,9 +140,12 @@ class GzipFileHandler(AbstractFileHandler):
                 # Wait for process to complete and check return code
                 return_code = proc.wait()
                 if return_code != 0:
-                    stderr = proc.stderr.read().decode("utf-8", errors="replace")
+                    if proc.stderr is None:
+                        stderr_text = "(no stderr available)"
+                    else:
+                        stderr_text = proc.stderr.read().decode("utf-8", errors="replace")
                     raise FileHandlingError(
-                        f"pigz decompression failed for {self.file_path}: {stderr}",
+                        f"pigz decompression failed for {self.file_path}: {stderr_text}",
                         file_path=self.file_path,
                     )
 
