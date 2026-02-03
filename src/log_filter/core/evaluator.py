@@ -8,7 +8,7 @@ from .exceptions import ConfigurationError, EvaluationError
 
 
 def validate_regex_pattern(pattern: str, ignore_case: bool = False) -> None:
-    """Validate a regex pattern to ensure it can be compiled.
+    r"""Validate a regex pattern to ensure it can be compiled.
 
     This function validates regex patterns during initialization to fail fast
     and provide better error messages before processing begins.
