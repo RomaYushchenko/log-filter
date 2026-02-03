@@ -1,3 +1,7 @@
+---
+applyTo: '**'
+---
+
 # 🧠 Copilot Instructions for Log Filter
 
 This document defines **authoritative behavior rules** for GitHub Copilot when working in the Log Filter repository.  
