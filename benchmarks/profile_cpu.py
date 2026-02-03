@@ -134,9 +134,7 @@ def main():
         default="large_file",
         help="Scenario to profile",
     )
-    arg_parser.add_argument(
-        "--output", default="profile_output.stats", help="Output stats file"
-    )
+    arg_parser.add_argument("--output", default="profile_output.stats", help="Output stats file")
 
     args = arg_parser.parse_args()
 
@@ -164,10 +162,10 @@ def main():
     stats.sort_stats("cumtime")
     stats.print_stats(20)
 
-    print(f"\nTo analyze further, run:")
+    print("\nTo analyze further, run:")
     print(f"  python -m pstats {args.output}")
-    print(f"  > sort cumtime")
-    print(f"  > stats 30")
+    print("  > sort cumtime")
+    print("  > stats 30")
 
 
 if __name__ == "__main__":

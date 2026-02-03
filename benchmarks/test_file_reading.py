@@ -5,8 +5,6 @@ Tests different file sizes and formats to measure I/O and decompression performa
 
 from pathlib import Path
 
-import pytest
-
 from log_filter.infrastructure.file_handlers.gzip_handler import GzipFileHandler
 from log_filter.infrastructure.file_handlers.log_handler import LogFileHandler
 

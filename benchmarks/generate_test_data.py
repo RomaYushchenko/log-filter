@@ -62,9 +62,7 @@ def generate_log_line(counter: int, level: str = None) -> str:
     return line
 
 
-def generate_file(
-    output_path: Path, size_mb: int, compressed: bool = False, verbose: bool = True
-):
+def generate_file(output_path: Path, size_mb: int, compressed: bool = False, verbose: bool = True):
     """Generate a log file of specified size.
 
     Args:
@@ -74,7 +72,11 @@ def generate_file(
         verbose: Whether to print progress
     """
     if verbose:
-        print(f"  Creating {output_path.name} ({size_mb}MB{'compressed' if compressed else ''})...", end="", flush=True)
+        print(
+            f"  Creating {output_path.name} ({size_mb}MB{'compressed' if compressed else ''})...",
+            end="",
+            flush=True,
+        )
 
     lines_needed = (size_mb * 1024 * 1024) // 200  # ~200 bytes per line
 
@@ -153,7 +155,7 @@ def main():
     print(f"Test data generated in: {output_dir.absolute()}")
     print()
     print("To run benchmarks with this data:")
-    print(f"  pytest benchmarks/ -v")
+    print("  pytest benchmarks/ -v")
 
 
 if __name__ == "__main__":

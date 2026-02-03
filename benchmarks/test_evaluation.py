@@ -3,8 +3,6 @@
 Tests pattern matching, regex compilation, and evaluation operations.
 """
 
-import pytest
-
 from log_filter.core.evaluator import ExpressionEvaluator, compile_patterns_from_ast
 from log_filter.core.parser import ExpressionParser
 

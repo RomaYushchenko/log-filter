@@ -5,8 +5,6 @@ Tests pattern matching and record assembly operations.
 
 import re
 
-import pytest
-
 from log_filter.processing.record_parser import StreamingRecordParser
 
 
@@ -45,9 +43,7 @@ class TestRecordParsing:
         parser = StreamingRecordParser()
 
         # Generate lines that all start with digits (worst case for fast-path)
-        lines = [
-            f"2026-02-03 10:30:45.123+0000 INFO Request {i}" for i in range(1000)
-        ]
+        lines = [f"2026-02-03 10:30:45.123+0000 INFO Request {i}" for i in range(1000)]
 
         def check_all_lines():
             count = 0
@@ -87,10 +83,7 @@ class TestRecordParsing:
         Target: < 1ms for default pattern
         """
         pattern_str = (
-            r"^(\d{4}-\d{2}-\d{2}) "
-            r"(\d{2}:\d{2}:\d{2})"
-            r"\.\d{3}[+-]\d{4}\s+"
-            r"([A-Z]+)"
+            r"^(\d{4}-\d{2}-\d{2}) " r"(\d{2}:\d{2}:\d{2})" r"\.\d{3}[+-]\d{4}\s+" r"([A-Z]+)"
         )
 
         def compile_pattern():
