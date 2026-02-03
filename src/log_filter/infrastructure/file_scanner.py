@@ -60,12 +60,9 @@ class FileScanner:
                     root_path: Root directory to scan for files
                     file_masks: List of filename substrings to match.
                                If None or empty, all files are considered.
-                    include_patterns: Glob patterns for files to include (e.g., ["*.log", "app-*.txt"]).
-                                    If None or empty, all files are considered.
-                    exclude_patterns: Glob patterns for files to exclude (e.g., ["*.old", "debug.log"]).
-                    allowed_extensions: Set of allowed file extensions (e.g., {".log", ".gz"}).
-                                      If None, uses DEFAULT_EXTENSIONS.
-                    max_file_size_mb: Maximum file size in MB. Files larger than this
+                include_patterns: Glob patterns for files to include (*.log).
+                                If None or empty, all files are considered.
+                exclude_patterns: Glob patterns for files to exclude (*.old).
                                     will be marked as should_skip.
                     recursive: If True, scan subdirectories recursively.
 
@@ -161,11 +158,14 @@ class FileScanner:
                 extension=extension,
                 is_compressed=is_compressed,
                 skip_reason="extension-not-allowed",
+                mtime=0.0,
             )
 
         # Get file size
         try:
-            size_bytes = path.stat().st_size
+            stat_info = path.stat()
+            size_bytes = stat_info.st_size
+            mtime = stat_info.st_mtime
         except OSError as e:
             return FileMetadata(
                 path=path,
@@ -173,6 +173,7 @@ class FileScanner:
                 extension=extension,
                 is_compressed=is_compressed,
                 skip_reason=f"stat-error: {e}",
+                mtime=0.0,
             )
 
         # Check file mask
@@ -183,6 +184,7 @@ class FileScanner:
                 extension=extension,
                 is_compressed=is_compressed,
                 skip_reason="name-filter",
+                mtime=mtime,
             )
 
         # Check include patterns
@@ -193,6 +195,7 @@ class FileScanner:
                 extension=extension,
                 is_compressed=is_compressed,
                 skip_reason="include-pattern",
+                mtime=mtime,
             )
 
         # Check exclude patterns
@@ -203,6 +206,7 @@ class FileScanner:
                 extension=extension,
                 is_compressed=is_compressed,
                 skip_reason="exclude-pattern",
+                mtime=mtime,
             )
 
         # Check file size limit
@@ -215,6 +219,7 @@ class FileScanner:
                     extension=extension,
                     is_compressed=is_compressed,
                     skip_reason="size-limit",
+                    mtime=mtime,
                 )
 
         # Check read access
@@ -225,6 +230,7 @@ class FileScanner:
                 extension=extension,
                 is_compressed=is_compressed,
                 skip_reason="access-denied",
+                mtime=mtime,
             )
 
         # File passes all filters
@@ -234,6 +240,7 @@ class FileScanner:
             extension=extension,
             is_compressed=is_compressed,
             skip_reason=None,
+            mtime=mtime,
         )
 
     def _matches_include_pattern(self, path: Path) -> bool:

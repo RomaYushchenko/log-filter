@@ -1,3 +1,7 @@
+---
+applyTo: '**'
+---
+
 # Internal Python Code Writing Guidelines
 
 ## 📋 General Principles

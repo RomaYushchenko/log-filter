@@ -4,15 +4,49 @@ import re
 from typing import Pattern
 
 from ..domain.models import ASTNode
-from .exceptions import EvaluationError
+from .exceptions import ConfigurationError, EvaluationError
+
+
+def validate_regex_pattern(pattern: str, ignore_case: bool = False) -> None:
+    """Validate a regex pattern to ensure it can be compiled.
+
+    This function validates regex patterns during initialization to fail fast
+    and provide better error messages before processing begins.
+
+    Args:
+        pattern: The regex pattern string to validate
+        ignore_case: Whether to validate with IGNORECASE flag
+
+    Raises:
+        ConfigurationError: If the pattern is invalid
+
+    Example:
+        >>> validate_regex_pattern(r"\\d+")  # Pattern for one or more digits
+        # No error - pattern is valid
+
+        >>> validate_regex_pattern(r"[unclosed")
+        # Raises ConfigurationError
+    """
+    if not pattern:
+        raise ConfigurationError("Empty regex pattern is not allowed")
+
+    flags = re.IGNORECASE if ignore_case else 0
+
+    try:
+        re.compile(pattern, flags)
+    except re.error as e:
+        raise ConfigurationError(
+            f"Invalid regex pattern '{pattern}': {e}. "
+            f"Please check the pattern syntax and try again."
+        ) from e
 
 
 def compile_patterns_from_ast(ast: ASTNode, ignore_case: bool = False) -> dict[str, Pattern[str]]:
-    """Pre-compile all regex patterns from an AST.
+    """Pre-compile all regex patterns from an AST with validation.
 
     This function extracts all WORD nodes from the AST and compiles
-    them as regex patterns. This improves performance when evaluating
-    the same AST multiple times against different text.
+    them as regex patterns. All patterns are validated upfront to fail fast
+    if any pattern is invalid, providing better error messages before processing.
 
     Args:
         ast: The AST to extract patterns from
@@ -21,16 +55,19 @@ def compile_patterns_from_ast(ast: ASTNode, ignore_case: bool = False) -> dict[s
     Returns:
         Dictionary mapping pattern strings to compiled regex Pattern objects
 
+    Raises:
+        ConfigurationError: If any pattern is invalid or empty
+
     Note:
-        - Invalid regex patterns are skipped (not compiled)
-        - Empty patterns are skipped
+        - Empty patterns raise ConfigurationError
+        - Invalid patterns raise ConfigurationError with detailed message
         - Duplicate patterns are compiled only once
     """
     patterns: dict[str, Pattern[str]] = {}
     flags = re.IGNORECASE if ignore_case else 0
 
     def collect_and_compile(node: ASTNode) -> None:
-        """Recursively collect and compile patterns."""
+        """Recursively collect and compile patterns with validation."""
         if not node or len(node) == 0:
             return
 
@@ -39,11 +76,9 @@ def compile_patterns_from_ast(ast: ASTNode, ignore_case: bool = False) -> dict[s
         if node_type == "WORD" and len(node) >= 2:
             pattern_str = node[1]
             if pattern_str and pattern_str not in patterns:
-                try:
-                    patterns[pattern_str] = re.compile(pattern_str, flags)
-                except re.error:
-                    # Skip invalid regex patterns
-                    pass
+                # Validate pattern before compilation
+                validate_regex_pattern(pattern_str, ignore_case)
+                patterns[pattern_str] = re.compile(pattern_str, flags)
 
         elif node_type in ("AND", "OR") and len(node) >= 3:
             collect_and_compile(node[1])
@@ -92,6 +127,9 @@ class ExpressionEvaluator:
         self._regex_flags = re.IGNORECASE if ignore_case else 0
         # Characters to strip when strip_quotes is enabled
         self._quote_chars = ['"', "'", "`"]
+        # Performance optimization: cache normalized patterns for substring search
+        # This avoids calling str.lower() on patterns for every match
+        self._normalized_patterns: dict[str, str] = {}
 
     def evaluate(self, ast: ASTNode, text: str) -> bool:
         """Evaluate an AST node against text.
@@ -176,21 +214,32 @@ class ExpressionEvaluator:
             return self._match_substring(pattern, text)
 
     def _match_regex(self, pattern: str, text: str) -> bool:
-        """Match using regular expression.
+        """Match using regular expression with pre-compiled pattern optimization.
+
+        Performance optimization: Prefers pre-compiled patterns but supports
+        fallback compilation for backward compatibility. Pre-compiled patterns
+        are significantly faster for repeated evaluations.
 
         Args:
-            pattern: The regex pattern
+            pattern: The regex pattern (preferably pre-compiled)
             text: The text to search in
 
         Returns:
             True if pattern matches, False otherwise
+
+        Raises:
+            EvaluationError: If pattern compilation or matching fails
         """
         try:
-            # Try to use cached compiled pattern
+            # Try to use pre-compiled pattern first (fast path)
             if pattern in self.compiled_patterns:
                 regex = self.compiled_patterns[pattern]
             else:
+                # Fallback: compile on-demand (for backward compatibility)
+                # This is slower but maintains compatibility with code that
+                # doesn't pre-compile patterns
                 regex = re.compile(pattern, self._regex_flags)
+                # Cache for future use
                 self.compiled_patterns[pattern] = regex
 
             return regex.search(text) is not None
@@ -200,6 +249,9 @@ class ExpressionEvaluator:
 
     def _match_substring(self, pattern: str, text: str) -> bool:
         """Match using substring search.
+
+        Performance optimization: Caches normalized patterns to avoid repeated
+        string allocations. Uses str.casefold() for better Unicode support.
 
         Args:
             pattern: The substring to find
@@ -219,11 +271,20 @@ class ExpressionEvaluator:
             except re.error:
                 # Fallback to substring matching if regex fails
                 if self.ignore_case:
-                    return pattern.lower() in text.lower()
+                    # Cache normalized pattern for repeated use
+                    if pattern not in self._normalized_patterns:
+                        self._normalized_patterns[pattern] = pattern.casefold()
+                    return self._normalized_patterns[pattern] in text.casefold()
                 return pattern in text
-        # Original substring matching
+
+        # Optimized substring matching with pattern caching
         if self.ignore_case:
-            return pattern.lower() in text.lower()
+            # Cache the normalized pattern to avoid repeated casefold() calls
+            # str.casefold() is more robust than lower() for Unicode text
+            if pattern not in self._normalized_patterns:
+                self._normalized_patterns[pattern] = pattern.casefold()
+            return self._normalized_patterns[pattern] in text.casefold()
+
         return pattern in text
 
     def extract_patterns(self, ast: ASTNode) -> list[str]:
