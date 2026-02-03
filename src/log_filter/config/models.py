@@ -124,6 +124,9 @@ class OutputConfig:
         show_stats: Whether to show final statistics
         dry_run: Whether to perform a dry run (no actual processing)
         dry_run_details: Whether to show detailed dry run statistics
+        max_records_per_file: Maximum records per output file (None = unlimited, 0 = unlimited)
+        output_file_pattern: Pattern for chunk filenames with {base}, {index}, {ext}, {timestamp}
+        sort_by_timestamp: Whether to sort output records chronologically by timestamp
     """
 
     output_file: Path = Path("filter-result.log")
@@ -133,6 +136,9 @@ class OutputConfig:
     show_stats: bool = False
     dry_run: bool = False
     dry_run_details: bool = False
+    max_records_per_file: Optional[int] = 500
+    output_file_pattern: str = "{base}-{index:03d}{ext}"
+    sort_by_timestamp: bool = True
 
 
 @dataclass
@@ -145,11 +151,13 @@ class ProcessingConfig:
         normalize_log_levels: Whether to normalize abbreviated log levels (E, W, I, D)
                              to full names (ERROR, WARN, INFO, DEBUG).
                              Default: True (user-friendly)
+        sort_input_files: Whether to pre-sort input files by date/index from filename
     """
 
     worker_count: Optional[int] = None
     debug: bool = False
     normalize_log_levels: bool = True
+    sort_input_files: bool = True
 
     def __post_init__(self) -> None:
         """Validate configuration after initialization."""

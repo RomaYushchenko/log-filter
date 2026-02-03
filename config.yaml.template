@@ -139,6 +139,38 @@ output:
   # Dry run with details - show detailed file statistics (default: false)
   dry_run_details: false
 
+  # -------------------------------------------------------------------------
+  # Chunked Output Configuration (New in 2.0)
+  # -------------------------------------------------------------------------
+
+  # Maximum records per output file (default: 500, 0 = unlimited)
+  # Enables automatic file splitting for large result sets
+  # Examples:
+  #   500  = Default, creates files with 500 records each
+  #   1000 = Larger chunks for fewer files
+  #   0    = Single file (disable chunking)
+  max_records_per_file: 500
+
+  # Output filename pattern for chunked files (default: "{base}-{index:03d}{ext}")
+  # Placeholders:
+  #   {base}  = Base filename without extension (e.g., "results")
+  #   {index} = File index (1, 2, 3, ...)
+  #   {ext}   = File extension including dot (e.g., ".log")
+  # Format specifiers:
+  #   {index:03d} = Zero-padded 3 digits (001, 002, ...)
+  #   {index:02d} = Zero-padded 2 digits (01, 02, ...)
+  # Examples:
+  #   "{base}-{index:03d}{ext}"       → results-001.log, results-002.log
+  #   "{base}_part{index:02d}{ext}"   → results_part01.log, results_part02.log
+  #   "{base}.{index:d}{ext}"         → results.1.log, results.2.log
+  output_file_pattern: "{base}-{index:03d}{ext}"
+
+  # Sort output records by timestamp (default: true)
+  # true  = Results sorted chronologically (oldest → newest)
+  # false = Results in processing order (no sorting)
+  # Note: Records without timestamps placed at end when sorting enabled
+  sort_by_timestamp: true
+
 # ============================================================================
 # Processing Configuration
 # ============================================================================
@@ -175,6 +207,21 @@ processing:
   # false = Exact match only - "ERROR" matches only "ERROR"
   # Supported abbreviations: E→ERROR, W→WARN, I→INFO, D→DEBUG, T→TRACE, F→FATAL
   normalize_log_levels: true
+
+  # -------------------------------------------------------------------------
+  # File Pre-sorting (New in 2.0)
+  # -------------------------------------------------------------------------
+
+  # Sort input files by date and index before processing (default: true)
+  # true  = Files processed in chronological order
+  # false = Files processed in discovery order
+  # Recognized filename patterns:
+  #   DD-MM-YYYY-N  → app-15-01-2026-1.log
+  #   YYYY-MM-DD-N  → app-2026-01-15-2.log
+  #   YYYYMMDD_N    → app_20260115_3.log
+  #   Index-only    → app-001.log
+  # Files without recognized patterns sorted alphabetically
+  sort_input_files: true
 
   # Enable debug logging (default: false)
   # Shows detailed processing information for troubleshooting
@@ -228,6 +275,50 @@ processing:
 
 # EXAMPLE 4: High-Performance Configuration
 # ------------------------------------------
+# search:
+#   expression: "ERROR"
+# files:
+#   search_root: "/var/log"
+#   max_file_size: 500  # Skip files > 500 MB
+# output:
+#   output_file: null  # Print to stdout
+#   quiet: true
+# processing:
+#   max_workers: 16
+#   buffer_size: 65536  # 64 KB buffer for SSD
+
+# EXAMPLE 5: Large Dataset with Chunked Output (New in 2.0)
+# ----------------------------------------------------------
+# Process large production logs with automatic file splitting
+# search:
+#   expression: "(ERROR OR CRITICAL) AND NOT test"
+# files:
+#   path: "/var/log/production"
+#   include_patterns: ["*.log"]
+# output:
+#   output_file: "critical-errors.log"
+#   overwrite: true
+#   max_records_per_file: 1000  # 1000 records per file
+#   output_file_pattern: "{base}-{index:03d}{ext}"
+#   sort_by_timestamp: true  # Sort chronologically
+#   stats: true
+# processing:
+#   sort_input_files: true  # Process files in date order
+#   max_workers: 8
+
+# EXAMPLE 6: Single File Output (Disable Chunking)
+# -------------------------------------------------
+# For moderate result sets that fit in one file
+# search:
+#   expression: "ERROR"
+# files:
+#   path: "/var/log/app"
+# output:
+#   output_file: "all-errors.log"
+#   max_records_per_file: 0  # Disable chunking
+#   sort_by_timestamp: true
+#   stats: true
+
 # search:
 #   expression: "ERROR"
 # files:

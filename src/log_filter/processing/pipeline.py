@@ -9,6 +9,8 @@ import logging
 import os
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from datetime import datetime
+from typing import Literal
 
 from log_filter.config.models import ApplicationConfig, ProcessingConfig
 from log_filter.core.exceptions import ConfigurationError
@@ -21,7 +23,9 @@ from log_filter.domain.filters import (
     TimeRangeFilter,
 )
 from log_filter.domain.models import ASTNode
+from log_filter.infrastructure.chunked_writer import ChunkedLogWriter
 from log_filter.infrastructure.file_scanner import FileScanner
+from log_filter.infrastructure.file_utils import sort_files_by_date_and_index
 from log_filter.processing.record_parser import StreamingRecordParser
 from log_filter.statistics.collector import StatisticsCollector
 
@@ -113,12 +117,14 @@ def _process_file_worker(args: tuple) -> tuple:
                 stats_collector.increment_records_matched()
                 match_count += 1
 
-                # Store matched record with file path if needed
-                # Note: Store original content, not search_text
-                if include_path:
-                    matched_records.append(f"{file_meta.path}: {record.content}")
-                else:
-                    matched_records.append(record.content)
+                # Store matched record as dict with metadata for sorting
+                record_dict = {
+                    "content": record.content,
+                    "timestamp": record.timestamp,
+                    "level": record.level,
+                    "source_file": str(file_meta.path) if include_path else None,
+                }
+                matched_records.append(record_dict)
 
         # Get stats snapshot
         stats_collector.stop()
@@ -327,6 +333,12 @@ class ProcessingPipeline:
             ast: Parsed search expression
             record_filter: Filter for records (not used in multiprocessing mode)
         """
+        # Pre-sort files by date/index if enabled
+        if self.config.processing.sort_input_files:
+            logger.info("Pre-sorting input files by date and index from filenames...")
+            files = sort_files_by_date_and_index(files, fallback_sort_key="name")
+            logger.info(f"Files sorted: processing {len(files)} files in chronological order")
+
         # Determine worker count
         worker_count = self.config.processing.worker_count
         if worker_count is None:
@@ -475,11 +487,6 @@ class ProcessingPipeline:
                             ]
                             if stats_dict["files_processed"] > 0:
                                 self.stats.increment_files_processed()
-                            self.stats.stats.records_skipped += stats_dict["records_skipped"]
-                            self.stats.stats.total_bytes_processed += stats_dict["bytes_processed"]
-                            self.stats.stats.total_lines_processed += stats_dict["lines_processed"]
-                            if stats_dict["files_processed"] > 0:
-                                self.stats.increment_files_processed()
 
                     # Track recent times
                     recent_times.append(file_duration)
@@ -507,23 +514,149 @@ class ProcessingPipeline:
                 except Exception as e:
                     logger.error(f"Error processing {file_meta.path}: {e}", exc_info=True)
 
-        # Write all matched records to output file
+        # Sort and write matched records
         if all_matched_records:
-            logger.info(f"Writing {len(all_matched_records)} matched records to {output_path}")
-            try:
-                with open(output_path, "w", encoding="utf-8") as f:
-                    for record in all_matched_records:
-                        f.write(record)
-                        if not record.endswith("\n"):
-                            f.write("\n")
-            except Exception as e:
-                logger.error(f"Error writing output file: {e}", exc_info=True)
+            self._write_sorted_results(all_matched_records)
         else:
             logger.info("No matching records found")
 
         # Log final statistics
         if self.config.output.show_stats:
             self._print_statistics()
+
+    def _sort_records_by_timestamp(
+        self,
+        records: list[dict],
+        missing_timestamp_strategy: Literal["end", "start", "skip"] = "end",
+    ) -> list[dict]:
+        """
+        Sort log records chronologically by timestamp.
+
+        Records with valid timestamps are sorted chronologically (oldest first).
+        Records without timestamps are handled according to the strategy:
+        - "end": Place at the end in original order
+        - "start": Place at the start in original order
+        - "skip": Exclude from result
+
+        Args:
+            records: List of record dictionaries with 'timestamp' field
+            missing_timestamp_strategy: How to handle records without timestamp
+
+        Returns:
+            Sorted list of records
+
+        Complexity:
+            Time: O(n log n) where n is number of records with timestamp
+            Space: O(n) for creating separate lists
+
+        References:
+            - Sorting: https://docs.python.org/3/howto/sorting.html
+            - datetime comparison: https://docs.python.org/3/library/datetime.html#datetime.datetime
+        """
+        # Separate records by timestamp presence
+        with_timestamp = []
+        without_timestamp = []
+
+        for record in records:
+            timestamp = record.get("timestamp")
+            if timestamp and isinstance(timestamp, datetime):
+                with_timestamp.append(record)
+            else:
+                without_timestamp.append(record)
+
+        # Sort records with timestamp
+        # datetime objects support comparison operators (<, >, ==)
+        with_timestamp.sort(key=lambda r: r["timestamp"])
+
+        # Log statistics
+        if without_timestamp:
+            logger.warning(
+                f"Found {len(without_timestamp)} records without valid timestamp "
+                f"(strategy: {missing_timestamp_strategy})"
+            )
+
+        # Apply strategy for records without timestamp
+        if missing_timestamp_strategy == "end":
+            # Place records without timestamp at the end
+            result = with_timestamp + without_timestamp
+        elif missing_timestamp_strategy == "start":
+            # Place records without timestamp at the start
+            result = without_timestamp + with_timestamp
+        elif missing_timestamp_strategy == "skip":
+            # Exclude records without timestamp
+            logger.warning(f"Skipping {len(without_timestamp)} records without timestamp")
+            result = with_timestamp
+        else:
+            # Default to "end"
+            logger.warning(f"Unknown strategy '{missing_timestamp_strategy}', defaulting to 'end'")
+            result = with_timestamp + without_timestamp
+
+        logger.info(
+            f"Sorted {len(with_timestamp)} records by timestamp "
+            f"({len(without_timestamp)} without timestamp)"
+        )
+
+        return result
+
+    def _write_sorted_results(self, all_matched_records: list[dict]) -> None:
+        """
+        Sort and write results with optional chunking.
+
+        Args:
+            all_matched_records: List of record dicts with 'content', 'timestamp', etc.
+        """
+        output_config = self.config.output
+
+        # Sort records by timestamp if enabled
+        if output_config.sort_by_timestamp:
+            logger.info(f"Sorting {len(all_matched_records)} records by timestamp...")
+            all_matched_records = self._sort_records_by_timestamp(
+                all_matched_records, missing_timestamp_strategy="end"
+            )
+
+        # Prepare records for writing (format with file path if needed)
+        formatted_records = []
+        for record in all_matched_records:
+            content = record["content"]
+
+            # Add source file path if enabled and available
+            if output_config.include_file_path and record.get("source_file"):
+                formatted_record = f"{record['source_file']}: {content}"
+            else:
+                formatted_record = content
+
+            formatted_records.append(
+                {"content": formatted_record, "timestamp": record.get("timestamp")}
+            )
+
+        # Write using ChunkedLogWriter
+        try:
+            # Determine if chunking is enabled
+            max_records = output_config.max_records_per_file
+            if max_records == 0:
+                max_records = None  # Unlimited
+
+            with ChunkedLogWriter(
+                base_output_path=output_config.output_file,
+                max_records_per_file=max_records,
+                file_pattern=output_config.output_file_pattern,
+            ) as writer:
+                logger.info(f"Writing {len(formatted_records)} records to output...")
+                for record in formatted_records:
+                    writer.write_record(record)
+
+                created_files = writer.get_created_files()
+
+                if len(created_files) == 1:
+                    logger.info(f"Output written to: {created_files[0]}")
+                else:
+                    logger.info(f"Output split into {len(created_files)} files:")
+                    for file_path in created_files:
+                        logger.info(f"  - {file_path.name}")
+
+        except Exception as e:
+            logger.error(f"Error writing output: {e}", exc_info=True)
+            raise
 
     def _print_statistics(self) -> None:
         """Print final statistics."""

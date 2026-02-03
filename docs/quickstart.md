@@ -399,6 +399,104 @@ log-filter "ERROR" /var/log -w 8
 log-filter "ERROR" /var/log  # Default behavior
 ```
 
+### 13. Sorted and Chunked Output
+
+Manage large result sets with automatic sorting and file splitting:
+
+#### Automatic File Chunking
+
+Split large output into manageable files (default: 500 records per file):
+
+```bash
+log-filter "ERROR" /var/log -o results.log
+```
+
+**Creates**:
+```text
+results-001.log  (500 records)
+results-002.log  (500 records)
+results-003.log  (remaining records)
+```
+
+#### Custom Chunk Size
+
+```bash
+# 1000 records per file
+log-filter "ERROR" /var/log -o results.log --max-records-per-file 1000
+
+# Disable chunking (single file)
+log-filter "ERROR" /var/log -o results.log --max-records-per-file 0
+```
+
+#### Custom Filename Pattern
+
+```bash
+log-filter "ERROR" /var/log -o results.log \
+  --output-pattern "{base}_part{index:02d}{ext}"
+```
+
+**Creates**: `results_part01.log`, `results_part02.log`, ...
+
+#### Timestamp Sorting
+
+Results are automatically sorted chronologically (oldest → newest):
+
+```bash
+# Sorted output (default)
+log-filter "ERROR" /var/log -o results.log
+
+# Disable sorting
+log-filter "ERROR" /var/log -o results.log --no-sort-timestamps
+```
+
+#### File Pre-sorting
+
+Input files are automatically processed in chronological order:
+
+```bash
+# Files sorted by date/index (default)
+# Example: app-01-15-2026-1.log, app-01-16-2026-1.log, app-01-17-2026-1.log
+log-filter "ERROR" /var/log -o results.log
+
+# Disable file sorting
+log-filter "ERROR" /var/log -o results.log --no-sort-files
+```
+
+**Supported filename patterns**:
+- `DD-MM-YYYY-N`: app-15-01-2026-1.log
+- `YYYY-MM-DD-N`: app-2026-01-15-2.log
+- `YYYYMMDD_N`: app_20260115_3.log
+- Index only: app-001.log
+
+#### Complete Example
+
+```bash
+# Process production logs with all features
+log-filter "(ERROR OR CRITICAL)" /var/log/production \
+  -o critical-errors.log \
+  --max-records-per-file 1000 \
+  --output-pattern "{base}-{index:03d}{ext}" \
+  --stats
+```
+
+**Result**:
+```text
+Files processed in chronological order:
+  prod-01-15-2026-1.log
+  prod-01-16-2026-1.log
+  prod-01-17-2026-1.log
+
+Output created (sorted oldest→newest):
+  critical-errors-001.log (1000 records)
+  critical-errors-002.log (1000 records)
+  critical-errors-003.log (523 records)
+
+Statistics:
+  Files Processed: 3
+  Records Matched: 2523
+  Duration: 5.2s
+```
+
 ## Common Use Cases
 
 ### Find All Errors Today
