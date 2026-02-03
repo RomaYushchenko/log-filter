@@ -1,10 +1,10 @@
-name: CI Pipeline
+name: CI workflow
 
 on:
   push:
     branches: [ main, develop, 'feature/**' ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, develop, 'feature/**' ]
   workflow_dispatch:
   schedule:
     # Run every Monday at 00:00 UTC to catch dependency issues
