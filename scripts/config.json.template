@@ -1,0 +1,46 @@
+{
+  "search": {
+    "expression": "\"ERROR\" AND \"database\"",
+    "ignore_case": false
+  },
+  "files": {
+    "path": "./scripts/test-logs",
+    "include_patterns": [
+      "*.log",
+      "*.log.gz"
+    ],
+    "exclude_patterns": [
+      "*.old",
+      "*.bak"
+    ],
+    "max_file_size": null,
+    "max_record_size": null
+  },
+  "date": {
+    "from": null,
+    "to": null
+  },
+  "time": {
+    "from": null,
+    "to": null
+  },
+  "output": {
+    "output_file": "./scripts/output/filter-result.log",
+    "no_path": false,
+    "highlight": false,
+    "stats": true,
+    "verbose": true,
+    "quiet": false,
+    "dry_run": false,
+    "dry_run_details": false,
+    "max_records_per_file": 500,
+    "output_file_pattern": "{base}-{index:03d}{ext}",
+    "sort_by_timestamp": true
+  },
+  "processing": {
+    "max_workers": null,
+    "debug": false,
+    "normalize_log_levels": true,
+    "sort_input_files": true
+  }
+}

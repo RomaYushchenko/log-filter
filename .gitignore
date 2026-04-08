@@ -41,6 +41,8 @@ htmlcov/
 .coverage.*
 .cache
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 nosetests.xml
 coverage.xml
 *.cover
@@ -50,6 +52,7 @@ coverage.xml
 
 # Virtual environments
 venv/
+.venv/
 env/
 ENV/
 env.bak/
@@ -86,6 +89,7 @@ output/*
 
 # Project specific - local config
 config.json
+scripts/config.local.json
 config/local.yaml
 config/*.local.yaml
 
@@ -93,6 +97,16 @@ config/*.local.yaml
 test-logs/*
 !test-logs/README.md
 !test-logs/.gitkeep
+scripts/test-logs/*
+!scripts/test-logs/README.md
+!scripts/test-logs/.gitkeep
+
+# Test/coverage artifacts under scripts
+scripts/.pytest_cache/
+scripts/htmlcov/
+scripts/coverage.xml
+scripts/.coverage
+scripts/.coverage.*
 
 # Documentation build
 docs/_build/
