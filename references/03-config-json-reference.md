@@ -1,6 +1,21 @@
 # Config JSON Reference
 
-Example: `scripts/config.json`.
+Example: `scripts/config.json` or `scripts/config.json.template`.
+
+## Public API
+
+This structure is passed **verbatim** (as a Python `dict`, usually from `json.loads`) to:
+
+```python
+import sys
+
+sys.path.insert(0, "scripts")
+from log_filter import run_filter
+
+paths = run_filter(config_json)
+```
+
+Contract details: [Public API contract](./09-public-api-contract.md).
 
 ## Overall structure
 
@@ -26,8 +41,7 @@ Example: `scripts/config.json`.
 - `max_file_size` (`int|null`) - file size limit in MB
 - `max_record_size` (`int|null`) - record size limit in KB
 
-Note:
-- `search_root` is supported for backward compatibility, but `path` is preferred.
+Use **`files.path`** as the root directory to scan. Older docs mentioned `search_root`; the current **`run_filter` JSON mapping** only reads **`files.path`** (and optional `include_patterns` / `exclude_patterns`).
 
 ## `date` and `time`
 
@@ -44,7 +58,7 @@ Note:
 - `quiet` (`bool`) - quiet mode
 - `dry_run` (`bool`) - preview run without filtering
 - `dry_run_details` (`bool`) - extended dry-run details
-- `max_records_per_file` (`int`) - output chunking
+- `max_records_per_file` (`int`) - output chunking (`0` = unlimited)
 - `output_file_pattern` (`string`) - chunk filename template
 - `sort_by_timestamp` (`bool`) - sort results by timestamp
 
@@ -57,8 +71,5 @@ Note:
 
 ## Important compatibility notes
 
-- Your current `scripts/config.json` uses `search.case_sensitive`.
-  - The current CLI/model field is `ignore_case`.
-  - Recommendation: replace `case_sensitive` with `ignore_case`.
-- Some old keys (`search_root` and root-level keys) are read as legacy.
-  For new configs, prefer the nested sections described here.
+- Prefer `search.ignore_case` over ad-hoc `case_sensitive` keys in older configs.
+- For migrating from the removed CLI, see [Configuration reference](./02-cli-arguments-reference.md).

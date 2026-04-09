@@ -30,17 +30,12 @@ Use parentheses `(` `)` for explicit grouping.
 
 ## Regex mode
 
-When `--regex` is enabled, terms are treated as regular expressions.
+When `search.regex` is `true` in config JSON, terms are treated as regular expressions.
 
-Example:
+Example expression: `"ERROR [0-9]{3}"` with `"search": { "expression": "...", "regex": true }`.
 
-- `--expression "ERROR [0-9]{3}" --regex`
+## Exact word matching
 
-## Exact-match mode
-
-`--exact-match` is equivalent to enabling both:
-
-- `--word-boundary`
-- `--strip-quotes`
+Set both `search.word_boundary` and `search.strip_quotes` to `true` (same idea as the old `--exact-match` flag).
 
 Useful for JSON/CSV logs and strict token matching.

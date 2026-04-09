@@ -1,7 +1,7 @@
 """
 Comprehensive end-to-end integration tests.
 
-Tests complete workflows from CLI input through final output:
+Tests complete workflows from configuration through final output:
 - Multi-file processing scenarios
 - Complex boolean expressions
 - Real-world log analysis patterns
@@ -15,7 +15,6 @@ from pathlib import Path
 
 import pytest
 
-from log_filter.cli import parse_args
 from log_filter.config.models import (
     ApplicationConfig,
     FileConfig,

@@ -175,6 +175,7 @@ class ProcessingPipeline:
         """
         self.config = config
         self.stats = StatisticsCollector()
+        self.created_output_files = []
 
         # Validate configuration
         self._validate_config()
@@ -197,6 +198,7 @@ class ProcessingPipeline:
         This is the main entry point for processing.
         """
         logger.info("Starting log filter pipeline")
+        self.created_output_files = []
         self.stats.start()
 
         try:
@@ -551,7 +553,7 @@ class ProcessingPipeline:
 
         # Sort and write matched records
         if all_matched_records:
-            self._write_sorted_results(all_matched_records)
+                    self._write_sorted_results(all_matched_records)
         else:
             logger.info("No matching records found")
 
@@ -681,6 +683,7 @@ class ProcessingPipeline:
                     writer.write_record(record)
 
                 created_files = writer.get_created_files()
+                self.created_output_files = created_files
 
                 if len(created_files) == 1:
                     logger.info(f"Output written to: {created_files[0]}")

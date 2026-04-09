@@ -3,3 +3,7 @@
 __version__ = "2.0.0"
 __author__ = "Roman Yushchenko"
 __description__ = "Production-grade log filtering tool with boolean search capabilities"
+
+from .api import run_filter
+
+__all__ = ["run_filter"]
