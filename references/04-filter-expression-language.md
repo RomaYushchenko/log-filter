@@ -28,6 +28,14 @@ Use parentheses `(` `)` for explicit grouping.
 - `(ERROR OR CRITICAL) AND NOT test`
 - `"eventEntity" AND ("MOVE" OR "PLAN" OR "INTERMODAL_UNIT")`
 
+## Agent-assisted expression writing
+
+The agent can compose filter expressions for you from natural-language requests.
+
+- For skill workflow and intent mapping, see [Production Log Investigation Skill](../SKILL.md).
+- Ask in plain language, for example: "show service errors for move MOV123".
+- The agent should translate that request into a valid expression, then run it via `run_filter(config_json)`.
+
 ## Regex mode
 
 When `search.regex` is `true` in config JSON, terms are treated as regular expressions.

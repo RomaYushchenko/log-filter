@@ -2,7 +2,7 @@
 
 ## 0) Where to run from
 
-Use the **project root** (the directory that contains `scripts/`). Paths in `config_json` such as `./scripts/test-logs` are resolved relative to the **current working directory** of the process.
+Use the **project root** (the directory that contains `scripts/`). Paths in `config_json` such as `./scripts/input-logs` are resolved relative to the **current working directory** of the process.
 
 ## 1) Environment and dependencies
 

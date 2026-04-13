@@ -17,6 +17,10 @@ from log_filter.config.models import (
 from log_filter.core.exceptions import ConfigurationError
 from log_filter.processing.pipeline import ProcessingPipeline
 
+DEFAULT_LOGS_PATH = "./scripts/input-logs"
+DEFAULT_OUTPUT_FILE = "./scripts/output/filter-result.log"
+DEFAULT_INCLUDE_PATTERNS = ["*.log", "*.log.gz"]
+
 
 def _parse_date(value: str | None) -> date | None:
     if not value:
@@ -134,19 +138,109 @@ def _to_config(config_json: dict[str, Any]) -> ApplicationConfig:
     )
 
 
-def run_filter(config_json: dict[str, Any]) -> list[str]:
-    """Run filtering and return output file paths.
+def _build_default_config(
+    expression: str,
+    logs_path: str | Path = DEFAULT_LOGS_PATH,
+    output_file: str | Path = DEFAULT_OUTPUT_FILE,
+) -> dict[str, Any]:
+    if not expression or not isinstance(expression, str):
+        raise ConfigurationError("expression is required and must be a string.")
+
+    return {
+        "search": {
+            "expression": expression,
+            "ignore_case": False,
+            "regex": False,
+            "word_boundary": False,
+            "strip_quotes": True,
+        },
+        "files": {
+            "path": str(logs_path),
+            "include_patterns": DEFAULT_INCLUDE_PATTERNS,
+            "exclude_patterns": [],
+            "max_file_size": None,
+            "max_record_size": None,
+        },
+        "date": {"from": None, "to": None},
+        "time": {"from": None, "to": None},
+        "output": {
+            "output_file": str(output_file),
+            "no_path": False,
+            "highlight": False,
+            "stats": True,
+            "verbose": False,
+            "quiet": True,
+            "dry_run": False,
+            "dry_run_details": False,
+            "max_records_per_file": 500,
+            "output_file_pattern": "{base}-{index:03d}{ext}",
+            "sort_by_timestamp": True,
+        },
+        "processing": {
+            "max_workers": None,
+            "debug": False,
+            "normalize_log_levels": True,
+            "sort_input_files": True,
+        },
+    }
+
+
+def run_filter_simple(
+    expression: str,
+    logs_path: str | Path = DEFAULT_LOGS_PATH,
+    output_file: str | Path = DEFAULT_OUTPUT_FILE,
+) -> list[str]:
+    """Run filtering with a compact API.
 
     Args:
-        config_json: JSON-like dict with the same shape as config.json.template.
+        expression: Boolean expression used for filtering.
+        logs_path: Directory containing log files.
+        output_file: Output log file path.
 
     Returns:
         A list of output file paths created by the pipeline.
     """
-    if not isinstance(config_json, dict):
-        raise ConfigurationError("config_json must be a dictionary.")
+    return run_filter(_build_default_config(expression, logs_path, output_file))
 
-    config = _to_config(config_json)
+
+def run_filter_service_errors(
+    logs_path: str | Path = DEFAULT_LOGS_PATH,
+    output_file: str | Path = "./scripts/output/service-errors.log",
+) -> list[str]:
+    """Run a built-in service error investigation query."""
+    return run_filter_simple(
+        expression="(ERROR OR CRITICAL OR FATAL OR EXCEPTION) AND NOT test",
+        logs_path=logs_path,
+        output_file=output_file,
+    )
+
+
+def run_filter(
+    config_json: dict[str, Any] | str,
+    logs_path: str | Path = DEFAULT_LOGS_PATH,
+    output_file: str | Path = DEFAULT_OUTPUT_FILE,
+) -> list[str]:
+    """Run filtering and return output file paths.
+
+    Args:
+        config_json: JSON-like dict with the same shape as config.json.template,
+            or search expression string for compact API usage.
+        logs_path: Logs directory when using expression mode.
+        output_file: Output file path when using expression mode.
+
+    Returns:
+        A list of output file paths created by the pipeline.
+    """
+    if isinstance(config_json, str):
+        config_payload = _build_default_config(config_json, logs_path, output_file)
+    elif isinstance(config_json, dict):
+        config_payload = config_json
+    else:
+        raise ConfigurationError(
+            "config_json must be a dictionary or expression string."
+        )
+
+    config = _to_config(config_payload)
     if config.processing.debug:
         logging.basicConfig(level=logging.DEBUG)
 

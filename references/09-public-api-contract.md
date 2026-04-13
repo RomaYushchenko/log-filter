@@ -1,6 +1,9 @@
 # Public API contract
 
-This project is **library-first**: callers import a single entrypoint and pass a configuration object that matches `scripts/config.json.template`.
+This project is **library-first** with two public usage styles:
+
+- compact API: pass only search expression (+ optional logs/output paths)
+- full API: pass full configuration object matching `scripts/config.json.template`
 
 ## Runtime layout
 
@@ -16,12 +19,18 @@ import sys
 sys.path.insert(0, "scripts")
 from log_filter import run_filter
 
-output_paths: list[str] = run_filter(config_json)
+output_paths: list[str] = run_filter("ERROR", logs_path="./scripts/input-logs")
 ```
 
 - **Module path** (when `scripts/` is on `sys.path`): `log_filter`
-- **Function**: `run_filter`
-- **Parameter**: `config_json` — a `dict` deserialized from JSON (same keys and nesting as the template).
+- **Primary function**: `run_filter`
+- **Compact mode**:
+    - `run_filter(expression: str, logs_path: str|Path = DEFAULT_LOGS_PATH, output_file: str|Path = DEFAULT_OUTPUT_FILE)`
+- **Full mode (backward compatible)**:
+    - `run_filter(config_json: dict)`
+- **Convenience functions**:
+    - `run_filter_simple(expression, logs_path=..., output_file=...)`
+    - `run_filter_service_errors(logs_path=..., output_file=...)`
 
 ## Return value
 
@@ -38,7 +47,9 @@ Semantics:
 
 ## Errors
 
-- **`log_filter.core.exceptions.ConfigurationError`**: invalid `config_json` (missing `search.expression`, bad types, invalid date/time strings, non-dict root, etc.).
+- **`log_filter.core.exceptions.ConfigurationError`**:
+    - invalid `config_json` (missing `search.expression`, bad types, invalid date/time strings, etc.)
+    - invalid compact call (`expression` is empty or wrong type)
 - **`ValueError`**: invalid combinations enforced by configuration models (for example `files.path` does not exist or is not a directory, invalid `SearchConfig` ranges).
 - **Other exceptions**: processing failures (I/O, parser failures surfaced by the pipeline) are **not** wrapped; callers should handle or log them.
 
@@ -51,7 +62,22 @@ The authoritative schema is:
 - [Config JSON Reference](./03-config-json-reference.md)
 - Template file: `scripts/config.json.template`
 
-Minimal example:
+Minimal compact example:
+
+```python
+import sys
+
+sys.path.insert(0, "scripts")
+from log_filter import run_filter
+
+paths = run_filter(
+    "(ERROR OR CRITICAL OR EXCEPTION) AND NOT test",
+    logs_path="./scripts/input-logs",
+    output_file="./scripts/output/custom-investigation.log",
+)
+```
+
+Full config example:
 
 ```python
 import sys
@@ -95,6 +121,22 @@ paths = run_filter(config_json)
 ```
 
 (Remember `sys.path.insert(0, "scripts")` before importing `log_filter` when running from a normal script.)
+
+## Stable runner script
+
+Use `scripts/run_filter_runner.py` to avoid long inline terminal commands.
+
+Supported modes:
+- `--mode expression --expression "..." --logs-path "..." --output-file "..."`
+- `--mode expression --expression-file "..." --logs-path "..." --output-file "..."`
+- `--mode expression --expression-stdin --logs-path "..." --output-file "..."`
+- `--mode service-errors --logs-path "..." --output-file "..."`
+
+Path guardrails:
+- `--strict-logs-path` disables basename fallback for `--logs-path` resolution.
+- Use it when the caller must stay on an exact folder and should not auto-switch to similarly named directories.
+
+The runner prints `output_paths` as JSON.
 
 ## Loading JSON from disk
 

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from log_filter import run_filter
+from log_filter import run_filter, run_filter_service_errors, run_filter_simple
 from log_filter.core.exceptions import ConfigurationError
 
 
@@ -75,3 +75,50 @@ def test_run_filter_rejects_missing_expression(tmp_path: Path) -> None:
 
     with pytest.raises(ConfigurationError):
         run_filter(config_json)
+
+
+def test_run_filter_supports_expression_mode(tmp_path: Path) -> None:
+    """run_filter should accept expression + logs path without JSON config."""
+    logs_dir = tmp_path / "logs"
+    logs_dir.mkdir()
+    (logs_dir / "app.log").write_text(
+        "2025-01-07 10:00:00.000+0000 ERROR API unavailable\n",
+        encoding="utf-8",
+    )
+
+    output_file = tmp_path / "out" / "expression-mode.log"
+    output_paths = run_filter(
+        "ERROR",
+        logs_path=str(logs_dir),
+        output_file=str(output_file),
+    )
+
+    assert output_paths
+    assert Path(output_paths[0]).exists()
+
+
+def test_run_filter_simple_rejects_empty_expression() -> None:
+    """run_filter_simple should fail fast for empty expression."""
+    with pytest.raises(ConfigurationError, match="expression"):
+        run_filter_simple("")
+
+
+def test_run_filter_service_errors_finds_critical(tmp_path: Path) -> None:
+    """run_filter_service_errors should match built-in critical expression."""
+    logs_dir = tmp_path / "logs"
+    logs_dir.mkdir()
+    (logs_dir / "app.log").write_text(
+        "2025-01-07 10:00:00.000+0000 INFO heartbeat\n"
+        "2025-01-07 10:00:01.000+0000 CRITICAL database unavailable\n",
+        encoding="utf-8",
+    )
+
+    output_file = tmp_path / "out" / "service-errors.log"
+    paths = run_filter_service_errors(
+        logs_path=str(logs_dir),
+        output_file=str(output_file),
+    )
+
+    assert paths
+    content = Path(paths[0]).read_text(encoding="utf-8")
+    assert "CRITICAL" in content

@@ -43,7 +43,7 @@ Use `venv/bin/python` for all commands.
 
 ## How to invoke the API
 
-1. Working directory: stay at the **project root** (so paths like `./scripts/test-logs` in config match real folders).
+1. Working directory: stay at the **project root** (so paths like `./scripts/input-logs` in config match real folders).
 2. Interpreter: **`venv\Scripts\python.exe`** (Windows) or **`venv/bin/python`** (Unix).
 3. Import path: add **`scripts`** so Python finds the `log_filter` package.
 
@@ -58,7 +58,7 @@ from log_filter import run_filter
 config_json = {
     "search": {"expression": "ERROR", "ignore_case": False},
     "files": {
-        "path": "./scripts/test-logs",
+        "path": "./scripts/input-logs",
         "include_patterns": ["*.log", "*.log.gz"],
         "exclude_patterns": [],
         "max_file_size": None,
@@ -118,4 +118,4 @@ Typical bundle:
 - `scripts/config.json` or `scripts/config.json.template`
 - `references/`, `assets/`
 - `scripts/tests/` (optional)
-- `scripts/test-logs/` (optional sample logs)
+- `scripts/input-logs/` (optional sample logs)

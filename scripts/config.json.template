@@ -4,7 +4,7 @@
     "ignore_case": false
   },
   "files": {
-    "path": "./scripts/test-logs",
+    "path": "./scripts/input-logs",
     "include_patterns": [
       "*.log",
       "*.log.gz"

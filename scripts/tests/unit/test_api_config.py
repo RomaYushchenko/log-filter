@@ -184,5 +184,5 @@ def test_include_patterns_must_be_list_of_strings(tmp_path: Path) -> None:
 
 
 def test_non_dict_config_raises() -> None:
-    with pytest.raises(ConfigurationError, match="dictionary"):
-        run_filter("not-a-dict")  # type: ignore[arg-type]
+    with pytest.raises(ConfigurationError, match="dictionary or expression string"):
+        run_filter(123)  # type: ignore[arg-type]
