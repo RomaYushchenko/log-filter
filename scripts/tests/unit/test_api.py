@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from log_filter import run_filter, run_filter_service_errors, run_filter_simple
+from log_filter import run_filter, run_filter_service_errors, run_filter_simple, search_logs
 from log_filter.core.exceptions import ConfigurationError
 
 
@@ -122,3 +122,60 @@ def test_run_filter_service_errors_finds_critical(tmp_path: Path) -> None:
     assert paths
     content = Path(paths[0]).read_text(encoding="utf-8")
     assert "CRITICAL" in content
+
+
+def test_search_logs_filters_by_level_and_expression(tmp_path: Path) -> None:
+    """search_logs should apply level + expression constraints."""
+    logs_dir = tmp_path / "logs"
+    logs_dir.mkdir()
+    (logs_dir / "app.log").write_text(
+        "2025-01-07 10:00:00.000+0000 INFO timeout happened\n"
+        "2025-01-07 10:00:01.000+0000 ERROR timeout happened\n",
+        encoding="utf-8",
+    )
+
+    output_file = tmp_path / "out" / "search-logs.log"
+    paths = search_logs(
+        logs_path=str(logs_dir),
+        output_file=str(output_file),
+        expression="timeout",
+        level=["ERROR"],
+    )
+
+    assert paths
+    content = Path(paths[0]).read_text(encoding="utf-8")
+    assert "ERROR timeout happened" in content
+    assert "INFO timeout happened" not in content
+
+
+def test_search_logs_with_empty_level_list_keeps_expression_only(tmp_path: Path) -> None:
+    """An empty level list should not alter expression behavior."""
+    logs_dir = tmp_path / "logs"
+    logs_dir.mkdir()
+    (logs_dir / "app.log").write_text(
+        "2025-01-07 10:00:00.000+0000 INFO request completed\n",
+        encoding="utf-8",
+    )
+
+    output_file = tmp_path / "out" / "search-empty-level.log"
+    paths = search_logs(
+        logs_path=str(logs_dir),
+        output_file=str(output_file),
+        expression="request",
+        level=[],
+    )
+
+    assert paths
+    content = Path(paths[0]).read_text(encoding="utf-8")
+    assert "request completed" in content
+
+
+def test_search_logs_rejects_invalid_level_type(tmp_path: Path) -> None:
+    """search_logs should validate level values."""
+    with pytest.raises(ConfigurationError, match="level"):
+        search_logs(
+            logs_path=str(tmp_path),
+            output_file=str(tmp_path / "out.log"),
+            expression="ERROR",
+            level=["ERROR", 1],  # type: ignore[list-item]
+        )

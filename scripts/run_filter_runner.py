@@ -9,17 +9,37 @@ import argparse
 import json
 import sys
 from pathlib import Path
+from typing import Callable
 
 
 DEFAULT_EXPRESSION = "ERROR"
 DEFAULT_LOGS_PATH = "./scripts/input-logs"
 DEFAULT_OUTPUT_FILE = "./scripts/output/custom-investigation.log"
 DEFAULT_MODE = "expression"
+DEFAULT_FALLBACK_LOGS_PATHS = (DEFAULT_LOGS_PATH, "logs", "logs-dev")
 
 
 def _detect_repo_root() -> Path:
     # scripts/run_filter_runner.py -> repo root is 5 levels above
     return Path(__file__).resolve().parents[4]
+
+
+def _skill_root(repo_root: Path | None = None) -> Path:
+    if repo_root is not None:
+        return repo_root / ".github" / "skills" / "log-filter"
+    return Path(__file__).resolve().parent.parent
+
+
+def _normalize_path_token(raw_path: str) -> str:
+    normalized = raw_path.replace("\\", "/").strip()
+    while normalized.startswith("./"):
+        normalized = normalized[2:]
+    return normalized.rstrip("/")
+
+
+def _uses_default_search_order(raw_logs_path: str) -> bool:
+    normalized = _normalize_path_token(raw_logs_path)
+    return normalized in {"", "input-logs", "scripts/input-logs"}
 
 
 def _resolve_logs_path(raw_logs_path: str, repo_root: Path, *, allow_name_fallback: bool = True) -> Path:
@@ -29,9 +49,12 @@ def _resolve_logs_path(raw_logs_path: str, repo_root: Path, *, allow_name_fallba
     if requested.is_absolute():
         candidates.append(requested)
     else:
-        candidates.append((Path.cwd() / requested).resolve())
+        # Resolve relative paths against the requested repo first to avoid leaking
+        # into similarly named directories from the current workspace cwd.
+        candidates.append((_skill_root(repo_root) / requested).resolve())
         candidates.append((Path(__file__).resolve().parent / requested).resolve())
         candidates.append((repo_root / requested).resolve())
+        candidates.append((Path.cwd() / requested).resolve())
 
         # Guardrail: when caller passes ../../../logs or ../../../logs-dev from scripts,
         # try canonical workspace roots directly to avoid brittle path math.
@@ -59,6 +82,60 @@ def _resolve_logs_path(raw_logs_path: str, repo_root: Path, *, allow_name_fallba
         f"\nAttempted:\n{attempted}"
         "\nTip: pass absolute path or repo-root-relative path (for example 'logs', 'logs-dev')."
     )
+
+
+def _resolve_search_paths(
+    raw_logs_path: str,
+    repo_root: Path,
+    *,
+    allow_name_fallback: bool = True,
+) -> list[Path]:
+    candidate_inputs = (
+        list(DEFAULT_FALLBACK_LOGS_PATHS)
+        if _uses_default_search_order(raw_logs_path)
+        else [raw_logs_path]
+    )
+
+    resolved_paths: list[Path] = []
+    seen: set[str] = set()
+    last_error: ValueError | None = None
+
+    for candidate_input in candidate_inputs:
+        try:
+            resolved_path = _resolve_logs_path(
+                candidate_input,
+                repo_root,
+                allow_name_fallback=allow_name_fallback,
+            )
+        except ValueError as exc:
+            last_error = exc
+            continue
+
+        key = str(resolved_path)
+        if key in seen:
+            continue
+        seen.add(key)
+        resolved_paths.append(resolved_path)
+
+    if resolved_paths:
+        return resolved_paths
+
+    if last_error is not None:
+        raise last_error
+
+    raise ValueError(f"No valid log directories found for: {raw_logs_path}")
+
+
+def _resolve_output_file(raw_output_file: str, repo_root: Path) -> Path:
+    requested = Path(raw_output_file)
+    if requested.is_absolute():
+        return requested
+
+    normalized = _normalize_path_token(raw_output_file)
+    if normalized.startswith("scripts/"):
+        return (_skill_root(repo_root) / normalized).resolve()
+
+    return (Path.cwd() / requested).resolve()
 
 
 def _load_expression(args: argparse.Namespace) -> str:
@@ -125,6 +202,37 @@ def _build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _run_investigation(
+    *,
+    mode: str,
+    expression: str | None,
+    logs_paths: list[Path],
+    output_file: Path,
+    run_filter_func: Callable[..., list[str]],
+    run_filter_service_errors_func: Callable[..., list[str]],
+) -> list[str]:
+    for logs_path in logs_paths:
+        if mode == "service-errors":
+            output_paths = run_filter_service_errors_func(
+                logs_path=str(logs_path),
+                output_file=str(output_file),
+            )
+        else:
+            if expression is None:
+                raise ValueError("Expression mode requires a non-empty expression.")
+
+            output_paths = run_filter_func(
+                expression,
+                logs_path=str(logs_path),
+                output_file=str(output_file),
+            )
+
+        if output_paths:
+            return output_paths
+
+    return []
+
+
 def main() -> int:
     parser = _build_parser()
     args = parser.parse_args()
@@ -134,26 +242,24 @@ def main() -> int:
         sys.path.insert(0, str(scripts_dir))
 
     repo_root = Path(args.repo_root).resolve() if args.repo_root else _detect_repo_root()
-    resolved_logs_path = _resolve_logs_path(
+    resolved_logs_paths = _resolve_search_paths(
         args.logs_path,
         repo_root,
         allow_name_fallback=not args.strict_logs_path,
     )
+    resolved_output_file = _resolve_output_file(args.output_file, repo_root)
 
     from log_filter import run_filter, run_filter_service_errors
 
-    if args.mode == "service-errors":
-        output_paths = run_filter_service_errors(
-            logs_path=str(resolved_logs_path),
-            output_file=args.output_file,
-        )
-    else:
-        expression = _load_expression(args)
-        output_paths = run_filter(
-            expression,
-            logs_path=str(resolved_logs_path),
-            output_file=args.output_file,
-        )
+    expression = None if args.mode == "service-errors" else _load_expression(args)
+    output_paths = _run_investigation(
+        mode=args.mode,
+        expression=expression,
+        logs_paths=resolved_logs_paths,
+        output_file=resolved_output_file,
+        run_filter_func=run_filter,
+        run_filter_service_errors_func=run_filter_service_errors,
+    )
 
     print(json.dumps(output_paths, ensure_ascii=False))
     return 0

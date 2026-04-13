@@ -22,6 +22,18 @@ DEFAULT_OUTPUT_FILE = "./scripts/output/filter-result.log"
 DEFAULT_INCLUDE_PATTERNS = ["*.log", "*.log.gz"]
 
 
+def _ensure_logging(level: int) -> None:
+    """Ensure root logging is configured at least to the requested level."""
+    root_logger = logging.getLogger()
+
+    if not root_logger.handlers:
+        logging.basicConfig(level=level)
+        return
+
+    if root_logger.getEffectiveLevel() > level:
+        root_logger.setLevel(level)
+
+
 def _parse_date(value: str | None) -> date | None:
     if not value:
         return None
@@ -168,11 +180,11 @@ def _build_default_config(
             "no_path": False,
             "highlight": False,
             "stats": True,
-            "verbose": False,
-            "quiet": True,
+            "verbose": True,
+            "quiet": False,
             "dry_run": False,
             "dry_run_details": False,
-            "max_records_per_file": 500,
+            "max_records_per_file": 3000,
             "output_file_pattern": "{base}-{index:03d}{ext}",
             "sort_by_timestamp": True,
         },
@@ -201,6 +213,57 @@ def run_filter_simple(
         A list of output file paths created by the pipeline.
     """
     return run_filter(_build_default_config(expression, logs_path, output_file))
+
+
+def search_logs(
+    logs_path: str,
+    output_file: str,
+    expression: str,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    time_from: str | None = None,
+    time_to: str | None = None,
+    level: list[str] | None = None,
+    ignore_case: bool = False,
+    regex: bool = False,
+    word_boundary: bool = False,
+    strip_quotes: bool = False,
+    max_workers: int | None = None,
+) -> list[str]:
+    """Run filtering with common search options.
+
+    This helper builds a config payload internally and delegates execution to
+    ``run_filter``.
+    """
+    if not expression or not isinstance(expression, str):
+        raise ConfigurationError("expression is required and must be a string.")
+
+    effective_expression = expression
+    if level is not None:
+        if not isinstance(level, list) or not all(isinstance(item, str) for item in level):
+            raise ConfigurationError("level must be a list of strings.")
+
+        normalized_levels = [item.strip().upper() for item in level if item and item.strip()]
+        if normalized_levels:
+            level_expression = " OR ".join(normalized_levels)
+            effective_expression = f"({level_expression}) AND ({expression})"
+
+    config_json = _build_default_config(
+        expression=effective_expression,
+        logs_path=logs_path,
+        output_file=output_file,
+    )
+    config_json["search"]["ignore_case"] = ignore_case
+    config_json["search"]["regex"] = regex
+    config_json["search"]["word_boundary"] = word_boundary
+    config_json["search"]["strip_quotes"] = strip_quotes
+    config_json["date"]["from"] = date_from
+    config_json["date"]["to"] = date_to
+    config_json["time"]["from"] = time_from
+    config_json["time"]["to"] = time_to
+    config_json["processing"]["max_workers"] = max_workers
+
+    return run_filter(config_json)
 
 
 def run_filter_service_errors(
@@ -242,7 +305,9 @@ def run_filter(
 
     config = _to_config(config_payload)
     if config.processing.debug:
-        logging.basicConfig(level=logging.DEBUG)
+        _ensure_logging(logging.DEBUG)
+    elif config.output.show_progress or config.output.show_stats:
+        _ensure_logging(logging.INFO)
 
     pipeline = ProcessingPipeline(config)
     pipeline.run()

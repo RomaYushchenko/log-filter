@@ -363,6 +363,15 @@ class ProcessingPipeline:
                     f"This may cause memory pressure and reduced performance."
                 )
 
+        if worker_count > 1 and ProcessingConfig.requires_single_worker_runtime():
+            logger.warning(
+                "Windows with Python %s.%s disables multiprocessing for log filtering. "
+                "Falling back to a single worker to avoid ProcessPoolExecutor crashes.",
+                os.sys.version_info.major,
+                os.sys.version_info.minor,
+            )
+            worker_count = 1
+
         # Use processes for true parallelism (avoid GIL)
         use_multiprocessing = worker_count > 1
 

@@ -7,10 +7,11 @@ from pathlib import Path
 from typing import Optional
 
 # Maximum worker counts per platform
-MAX_WORKERS_LINUX = 32  # Conservative for CI/CD and production
-MAX_WORKERS_WINDOWS = 61  # Windows ProcessPoolExecutor limit
-MAX_WORKERS_MACOS = 32  # Similar to Linux
-MAX_WORKERS_DEFAULT = 32  # Fallback for unknown platforms
+MAX_WORKERS_LINUX = 16  # Conservative for CI/CD and production
+MAX_WORKERS_WINDOWS = 16  # Windows ProcessPoolExecutor limit
+MAX_WORKERS_MACOS = 16  # Similar to Linux
+MAX_WORKERS_DEFAULT = 16  # Fallback for unknown platforms
+WINDOWS_SINGLE_WORKER_FROM_PYTHON = (3, 14)
 
 
 @dataclass
@@ -187,6 +188,11 @@ class ProcessingConfig:
             return MAX_WORKERS_LINUX
 
         return MAX_WORKERS_DEFAULT
+
+    @staticmethod
+    def requires_single_worker_runtime() -> bool:
+        """Return True when the runtime should avoid multiprocessing."""
+        return False
 
 
 @dataclass

@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from log_filter import run_filter
+from log_filter.api import _build_default_config, _to_config
 from log_filter.core.exceptions import ConfigurationError
 
 
@@ -186,3 +187,32 @@ def test_include_patterns_must_be_list_of_strings(tmp_path: Path) -> None:
 def test_non_dict_config_raises() -> None:
     with pytest.raises(ConfigurationError, match="dictionary or expression string"):
         run_filter(123)  # type: ignore[arg-type]
+
+
+def test_build_default_config_enables_progress_by_default(tmp_path: Path) -> None:
+    cfg = _build_default_config(
+        expression="ERROR",
+        logs_path=tmp_path / "logs",
+        output_file=tmp_path / "out.log",
+    )
+
+    assert cfg["output"]["verbose"] is True
+    assert cfg["output"]["quiet"] is False
+
+
+def test_quiet_overrides_verbose_for_show_progress(tmp_path: Path) -> None:
+    cfg = _base_config(tmp_path)
+    cfg["output"]["verbose"] = True
+    cfg["output"]["quiet"] = True
+
+    mapped = _to_config(cfg)
+
+    assert mapped.output.show_progress is False
+
+
+def test_invalid_quiet_type_raises(tmp_path: Path) -> None:
+    cfg = _base_config(tmp_path)
+    cfg["output"]["quiet"] = "yes"  # type: ignore[assignment]
+
+    with pytest.raises(ConfigurationError, match="Expected boolean value"):
+        run_filter(cfg)

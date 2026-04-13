@@ -7,7 +7,9 @@ from pathlib import Path
 import pytest
 
 from log_filter import run_filter
+from log_filter.config.models import ProcessingConfig
 from log_filter.core.exceptions import ConfigurationError
+from log_filter.processing import pipeline as pipeline_module
 
 
 def _quiet_config(
@@ -140,6 +142,56 @@ def test_worker_count_greater_than_one(tmp_path: Path) -> None:
         "processing": {"max_workers": 2},
     }
     paths = run_filter(cfg)
+    assert paths
+    body = Path(paths[0]).read_text(encoding="utf-8")
+    assert "x0" in body and "x2" in body
+
+
+def test_worker_count_falls_back_to_single_worker_when_runtime_requires_it(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    logs = tmp_path / "logs"
+    logs.mkdir()
+    for i in range(3):
+        (logs / f"f{i}.log").write_text(
+            f"2025-01-01 10:00:00.000+0000 ERROR x{i}\n", encoding="utf-8"
+        )
+    out = tmp_path / "single-worker-fallback.log"
+    cfg = {
+        "search": {"expression": "ERROR"},
+        "files": {
+            "path": str(logs),
+            "include_patterns": ["*.log"],
+            "exclude_patterns": [],
+        },
+        "date": {"from": None, "to": None},
+        "time": {"from": None, "to": None},
+        "output": {
+            "output_file": str(out),
+            "quiet": True,
+            "stats": False,
+            "verbose": False,
+            "max_records_per_file": None,
+            "output_file_pattern": "{base}-{index:03d}{ext}",
+        },
+        "processing": {"max_workers": 2},
+    }
+
+    monkeypatch.setattr(
+        ProcessingConfig,
+        "requires_single_worker_runtime",
+        staticmethod(lambda: True),
+    )
+
+    class FailingExecutor:
+        def __init__(self, *args, **kwargs) -> None:
+            raise AssertionError("ProcessPoolExecutor should not be used")
+
+    monkeypatch.setattr(pipeline_module, "ProcessPoolExecutor", FailingExecutor)
+
+    paths = run_filter(cfg)
+
     assert paths
     body = Path(paths[0]).read_text(encoding="utf-8")
     assert "x0" in body and "x2" in body
